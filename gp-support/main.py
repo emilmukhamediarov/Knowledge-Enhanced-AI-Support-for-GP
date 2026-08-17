@@ -1,13 +1,21 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
 from groq import Groq
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
+from database import get_db
+from models import User, Consultation
 
 load_dotenv()
 
 class ChatMessage(BaseModel):
     message: str
+
+class ConsultationCreate(BaseModel):
+    user_id: int
+
+
 
 app = FastAPI()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
@@ -131,4 +139,30 @@ def reset_chat():
 
     return {
         "message": "Conversation reset"
+    }
+
+@app.post("/consultations")
+def create_consultation(
+    data: ConsultationCreate,
+    db: Session = Depends(get_db)
+):
+    user = db.get(User, data.user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    consultation = Consultation(
+        user_id=data.user_id
+    )
+
+    db.add(consultation)
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "consultation_id": consultation.id,
+        "user_id": consultation.user_id
     }
