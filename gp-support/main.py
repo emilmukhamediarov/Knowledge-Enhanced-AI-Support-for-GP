@@ -1,13 +1,16 @@
 from fastapi import FastAPI
 from groq import Groq
 from pydantic import BaseModel
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class ChatMessage(BaseModel):
     message: str
 
 app = FastAPI()
-client = Groq()
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 # Temporary conversation memory
 conversation = [
