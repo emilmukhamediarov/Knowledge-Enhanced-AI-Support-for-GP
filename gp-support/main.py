@@ -64,8 +64,9 @@ def chat(data: ChatMessage):
 
     # Send the ENTIRE conversation to Groq
     response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
-        messages=conversation
+        model="qwen/qwen3.6-27b",
+        messages=conversation,
+        reasoning_format="hidden",
     )
 
     reply = response.choices[0].message.content
@@ -113,8 +114,9 @@ For information that was not provided, use an empty string or empty list.
     ]
 
     response = client.chat.completions.create(
-        model="llama-3.1-8b-instant",
+        model="qwen/qwen3.6-27b",
         messages=summary_messages,
+        reasoning_format="hidden",
         response_format={"type": "json_object"}
     )
 
