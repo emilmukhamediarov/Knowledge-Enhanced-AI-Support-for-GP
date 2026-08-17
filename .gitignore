@@ -2,4 +2,5 @@ gp-support/venv/
 .env
 __pycache__/
 *.pyc
-.idea
+.idea.DS_Store
+.idea/
