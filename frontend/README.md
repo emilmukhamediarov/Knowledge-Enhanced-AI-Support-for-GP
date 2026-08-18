@@ -4,14 +4,22 @@ Download and Install node.js (https://nodejs.org/en/download/current)
 - Windows has the .msi installer
 - macOS has the .pkg installer
 
+---
 
 (run backend first in a separate bash)
 
+---
+
+Create a .env file in frontend and put this in, exactly:
+- VITE_API_URL=http://localhost:8000
+
+---
 (in a new bash)
 - cd frontend
 - npm install
 - npm run dev
 
+---
 
 Will end up with this: 
 - http://localhost:5173 (frontend)
