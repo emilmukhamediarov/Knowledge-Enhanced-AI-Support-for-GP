@@ -5,8 +5,8 @@ from groq import Groq
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
-from database import get_db
-from models import User, Consultation, Message, Summary
+from app.db.database import get_db
+from app.db.models import User, Consultation, Message, Summary
 import json
 
 load_dotenv()
