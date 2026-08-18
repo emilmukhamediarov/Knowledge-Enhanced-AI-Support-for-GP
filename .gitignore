@@ -1,4 +1,5 @@
 gp-support/venv/
+.venv
 .env
 __pycache__/
 *.pyc
