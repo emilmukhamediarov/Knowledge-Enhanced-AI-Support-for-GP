@@ -7,6 +7,7 @@ function Navbar() {
             <div>
                 <Link to="/">Home</Link>
                 <Link to="/chat">Chat</Link>
+                <Link to="/summary">Summary</Link>
             </div>
             <button>
                 Logout

@@ -1,5 +1,8 @@
+//TO become patient chat
+
 import { useState } from "react";
 import { apiFetch } from "../api/client";
+
 
 type Message = {
   role: "user" | "assistant";
