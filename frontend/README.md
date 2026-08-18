@@ -1,5 +1,10 @@
 # How to setup the frontend
 
+Download and Install node.js (https://nodejs.org/en/download/current)
+- Windows has the .msi installer
+- macOS has the .pkg installer
+
+
 (run backend first in a separate bash)
 
 (in a new bash)
