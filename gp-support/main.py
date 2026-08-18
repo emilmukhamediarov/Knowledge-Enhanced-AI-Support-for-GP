@@ -6,7 +6,8 @@ from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
 from database import get_db
-from models import User, Consultation, Message
+from models import User, Consultation, Message, Summary
+import json
 
 load_dotenv()
 
@@ -19,6 +20,10 @@ class ConsultationCreate(BaseModel):
 class MessageCreate(BaseModel):
     role: str
     content: str
+
+class UserCreate(BaseModel):
+    id: int
+    name: str
 
 
 
@@ -330,4 +335,146 @@ do not ask the same question again.
 
     return {
         "reply": reply
+    }
+
+@app.post("/consultations/{consultation_id}/summary")
+def generate_summary(
+    consultation_id: int,
+    db: Session = Depends(get_db)
+):
+    # 1. Make sure the consultation exists
+    consultation = db.get(Consultation, consultation_id)
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    # 2. Retrieve the conversation from PostgreSQL
+    messages = db.scalars(
+        select(Message)
+        .where(Message.consultation_id == consultation_id)
+        .order_by(
+            Message.created_at,
+            Message.id
+        )
+    ).all()
+
+    if not messages:
+        raise HTTPException(
+            status_code=400,
+            detail="Consultation has no messages to summarise"
+        )
+
+    # 3. Convert database Message objects into Groq's format
+    summary_messages = [
+        {
+            "role": message.role,
+            "content": message.content
+        }
+        for message in messages
+    ]
+
+    # 4. Add the summary instruction after the conversation
+    summary_messages.append(
+        {
+            "role": "user",
+            "content": """
+Create a structured summary of the patient information collected
+during this conversation.
+
+Return only valid JSON using exactly this structure:
+
+{
+    "main_concern": "",
+    "symptoms": [],
+    "duration": "",
+    "severity": "",
+    "medical_history": [],
+    "medications": [],
+    "allergies": [],
+    "additional_concerns": []
+}
+
+Only include information actually provided by the patient.
+Do not invent missing information.
+For information that was not provided, use an empty string or empty list.
+"""
+        }
+    )
+
+    # 5. Ask Groq to generate the summary
+    response = client.chat.completions.create(
+        model="qwen/qwen3.6-27b",
+        messages=summary_messages,
+        reasoning_format="hidden",
+        response_format={"type": "json_object"}
+    )
+
+    summary_content = response.choices[0].message.content
+
+    # 6. Validate that Groq really returned valid JSON
+    try:
+        summary_json = json.loads(summary_content)
+    except json.JSONDecodeError:
+        raise HTTPException(
+            status_code=500,
+            detail="Groq returned an invalid summary format"
+        )
+
+    # 7. Check whether this consultation already has a summary
+    existing_summary = db.scalar(
+        select(Summary)
+        .where(Summary.consultation_id == consultation_id)
+    )
+
+    # 8. Create or update it
+    if existing_summary:
+        existing_summary.content = summary_content
+        summary = existing_summary
+    else:
+        summary = Summary(
+            consultation=consultation,
+            content=summary_content
+        )
+
+        db.add(summary)
+
+    db.commit()
+    db.refresh(summary)
+
+    # 9. Return the persisted result
+    return {
+        "summary_id": summary.id,
+        "consultation_id": summary.consultation_id,
+        "summary": summary_json,
+        "created_at": summary.created_at
+    }
+
+@app.post("/users")
+def create_user(
+    data: UserCreate,
+    db: Session = Depends(get_db)
+):
+    existing_user = db.get(User, data.id)
+
+    if existing_user is not None:
+        raise HTTPException(
+            status_code=409,
+            detail="User with this ID already exists"
+        )
+
+    user = User(
+        id=data.id,
+        name=data.name
+    )
+
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+
+    return {
+        "id": user.id,
+        "name": user.name
     }
