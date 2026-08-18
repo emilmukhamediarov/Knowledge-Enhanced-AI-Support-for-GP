@@ -1,3 +1,28 @@
+# How to setup the frontend
+
+(run backend first in a separate bash)
+
+(in a new bash)
+- cd frontend
+- npm install
+- npm run dev
+
+
+Will end up with this: 
+- http://localhost:5173 (frontend)
+- http://localhost:8000 (backend)
+
+
+
+
+
+
+
+
+
+# -------------------------------------------------------------------------
+From the React template; ignore if not working on frontend :)
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

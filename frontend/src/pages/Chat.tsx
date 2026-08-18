@@ -39,8 +39,7 @@ function Chat() {
                content: data.reply,
           };
 
-        // Add AI response
-        // setMessages((previous) => [...previous, assistantMessage]);
+        // AI response loaded here
         setMessages((previous) => [...previous, {role: "assistant", content:"",},]);
         for (let i=0; i<data.reply.length; i++) {
             await new Promise((resolve) => setTimeout(resolve, 10));
@@ -53,45 +52,59 @@ function Chat() {
                 return messages
                 });
             }
-    } catch (error) {
-        console.error("Chat error:", error);
-    }
-};
+        } catch (error) {
+            console.error("Chat error:", error);
+        }
+    };
+
+    //Reset chat functionality
+    const resetChat = async () => {
+            try {await apiFetch("/reset", {method: "POST",});
+
+            setMessages([]);
+            } catch (error) {
+                console.error("Reset error:", error);
+            }
+        };
 
     return (
         <main>
-        <h1>Chatbot</h1>
+            <h1>Chatbot</h1>
 
-        <div>
-            {messages.map((msg, index) => (
-                <div key={index}>
-                    <strong>
-                        {msg.role === "user" ? "You" : "AI"}:
-                    </strong>{" "}
-                    {msg.content}
-                </div>
-        ))}
-        </div>
+            <div>
+                {messages.map((msg, index) => (
+                    <div key={index}>
+                        <strong>
+                            {msg.role === "user" ? "You" : "AI"}:
+                        </strong>{" "}
+                        {msg.content}
+                    </div>
+            ))}
+            </div>
 
-        <input
-        type="text"
-        value={message}
-        onChange={(event) => setMessage(event.target.value)}
-        onKeyDown={(event) => {
-            if (event.key === "Enter") {
-                event.preventDefault();
-                sendMessage();
+            <input
+            type="text"
+            value={message}
+            onChange={(event) => setMessage(event.target.value)}
+            onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                    event.preventDefault();
+                    sendMessage();
+                    }
                 }
             }
-        }
-        placeholder="Type your message..."
-        />
+            placeholder="Type your message..."
+            />
 
-        <button onClick={sendMessage}>
-            Send
-        </button>
-    </main>
-  );
+            <button onClick={sendMessage}>
+                Send
+            </button>
+            <button onClick={resetChat}>
+                New Chat
+            </button>
+        </main>
+    );
+
 }
 
 export default Chat;
