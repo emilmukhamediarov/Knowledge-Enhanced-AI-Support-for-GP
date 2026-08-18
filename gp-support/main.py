@@ -7,6 +7,8 @@ import os
 from dotenv import load_dotenv
 from database import get_db
 from models import User, Consultation, Message
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()
 
@@ -24,6 +26,15 @@ class MessageCreate(BaseModel):
 
 app = FastAPI()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+
+# frontend connection
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Temporary conversation memory
 conversation = [
