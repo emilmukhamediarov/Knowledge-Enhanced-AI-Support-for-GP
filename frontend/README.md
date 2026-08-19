@@ -8,6 +8,15 @@ Download and Install node.js (https://nodejs.org/en/download/current)
 
 (run backend first in a separate bash)
 
+
+---
+
+Add this line to .env (backend):
+- FRONTEND_URL=http://localhost:5173
+
+Add this line to .env (frontend):
+- VITE_API_URL=http://localhost:8000
+
 ---
 (in a new bash)
 - cd frontend
@@ -16,7 +25,7 @@ Download and Install node.js (https://nodejs.org/en/download/current)
 
 ---
 
-Will end up with this: 
+Will end up with something like this: 
 - http://localhost:5173 (frontend)
 - http://localhost:8000 (backend)
 
