@@ -1,18 +1,14 @@
 import os
 import sys
 
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-)
-
 from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
 
-from database import Base, DATABASE_URL
-import models
+from app.db.database import Base, DATABASE_URL
+from app.db import models
 
 
 # this is the Alembic Config object, which provides
