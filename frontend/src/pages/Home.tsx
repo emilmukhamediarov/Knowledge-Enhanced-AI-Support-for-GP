@@ -14,7 +14,7 @@ function Home() {
 
   return (
     <main>
-      <h1>Home</h1>
+      <h1>Admin Home</h1>
       <p>{message}</p>
     </main>
   );

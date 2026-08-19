@@ -4,7 +4,7 @@ Temporary page to assign functionality from backend to frontend; will most likel
 
 */
 import { useEffect, useState } from "react";
-import { apiFetch } from "../api/client";
+import { apiFetch } from "../../api/client";
 
 type summaryData = {
     main_concern: string;

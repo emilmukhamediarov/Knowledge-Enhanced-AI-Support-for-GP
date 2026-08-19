@@ -1,14 +1,14 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from './pages/Home';
-import Chat from './pages/Chat'
-import Summary from './pages/Summary'
-import Navbar from "./components/Navbar";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-/*
-import bitwiseNamedImg from './assets/BitwiseNamed.png'
-import bitwiseImg from './assets/BitwiseLogo.svg'
-import './App.css'
-*/
+import Home from './pages/Home';
+import PatientHome from './pages/patient/PatientHome';
+import DoctorHome from './pages/doctor/DoctorHome';
+import Chat from './pages/patient/Chat'
+import Summary from './pages/doctor/Summary'
+import Navbar from "./components/Navbar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Login from "./pages/Login";
+import RoleRoute from "./components/RoleRoute";
 
 // controls overall app & routing
 
@@ -17,9 +17,26 @@ function App() {
         <BrowserRouter>
             <Navbar />
             <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/summary" element={<Summary />} />
+                <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/login" element={<Login />} />
+
+                <Route path="/home" element={<RoleRoute roles={["admin"]}><Home /></RoleRoute>} />
+
+                {/*Doctor pathway*/}
+                <Route path="/doctorhome"element={<RoleRoute roles={["doctor", "admin"]}><DoctorHome /></RoleRoute>} />
+                <Route path="/summary"element={<RoleRoute roles={["doctor", "admin"]}><Summary /></RoleRoute>} />
+
+                {/*Patient pathway*/}
+                <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>} />
+                <Route path="/chat" element={<RoleRoute roles={["patient", "admin"]}><Chat /></RoleRoute>} />
+
+
+                {/*
+                <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
+                <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+                <Route path="/summary" element={<ProtectedRoute><Summary /></ProtectedRoute>} />
+                */}
+
             </Routes>
         </BrowserRouter>
     );

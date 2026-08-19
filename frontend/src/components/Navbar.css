@@ -1,9 +1,14 @@
 nav {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 1rem 2rem;
     border-bottom: 1px solid #ddd;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    margin-left: 1rem;
 }
 
 nav div {
@@ -12,8 +17,22 @@ nav div {
 }
 
 nav a {
+    height: 100%;
+    display: flex;
     text-decoration: none;
     color: inherit;
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+
+nav a:hover {
+    background: var(--accent-bg);
+
+}
+
+nav a.active {
+    background: var(--accent-bg);
+    color: var(--accent);
 }
 
 nav button {
@@ -23,4 +42,27 @@ nav button {
 
 nav button:hover {
     filter: brightness(80%);
+}
+
+.logout-button {
+    background-color: var(--accent);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 50px;
+    font-size: 16px;
+    margin-left: auto;
+    cursor: pointer;
+    transition: filter 0.2s;
+}
+
+.logout-button:hover {
+    opacity: 0.9;
+}
+
+.scaled-svg {
+    height: 3.2rem;
+    width: auto;
+    display: block;
+    padding-right: 1.5rem;
 }

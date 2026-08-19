@@ -1,7 +1,8 @@
 //TO become patient chat
+import "./Chat.css";
 
-import { useState } from "react";
-import { apiFetch } from "../api/client";
+import { useState, useEffect } from "react";
+import { apiFetch } from "../../api/client";
 
 
 type Message = {
@@ -11,7 +12,21 @@ type Message = {
 
 function Chat() {
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<Message[]>(() => {
+        const savedMessages = localStorage.getItem("chatMessages");
+        if (!savedMessages) {
+            return [];
+        }
+        try {
+            return JSON.parse(savedMessages);
+        } catch {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        localStorage.setItem("chatMessages", JSON.stringify(messages));
+    }, [messages]);
 
     const sendMessage = async () => {
         if (!message.trim()) return;
@@ -40,18 +55,18 @@ function Chat() {
         const assistantMessage: Message = {
             role: "assistant",
                content: data.reply,
-          };
+        };
 
         // AI response loaded here
         setMessages((previous) => [...previous, {role: "assistant", content:"",},]);
         for (let i=0; i<data.reply.length; i++) {
-            await new Promise((resolve) => setTimeout(resolve, 10));
+            await new Promise((resolve) => setTimeout(resolve, 15));
             setMessages((previous) => {
                 const messages = [...previous];
                 messages[messages.length-1] = {
                     role: "assistant",
-                    content: data.reply.slice(0, i),
-                    };
+                    content: data.reply.slice(0, i+1),
+                };
                 return messages
                 });
             }
@@ -65,16 +80,17 @@ function Chat() {
             try {await apiFetch("/reset", {method: "POST",});
 
             setMessages([]);
-            } catch (error) {
-                console.error("Reset error:", error);
-            }
-        };
+            localStorage.removeItem("chatMessages");
+        } catch (error) {
+            console.error("Reset error:", error);
+        }
+    };
 
     return (
         <main>
             <h1>Chatbot</h1>
 
-            <div>
+            <div className="messages">
                 {messages.map((msg, index) => (
                     <div key={index}>
                         <strong>
@@ -85,24 +101,27 @@ function Chat() {
             ))}
             </div>
 
-            <input
-            type="text"
-            value={message}
-            onChange={(event) => setMessage(event.target.value)}
-            onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                    event.preventDefault();
-                    sendMessage();
+            <div className="chat-input">
+                <input
+                type="text"
+                value={message}
+                onChange={(event) => setMessage(event.target.value)}
+                onKeyDown={(event) => {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        sendMessage();
+                        }
                     }
                 }
-            }
-            placeholder="Type your message..."
-            />
+                placeholder="Type your message..."
+                />
+                <button onClick={sendMessage}>
+                    Send
+                </button>
 
-            <button onClick={sendMessage}>
-                Send
-            </button>
-            <button onClick={resetChat}>
+            </div>
+
+            <button onClick={resetChat} className="reset-button">
                 New Chat
             </button>
         </main>
