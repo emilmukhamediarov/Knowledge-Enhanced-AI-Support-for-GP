@@ -1,20 +1,22 @@
+
 """
 rag.py — Retrieval-augmented generation module for the GP Support System.
-
+ 
 Exposes:
 - build_index(): sets up the knowledge base index (call once, at app startup)
 - ask(question): queries the index and returns an answer
-
+ 
 Other modules (e.g. chatbot.py, main.py) should import and use this like:
-
+ 
     from rag import build_index, ask
-
+ 
     index = build_index()
     answer = ask(index, "What are red flags for a persistent cough?")
 """
 
 import os
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
+from llama_index.core import PromptTemplate
 from llama_index.llms.groq import Groq
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
@@ -23,6 +25,31 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 # no matter which folder you run the app from.
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 KNOWLEDGE_BASE_DIR = os.path.join(_THIS_DIR, "knowledge_base")
+
+# Custom prompt template — this replaces llama-index's default prompt,
+# which does NOT forbid the model from adding its own outside knowledge.
+# This version explicitly restricts answers to only the retrieved context,
+# and requires the model to say when the context is insufficient rather
+# than filling gaps from its own training data. This is the core
+# hallucination-reduction mechanism for this MVP.
+STRICT_QA_PROMPT = PromptTemplate(
+    "You are a clinical documentation assistant helping a GP. "
+    "You must answer using ONLY the context information below, "
+    "which comes from verified clinical sources. "
+    "Do not add any medical facts, tests, or recommendations that are "
+    "not explicitly stated in the context, even if you know them to be "
+    "generally true or standard practice. "
+    "If the context does not contain enough information to fully answer "
+    "the question, say so explicitly (e.g. 'The knowledge base does not "
+    "cover X') rather than filling the gap with outside knowledge.\n"
+    "---------------------\n"
+    "{context_str}\n"
+    "---------------------\n"
+    "Given the context information above and not prior knowledge, "
+    "answer the question.\n"
+    "Question: {query_str}\n"
+    "Answer: "
+)
 
 
 def _configure_models():
@@ -82,9 +109,15 @@ def ask(index, question: str, return_sources: bool = False):
      Compares it against all the stored chunk-fingerprints, and pulls out the ones that are mathematically most similar — i.e., most relevant to the question
      Sends those relevant chunks, plus your original question, to Groq's AI, essentially saying "using only this information, answer this question"
      Gets back a written answer, and also hands back exactly which chunks were used, so you can check whether the answer is actually grounded in your real content
+
+     Uses STRICT_QA_PROMPT instead of llama-index's default prompt, so the
+     model is explicitly told not to add outside medical knowledge — this
+     is the hallucination-reduction step.
      """
     print("Sending query to Groq...", flush=True)
-    query_engine = index.as_query_engine()
+    query_engine = index.as_query_engine(
+        text_qa_template=STRICT_QA_PROMPT
+    )
     response = query_engine.query(question)
 
     if return_sources:
@@ -107,3 +140,4 @@ if __name__ == "__main__":
     print("\nSources used:")
     for s in sources:
         print("-", s[:200], "...")
+
