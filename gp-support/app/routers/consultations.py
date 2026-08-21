@@ -7,36 +7,15 @@ from groq import Groq
 from pydantic import BaseModel
 import os
 from dotenv import load_dotenv
-from database import get_db
-from models import User, Consultation, Message
-from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
+from app.db.database import get_db
+from app.db.models import User, Consultation, Message
 
-load_dotenv()
+from app.schemas.consultations import ConsultationCreate
+from app.schemas.messages import MessageCreate, ChatMessage
 
-class ChatMessage(BaseModel):
-    message: str
-
-class ConsultationCreate(BaseModel):
-    user_id: int
-
-class MessageCreate(BaseModel):
-    role: str
-    content: str
+router = APIRouter(prefix="/consultations", tags=["consultations"])
 
 
-
-app = FastAPI()
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-
-# frontend connection
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL")],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 # Temporary conversation memory
 conversation = [
@@ -73,11 +52,11 @@ do not ask the same question again.
 
 
 
-@app.get("/")
+@router.get("/")
 def home():
     return {"message": "GP Support API is running"}
 
-@app.post("/chat")
+@router.post("/chat")
 def chat(data: ChatMessage):
 
     # Add patient's new message to conversation
@@ -109,7 +88,7 @@ def chat(data: ChatMessage):
         "reply": reply
     }
 
-@app.get("/summary")
+@router.get("/summary")
 def get_summary():
 
     summary_messages = conversation + [
@@ -150,7 +129,7 @@ For information that was not provided, use an empty string or empty list.
         "summary": response.choices[0].message.content
     }
 
-@app.post("/reset")
+@router.post("/reset")
 def reset_chat():
 
     del conversation[1:]
@@ -159,7 +138,7 @@ def reset_chat():
         "message": "Conversation reset"
     }
 
-@app.post("/consultations")
+@router.post("/consultations")
 def create_consultation(
     data: ConsultationCreate,
     db: Session = Depends(get_db)
@@ -185,7 +164,7 @@ def create_consultation(
         "user_id": consultation.user_id
     }
 
-@app.post("/consultations/{consultation_id}/messages")
+@router.post("/consultations/{consultation_id}/messages")
 def create_message(
     consultation_id: int,
     data: MessageCreate,
@@ -217,7 +196,7 @@ def create_message(
         "created_at": message.created_at
     }
 
-@app.get("/consultations/{consultation_id}/messages")
+@router.get("/consultations/{consultation_id}/messages")
 def get_messages(
     consultation_id: int,
     db: Session = Depends(get_db)
@@ -252,7 +231,7 @@ def get_messages(
         ]
     }
 
-@app.post("/consultations/{consultation_id}/chat")
+@router.post("/consultations/{consultation_id}/chat")
 def chat(
     consultation_id: int,
     data: ChatMessage,
