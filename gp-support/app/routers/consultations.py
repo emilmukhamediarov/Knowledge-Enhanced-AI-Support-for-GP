@@ -1,6 +1,8 @@
-from fastapi import FastAPI, Depends, HTTPException
+import json
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from app.services.chat_service import client
 from groq import Groq
 from pydantic import BaseModel
 import os

@@ -1,9 +1,9 @@
 from datetime import datetime, UTC
 
-from sqlalchemy import String, ForeignKey, DateTime, Text
+from sqlalchemy import String, ForeignKey, DateTime, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from database import Base
+from .database import Base
 
 
 class User(Base):
@@ -35,6 +35,10 @@ class Consultation(Base):
         back_populates="consultation"
     )
 
+    summary: Mapped["Summary | None"] = relationship(
+        back_populates="consultation"
+    )
+
 
 class Message(Base):
     __tablename__ = "messages"
@@ -57,3 +61,28 @@ class Message(Base):
     consultation: Mapped["Consultation"] = relationship(
         back_populates="messages"
     )
+
+class Summary(Base):
+    __tablename__ = "summaries"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    consultation_id: Mapped[int] = mapped_column(
+        ForeignKey("consultations.id")
+    )
+
+    content: Mapped[str] = mapped_column(Text)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC)
+    )
+
+    consultation: Mapped["Consultation"] = relationship(
+        back_populates="summary"
+    )
+
+    __table_args__ = (
+        UniqueConstraint("consultation_id"),
+    )
+
