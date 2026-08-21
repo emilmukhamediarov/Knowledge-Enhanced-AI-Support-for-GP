@@ -3,12 +3,11 @@ uvicorn==0.52.3
 groq==1.6.0
 pydantic==2.13.4
 psycopg[binary]
-SQLAlchemy==2.0.38
+
 
 # Packages for RAG:
-llama-index-core==0.14.23
-llama-index-llms-groq==0.5.0
-llama-index-embeddings-huggingface==0.7.0
+
+
 SQLAlchemy==2.0.52
 alembic==1.19.1
 python-dotenv==1.2.3
