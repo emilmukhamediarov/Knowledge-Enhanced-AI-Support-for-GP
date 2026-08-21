@@ -7,6 +7,11 @@ from pydantic import BaseModel, Field
 from .chatbot import ConsultationSummary, chat_service
 from .config import settings
 from .transcribe import TranscriptionError, transcribe_service
+from app.knowledge_rag import (
+    build_query_from_consultation_summary,
+    ask_structured,
+    build_index
+)
 
 app = FastAPI(title="GP Chatbot MVP", version="1.0.0")
 app.add_middleware(
@@ -68,9 +73,9 @@ async def audio_chat(session_id: str = Form(...), audio: UploadFile = File(...))
 
 
 @app.post(
-    "/summary",
+    "/keyword-summary",
     response_model=ConsultationSummary,
-    summary="Generate a validated structured consultation record",
+    summary="keyword-based summary of the conversation",
 )
 async def summary(request: SessionRequest):
     try:
@@ -79,7 +84,41 @@ async def summary(request: SessionRequest):
         raise HTTPException(status_code=502, detail=f"Bedrock request failed: {exc}") from exc
 
 
+@app.post("/rag-summary")
+async def rag_summary(request: SessionRequest):
+    try:
+        # get patient summary from chatbot
+        summary = await asyncio.to_thread(
+            chat_service.summary,
+            request.session_id
+        )
+        # convert summary to RAG query
+        query = build_query_from_consultation_summary(
+            summary
+        )
+        # ask RAG
+        result = ask_structured(
+            index,
+            query
+        )
+        return {
+            "patient_summary": summary,
+            "rag_response": result
+        }
+    except Exception as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=f"RAG request failed: {exc}"
+        )
+
+
 @app.post("/reset")
 def reset(request: SessionRequest):
     chat_service.reset(request.session_id)
     return {"status": "reset"}
+
+
+@app.on_event("startup")
+async def startup_event():
+    global index
+    index = build_index()

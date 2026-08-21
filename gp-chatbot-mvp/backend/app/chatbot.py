@@ -65,8 +65,6 @@ Return exactly one JSON object without markdown using this shape:
   "allergies": {"status": "unknown" | "confirmed_none" | "confirmed", "items": array of strings},
   "additional_concerns": string or null,
   "missing_information": array of strings,
-  "red_flags": array of explicit concerning patient statements,
-  "requires_urgent_attention": boolean,
   "conversation_complete": boolean,
   "summary": concise factual string
 }
@@ -124,12 +122,10 @@ class ConsultationSummary(BaseModel):
     allergies: AnswerList = Field(default_factory=AnswerList)
     additional_concerns: str | None = None
     missing_information: list[str] = Field(default_factory=list)
-    red_flags: list[str] = Field(default_factory=list)
-    requires_urgent_attention: bool = False
     conversation_complete: bool = False
     summary: str = ""
 
-    @field_validator("symptoms", "missing_information", "red_flags", mode="before")
+    @field_validator("symptoms", "missing_information", mode="before")
     @classmethod
     def normalise_lists(cls, value):
         if value is None:
