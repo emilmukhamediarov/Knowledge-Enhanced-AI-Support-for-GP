@@ -6,7 +6,7 @@ import DoctorHome from './pages/doctor/DoctorHome';
 import Chat from './pages/patient/Chat'
 import Summary from './pages/doctor/Summary'
 import Navbar from "./components/Navbar";
-import ProtectedRoute from "./components/ProtectedRoute";
+//import ProtectedRoute from "./components/ProtectedRoute";
 import Login from "./pages/Login";
 import RoleRoute from "./components/RoleRoute";
 
