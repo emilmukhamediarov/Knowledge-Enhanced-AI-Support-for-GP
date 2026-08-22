@@ -72,18 +72,6 @@ async def audio_chat(session_id: str = Form(...), audio: UploadFile = File(...))
         raise HTTPException(status_code=502, detail=f"Bedrock request failed: {exc}") from exc
 
 
-@app.post(
-    "/keyword-summary",
-    response_model=ConsultationSummary,
-    summary="keyword-based summary of the conversation",
-)
-async def summary(request: SessionRequest):
-    try:
-        return await asyncio.to_thread(chat_service.summary, request.session_id)
-    except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"Bedrock request failed: {exc}") from exc
-
-
 @app.post("/rag-summary")
 async def rag_summary(request: SessionRequest):
     try:
