@@ -12,7 +12,7 @@ from app.db.models import User, Consultation, Message
 
 from app.schemas.consultations import ConsultationCreate
 from app.schemas.messages import MessageCreate, ChatMessage
-
+from app.dependencies.auth import RequireRole
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
 
@@ -57,7 +57,17 @@ def home():
     return {"message": "GP Support API is running"}
 
 @router.post("/chat")
-def chat(data: ChatMessage):
+# POST /chat
+# PURPOSE: Send a message to the AI and get a reply.
+# REQUIRED HEADER: { "Authorization": "Bearer <INSERT_TOKEN_FROM_LOCALSTORAGE_HERE>" }
+# REQUEST TYPE: JSON
+# BODY TO SEND:
+# {
+#   "message": "I have been experiencing mild headaches."
+# }
+# EXPECTED RESPONSE: { "reply": "I am sorry to hear that. How long have..." }
+# ERROR HANDLING: If you get a 401 or 403 status, the token is expired/missing, so redirect the user to the login screen.
+def chat(data: ChatMessage, user = Depends(RequireRole(["patient", "doctor", "admin"]))):
 
     # Add patient's new message to conversation
     conversation.append(
@@ -89,7 +99,7 @@ def chat(data: ChatMessage):
     }
 
 @router.get("/summary")
-def get_summary():
+def get_summary(user = Depends(RequireRole(["doctor", "admin"]))):
 
     summary_messages = conversation + [
         {
