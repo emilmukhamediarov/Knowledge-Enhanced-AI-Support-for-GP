@@ -304,7 +304,7 @@ if __name__ == "__main__":
         print("-", s[:200], "...")
 
     # Test 2: simulating a ConsultationSummary dict from chatbot.py,
-    # as it would arrive from the /summary endpoint.
+    # (as it would be returned by chat_service.summary())
     example_summary = {
         "session_id": "test-session",
         "reason_for_visit": "persistent cough",
