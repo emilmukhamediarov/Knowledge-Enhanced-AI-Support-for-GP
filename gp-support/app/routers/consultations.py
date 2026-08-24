@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.services.chat_service import client
 from groq import Groq
 from app.db.database import get_db
 
@@ -157,14 +156,14 @@ def chat(
         consultation_id
     )
 
-    groq_messages = [
+    prepared_messages = [
         {
             "role": "system",
             "content": SYSTEM_PROMPT
         }
     ]
 
-    groq_messages.extend(
+    prepared_messages.extend(
         {
             "role": message.role,
             "content": message.content
@@ -172,7 +171,7 @@ def chat(
         for message in messages
     )
 
-    reply = chat_service.chat(groq_messages)
+    reply = chat_service.chat_aws(prepared_messages)
 
     repository.save_assistant_message(
         db,
@@ -183,3 +182,39 @@ def chat(
     return {
         "reply": reply
     }
+
+@router.get("/{consultation_id}/summary")
+def get_summary(
+    consultation_id: int,
+    db: Session = Depends(get_db)
+):
+    consultation = repository.get_consultation_by_id(
+        db,
+        consultation_id
+    )
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    messages = repository.get_messages(
+        db,
+        consultation_id
+    )
+
+    prepared_messages = [
+        {
+            "role": message.role,
+            "content": message.content
+        }
+        for message in messages
+    ]
+
+    summary = chat_service.summary_aws(
+        prepared_messages,
+        consultation_id
+    )
+
+    return summary
