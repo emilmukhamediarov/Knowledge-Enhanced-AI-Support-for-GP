@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from groq import Groq
 from app.db.database import get_db
 
 from app.schemas.consultations import ConsultationCreate
@@ -8,6 +7,11 @@ from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
 from app.services.prompts import SYSTEM_PROMPT
+from fastapi import Request
+from app.services.knowledge_rag import (
+    build_query_from_consultation_summary,
+    ask_structured,
+)
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
@@ -218,3 +222,52 @@ def get_summary(
     )
 
     return summary
+
+@router.get("/{consultation_id}/rag")
+def get_rag_result(
+    consultation_id: int,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    consultation = repository.get_consultation_by_id(
+        db,
+        consultation_id
+    )
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    messages = repository.get_messages(
+        db,
+        consultation_id
+    )
+
+    prepared_messages = [
+        {
+            "role": message.role,
+            "content": message.content
+        }
+        for message in messages
+    ]
+
+    summary = chat_service.summary_aws(
+        prepared_messages,
+        consultation_id
+    )
+
+    query = build_query_from_consultation_summary(
+        summary
+    )
+
+    result = ask_structured(
+        request.app.state.rag_index,
+        query
+    )
+
+    return {
+        "patient_summary": summary,
+        "rag_response": result
+    }

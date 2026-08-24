@@ -25,7 +25,7 @@ from llama_index.llms.bedrock_converse import BedrockConverse
 # Using this instead of a hardcoded/relative-to-cwd path means it works
 # no matter which folder you run the app from.
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-KNOWLEDGE_BASE_DIR = os.path.join(_THIS_DIR, "knowledge_base")
+KNOWLEDGE_BASE_DIR = os.path.join(_THIS_DIR, "../knowledge_base")
 
 # Custom prompt template — this replaces llama-index's default prompt,
 # which does NOT forbid the model from adding its own outside knowledge.
@@ -304,7 +304,7 @@ if __name__ == "__main__":
         print("-", s[:200], "...")
 
     # Test 2: simulating a ConsultationSummary dict from chatbot.py,
-    # as it would arrive from the /summary endpoint.
+    # (as it would be returned by chat_service.summary())
     example_summary = {
         "session_id": "test-session",
         "reason_for_visit": "persistent cough",
