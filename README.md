@@ -155,6 +155,17 @@ View migration history with:
 alembic history
 ```
 
+## To create and login as admin role (hardcoded)
+cd gp-support then run
+```bash
+python create_admin.py
+```
+then can login with
+
+username: admin
+
+password: password123
+
 ## Environment variables
 
 | Variable | Purpose |

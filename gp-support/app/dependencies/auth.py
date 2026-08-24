@@ -10,7 +10,7 @@ from app.db import models
 # In production, change this secret key and load it from an environment variable for now it's fine
 SECRET_KEY = "my_super_secret_key_for_gp_support"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 999
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
@@ -34,3 +34,10 @@ async def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+def RequireRole(required_roles: list[str]):
+    def role_checker(current_user: models.User = Depends(get_current_user)):
+        if current_user.role not in required_roles and current_user.role != "admin":
+            raise HTTPException(status_code=403, detail="Not enough permissions")
+        return current_user
+    return role_checker

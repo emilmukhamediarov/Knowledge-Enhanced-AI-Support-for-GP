@@ -13,6 +13,7 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255))
     name: Mapped[str] = mapped_column(String(100))
+    role: Mapped[str] = mapped_column(String(20), default="patient")
 
     consultations: Mapped[list["Consultation"]] = relationship(
         back_populates="user"
