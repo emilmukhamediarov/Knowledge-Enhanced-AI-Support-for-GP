@@ -1,0 +1,15 @@
+.clear-results-button {
+    margin-top: 1rem;
+    background-color: #E5E4E0;
+    color: #61605C;
+    padding: 10px 18px;
+    border: 2px solid #C3C2BC;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.clear-results-button:hover {
+    background-color: #D6D5D0;
+}

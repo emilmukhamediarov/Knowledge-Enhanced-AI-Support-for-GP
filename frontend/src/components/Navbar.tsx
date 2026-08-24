@@ -1,4 +1,4 @@
-import { Link, useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink } from "react-router-dom";
 import "./Navbar.css";
 import bitwiseLogo from '../assets/bitwiseLogo.svg';
 
@@ -24,6 +24,7 @@ function Navbar() {
                     {role === "doctor" && (<NavLink to="/doctorhome" className={({ isActive }) => isActive ? "active" : ""}>Home</NavLink>)}
                     {(role === "patient" || role === "admin") && (<NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>Chat</NavLink>)}
                     {(role === "doctor" || role === "admin") && (<NavLink to="/summary" className={({ isActive }) => isActive ? "active" : ""}>Summary</NavLink>)}
+                    {(role === "doctor" || role === "admin") && (<NavLink to="/rag" className={({ isActive }) => isActive ? "active" : ""}>Rag</NavLink>)}
                 </div>
             )}
 
