@@ -1,6 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
+from app.services.chat_rules import (
+    is_advice_request,
+    has_high_severity_rating,
+    keep_one_question,
+    remove_medical_advice,
+    get_missing_background_field,
+    background_question,
+)
 
 from app.schemas.consultations import ConsultationCreate
 from app.schemas.messages import MessageCreate, ChatMessage
@@ -12,6 +20,7 @@ from app.services.knowledge_rag import (
     build_query_from_consultation_summary,
     ask_structured,
 )
+
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
@@ -167,6 +176,33 @@ def chat(
         }
     ]
 
+    if is_advice_request(data.message):
+        prepared_messages.append(
+            {
+                "role": "system",
+                "content": (
+                    "The patient has asked for treatment or medication advice. "
+                    "Do not provide medical, medication, or treatment advice. "
+                    "Briefly explain that your role is to collect information for the GP. "
+                    "Do not ignore other useful information contained in the same patient message. "
+                    "Continue the consultation naturally based on that information."
+                )
+            }
+        )
+
+    if has_high_severity_rating(data.message):
+        prepared_messages.append(
+            {
+                "role": "system",
+                "content": (
+                    "The patient has just reported very high symptom severity. "
+                    "Prioritise clarifying this symptom and any associated concerning symptoms "
+                    "before moving to routine questions such as medications, allergies, or medical history. "
+                    "Ask only one follow-up question."
+                )
+            }
+        )
+
     prepared_messages.extend(
         {
             "role": message.role,
@@ -176,6 +212,35 @@ def chat(
     )
 
     reply = chat_service.chat_aws(prepared_messages)
+    reply = remove_medical_advice(reply)
+    reply = keep_one_question(reply)
+
+    missing_background = get_missing_background_field(messages)
+
+    reply_lower = reply.lower()
+
+    moving_to_background_or_completion = any(
+        phrase in reply_lower
+        for phrase in [
+            "medical history",
+            "medical condition",
+            "medication",
+            "allerg",
+            "anything else",
+            "other concerns",
+            "before we conclude",
+            "before we wrap up",
+            "pre-consultation information is complete",
+        ]
+    )
+
+    if (
+        missing_background is not None
+        and moving_to_background_or_completion
+    ):
+        reply = background_question(
+            missing_background
+        )
 
     repository.save_assistant_message(
         db,
@@ -271,3 +336,5 @@ def get_rag_result(
         "patient_summary": summary,
         "rag_response": result
     }
+
+

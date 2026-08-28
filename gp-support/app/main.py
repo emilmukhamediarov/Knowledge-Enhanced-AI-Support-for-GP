@@ -5,11 +5,13 @@ from app.db import models
 from app.routers import auth, users, consultations
 from app.dependencies.auth import get_current_user
 from app.services.knowledge_rag import build_index
+from app.config import BUILD_RAG_INDEX
 app = FastAPI()
 
 @app.on_event("startup")
 def startup_event():
-    app.state.rag_index = build_index()
+    if BUILD_RAG_INDEX:
+        app.state.rag_index = build_index()
 
 app.include_router(auth.router)
 app.include_router(users.router)

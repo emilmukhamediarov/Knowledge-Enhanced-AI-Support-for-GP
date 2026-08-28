@@ -28,35 +28,32 @@ def chat_groq(messages):
 
     return response.choices[0].message.content
 
-
 def chat_aws(messages):
-    system_prompt = None
+    system_prompts = []
     bedrock_messages = []
 
     for message in messages:
         if message["role"] == "system":
-            system_prompt = message["content"]
+            system_prompts.append(message["content"])
         else:
             bedrock_messages.append(
                 {
                     "role": message["role"],
-                    "content": [
-                        {
-                            "text": message["content"]
-                        }
-                    ]
+                    "content": [{"text": message["content"]}]
                 }
             )
+
+    # Bedrock requires the conversation to start with a user message
+    while bedrock_messages and bedrock_messages[0]["role"] != "user":
+        bedrock_messages.pop(0)
+
+    system_prompt = "\n\n".join(system_prompts)
 
     bedrock_messages = bedrock_messages[-MAX_HISTORY_MESSAGES:]
 
     response = aws_client.converse(
         modelId=BEDROCK_MODEL_ID,
-        system=[
-            {
-                "text": system_prompt
-            }
-        ] if system_prompt else [],
+        system=[{"text": system_prompt}] if system_prompt else [],
         messages=bedrock_messages,
         inferenceConfig={
             "maxTokens": CHAT_MAX_TOKENS,
