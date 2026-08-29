@@ -12,4 +12,4 @@ BEDROCK_MODEL_ID = os.getenv(
     "amazon.nova-lite-v1:0"
 )
 
-BUILD_RAG_INDEX = False
+BUILD_RAG_INDEX = os.getenv("BUILD_RAG_INDEX", "False") == "True"
