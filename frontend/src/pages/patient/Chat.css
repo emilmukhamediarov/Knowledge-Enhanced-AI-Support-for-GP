@@ -28,7 +28,7 @@ h1 {
     gap: 1rem;
 }
 
-.messages > div {
+.messages>div {
     position: relative;
     padding: 0.6rem 0.9rem;
     border: 1px solid var(--border);
@@ -69,11 +69,9 @@ h1 {
 
     background: var(--border);
 
-    clip-path: polygon(
-            100% 0,
+    clip-path: polygon(100% 0,
             100% 100%,
-            0 100%
-    );
+            0 100%);
 
     border-radius: 0 0 0 12px;
 
@@ -93,11 +91,9 @@ h1 {
 
     background: white;
 
-    clip-path: polygon(
-            100% 0,
+    clip-path: polygon(100% 0,
             100% 100%,
-            0 100%
-    );
+            0 100%);
 
     border-radius: 0 0 0 10px;
 
@@ -118,11 +114,9 @@ h1 {
 
     background: var(--border);
 
-    clip-path: polygon(
-            0 0,
+    clip-path: polygon(0 0,
             100% 100%,
-            0 100%
-    );
+            0 100%);
 
     border-radius: 0 0 12px 0;
 
@@ -142,11 +136,9 @@ h1 {
 
     background: white;
 
-    clip-path: polygon(
-            0 0,
+    clip-path: polygon(0 0,
             100% 100%,
-            0 100%
-    );
+            0 100%);
 
     border-radius: 0 0 10px 0;
 
@@ -214,4 +206,31 @@ h1 {
 
 .reset-button:hover {
     background-color: #D6D5D0;
+}
+
+ß
+
+.record-button {
+    min-width: 72px;
+}
+
+.record-button.recording {
+    color: white;
+    background-color: #c62828;
+    border-color: #8e0000;
+}
+
+.record-button.recording:hover {
+    background-color: #a51f1f;
+}
+
+.recording-status {
+    margin-top: 0.75rem;
+    color: #c62828;
+    font-weight: 600;
+}
+
+.chat-input button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }

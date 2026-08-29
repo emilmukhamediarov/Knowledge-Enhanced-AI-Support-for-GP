@@ -35,6 +35,9 @@ KNOWLEDGE_BASE_DIR = os.path.join(_THIS_DIR, "../knowledge_base")
 # hallucination-reduction mechanism for this MVP.
 STRICT_QA_PROMPT = PromptTemplate(
     "You are a clinical documentation assistant helping a GP. "
+    
+    "Always write the final answer in English. "
+
     "You must answer using ONLY the context information below, "
     "which comes from verified clinical sources. "
     "Do not add any medical facts, tests, or recommendations that are "
@@ -185,6 +188,11 @@ def ask(index, question: str, return_sources: bool = False):
 # does this itself (that responsibility moved here, to the grounded side).
 STRUCTURED_QA_PROMPT = PromptTemplate(
     "You are a clinical documentation assistant helping a GP. "
+
+    "All output must be written in English. "
+    "Write the answer and every item in red_flags_identified in English, "
+    "regardless of the language originally used by the patient. "
+
     "You must answer using ONLY the context information below, "
     "which comes from verified clinical sources. "
     "Do not add any medical facts, tests, or recommendations that are "
