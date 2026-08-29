@@ -84,3 +84,6 @@ The following symptoms suggest a virus, not strep throat, is the cause of a sore
 
 Strep carriers
 Some people can test positive for group A strep bacteria but have no symptoms.
+
+Sources
+https://www.cdc.gov/group-a-strep/about/strep-throat.html

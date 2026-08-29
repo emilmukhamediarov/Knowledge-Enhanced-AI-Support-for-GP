@@ -79,3 +79,6 @@ Pain relievers and fever reducers:
 Cough and cold medicines:
 - Children younger than 6 years: over-the-counter cough/cold medicines are not recommended and can result in serious and sometimes life-threatening side effects.
 - Children 6 years or older: discuss the use of over-the-counter cough/cold medicines with a healthcare professional.
+
+Sources
+https://www.cdc.gov/acute-bronchitis/about/index.html

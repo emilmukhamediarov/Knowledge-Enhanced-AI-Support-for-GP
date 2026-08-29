@@ -85,3 +85,6 @@ Contact lens wearers with bacterial conjunctivitis are at higher risk of bacteri
 Patient counseling
 - Advise patients to remain home if they have viral or bacterial conjunctivitis with systemic signs of illness, especially if they cannot avoid close contact with others. Patients may return to work or school if they receive clinician approval and after any indicated therapy is implemented.
 - Counsel patients with viral conjunctivitis to prevent transmission by washing hands frequently, using separate towels, and avoiding close contact with others.
+
+Sources
+https://www.cdc.gov/conjunctivitis/hcp/clinical-overview/index.html

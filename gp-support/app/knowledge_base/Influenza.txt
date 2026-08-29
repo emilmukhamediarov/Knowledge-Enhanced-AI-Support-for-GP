@@ -37,3 +37,6 @@ Cold versus flu
 | Stuffy nose | Common | Sometimes |
 | Sore throat | Common | Sometimes |
 | Headache | Rare | Common |
+
+Sources
+https://www.cdc.gov/flu/signs-symptoms/index.html

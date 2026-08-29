@@ -218,6 +218,58 @@ STRUCTURED_QA_PROMPT = PromptTemplate(
     "false. Do not invent red flags that are not present in the context."
 )
 
+def _confidence_info(min_score: float | None) -> dict:
+    """
+    Convert a similarity score into both a short label and a longer,
+    actionable message for the GP, so they can judge at a glance how
+    much to trust the grounding behind an answer.
+
+    Deliberately conservative: intended for use with the LOWEST score
+    among the chunks that grounded the answer, not the highest or an
+    average — since the answer draws on all retrieved chunks together,
+    the weakest one represents the real risk in the answer's grounding.
+
+    Thresholds are approximate starting points based on typical cosine
+    similarity ranges for this embedding model; adjust based on
+    observed scores once more real queries have been tested.
+
+    Returns a dict: {"label": str, "message": str}
+    """
+    if min_score is None:
+        return {
+            "label": "unknown",
+            "message": (
+                "No similarity score was available for this answer. "
+                "Treat with caution and verify independently."
+            ),
+        }
+    if min_score >= 0.75:
+        return {
+            "label": "strong match",
+            "message": (
+                "This answer is strongly grounded in the knowledge base "
+                "for this case."
+            ),
+        }
+    if min_score >= 0.55:
+        return {
+            "label": "moderate match",
+            "message": (
+                "This answer is only moderately grounded in the knowledge "
+                "base — use caution and consider verifying key details "
+                "independently."
+            ),
+        }
+    return {
+        "label": "weak match",
+        "message": (
+            "This answer has weak grounding in the knowledge base for "
+            "this case — the retrieved information may not closely match "
+            "the patient's presentation. Verify independently before "
+            "relying on this answer."
+        ),
+    }
+
 
 def ask_structured(index, question: str) -> dict:
     """
@@ -246,6 +298,17 @@ def ask_structured(index, question: str) -> dict:
     response = query_engine.query(question)
     sources = [node.node.get_text() for node in response.source_nodes]
 
+    # Collect similarity scores from retrieved nodes, then use the
+    # WEAKEST one for a conservative confidence label — see
+    # _confidence_label()'s docstring for why weakest, not best/average.
+    scores = [
+        node.score for node in response.source_nodes
+        if node.score is not None
+    ]
+
+    min_score = min(scores) if scores else None
+    confidence_info = _confidence_info(min_score)
+
     raw = str(response).strip()
     # Models sometimes wrap JSON in markdown fences despite instructions
     # not to — strip those defensively rather than failing on them.
@@ -270,6 +333,8 @@ def ask_structured(index, question: str) -> dict:
             "requires_urgent_attention": bool(
                 parsed.get("red_flags_identified", [])
             ),
+            "confidence": confidence_info["label"],
+            "confidence_message": confidence_info["message"],
             "sources": sources,
             "parse_error": False,
         }
@@ -282,6 +347,8 @@ def ask_structured(index, question: str) -> dict:
             "answer": raw,
             "red_flags_identified": [],
             "requires_urgent_attention": False,
+            "confidence": confidence_info["label"],
+            "confidence_message": confidence_info["message"],
             "sources": sources,
             "parse_error": True,
         }
