@@ -1,6 +1,7 @@
 import "./Chat.css";
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "../../api/client";
+import { useParams } from "react-router-dom";
 
 interface Message {
     role: "user" | "assistant";
@@ -8,22 +9,12 @@ interface Message {
 }
 
 function Chat() {
+    const { consultationId } = useParams<{
+        consultationId: string;
+    }>();
+
     const [message, setMessage] = useState("");
-
-    const [messages, setMessages] = useState<Message[]>(() => {
-        const savedMessages = localStorage.getItem("chatMessages");
-
-        if (!savedMessages) {
-            return [];
-        }
-
-        try {
-            return JSON.parse(savedMessages);
-        } catch {
-            return [];
-        }
-    });
-
+    const [messages, setMessages] = useState<Message[]>([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -42,23 +33,56 @@ function Chat() {
     // Used to automatically focus the input after the AI finishes
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // TEMPORARY: HARD-CODED CONSULTATION ID
-    const consultationId = 1;
-
-    // Save chat history
+    // Load messages for this consultation
     useEffect(() => {
-        localStorage.setItem("chatMessages", JSON.stringify(messages));
-    }, [messages]);
+        if (!consultationId) {
+            setError("Unable to identify the consultation.");
+            return;
+        }
 
-    // Automatically scroll to the newest message
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({
-            behavior: "auto",
-        });
-    }, [messages]);
+        const loadMessages = async () => {
+            try {
+                setError("");
+
+                const data = await apiFetch(
+                    `/consultations/${consultationId}/messages`
+                );
+
+                setMessages(
+                    data.messages.map(
+                        (msg: {
+                            role: "user" | "assistant";
+                            content: string;
+                        }) => ({
+                            role: msg.role,
+                            content: msg.content,
+                        })
+                    )
+                );
+            } catch (error) {
+                console.error(
+                    "Failed to load messages:",
+                    error
+                );
+
+                setError(
+                    "Failed to load conversation."
+                );
+            }
+        };
+
+        void loadMessages();
+    }, [consultationId]);
 
     const sendMessage = async () => {
         if (!message.trim() || loading) return;
+
+        if (!consultationId) {
+            setError(
+                "Unable to identify the consultation."
+            );
+            return;
+        }
 
         const userMessage = message.trim();
 
@@ -108,7 +132,9 @@ function Chat() {
                 setMessages((previous) => {
                     const updatedMessages = [...previous];
 
-                    updatedMessages[updatedMessages.length - 1] = {
+                    updatedMessages[
+                    updatedMessages.length - 1
+                        ] = {
                         role: "assistant",
                         content: data.reply.slice(0, i + 1),
                     };
@@ -142,6 +168,13 @@ function Chat() {
         audioBlob: Blob,
         extension: string,
     ) => {
+        if (!consultationId) {
+            setError(
+                "Unable to identify the consultation."
+            );
+            return;
+        }
+
         const formData = new FormData();
 
         formData.append(
@@ -190,8 +223,8 @@ function Chat() {
                     const updatedMessages = [...previous];
 
                     updatedMessages[
-                        updatedMessages.length - 1
-                    ] = {
+                    updatedMessages.length - 1
+                        ] = {
                         role: "assistant",
                         content: data.reply.slice(0, i + 1),
                     };
@@ -327,12 +360,19 @@ function Chat() {
         e: React.KeyboardEvent<HTMLInputElement>
     ) => {
         if (e.key === "Enter") {
-            sendMessage();
+            void sendMessage();
         }
     };
 
     // New chat functionality
     const resetChat = async () => {
+        if (!consultationId) {
+            setError(
+                "Unable to identify the consultation."
+            );
+            return;
+        }
+
         try {
             await apiFetch(
                 `/consultations/${consultationId}/messages`,
@@ -340,11 +380,10 @@ function Chat() {
                     method: "DELETE",
                 }
             );
+
             setMessages([]);
             setMessage("");
             setError("");
-
-            localStorage.removeItem("chatMessages");
 
             setTimeout(() => {
                 inputRef.current?.focus();
@@ -398,7 +437,6 @@ function Chat() {
                     disabled={loading}
                 />
 
-
                 <button
                     type="button"
                     className={
@@ -416,11 +454,10 @@ function Chat() {
                 >
                     {isRecording ? "Stop" : "🎤 Voice"}
                 </button>
-                
 
                 <button
                     type="button"
-                    onClick={sendMessage}
+                    onClick={() => void sendMessage()}
                     disabled={loading}
                 >
                     {loading ? "Sending..." : "Send"}
@@ -428,7 +465,8 @@ function Chat() {
             </div>
 
             <button
-                onClick={resetChat}
+                type="button"
+                onClick={() => void resetChat()}
                 className="reset-button"
             >
                 New Chat

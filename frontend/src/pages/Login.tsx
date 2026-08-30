@@ -35,6 +35,12 @@ function Login() {
             navigate("/doctorhome");
             return;
         }
+        if (username === "patient" && password === "password123") {
+            localStorage.setItem("loggedIn", "true");
+            localStorage.setItem("role", "patient");
+            navigate("/patienthome");
+            return;
+        }
 
         // ====================================================================================
         // REAL BACKEND LOGIN -- registered users are patients for now
@@ -53,9 +59,15 @@ function Login() {
                 }),
             });
 
-            // Save authentication information
             localStorage.setItem("loggedIn", "true");
-            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem(
+                "access_token",
+                data.access_token
+            );
+            localStorage.setItem(
+                "userId",
+                String(data.user_id)
+            );
 
             // TEMPORARY:
             // All normally registered users are patients

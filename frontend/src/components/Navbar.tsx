@@ -22,7 +22,7 @@ function Navbar() {
                     {role === "admin" && (<NavLink to="/home" className={({ isActive }) => isActive ? "active" : ""}>Home</NavLink>)}
                     {role === "patient" && (<NavLink to="/patienthome" className={({ isActive }) => isActive ? "active" : ""}>Home</NavLink>)}
                     {role === "doctor" && (<NavLink to="/doctorhome" className={({ isActive }) => isActive ? "active" : ""}>Home</NavLink>)}
-                    {(role === "patient" || role === "admin") && (<NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>Chat</NavLink>)}
+                    {(role === "patient" || role === "admin") && (<NavLink to="/new-consultation" className={({ isActive }) => isActive ? "active" : ""}>New Consultation</NavLink>)}
                     {(role === "doctor" || role === "admin") && (<NavLink to="/summary" className={({ isActive }) => isActive ? "active" : ""}>Summary</NavLink>)}
                     {(role === "doctor" || role === "admin") && (<NavLink to="/rag" className={({ isActive }) => isActive ? "active" : ""}>Rag</NavLink>)}
                 </div>

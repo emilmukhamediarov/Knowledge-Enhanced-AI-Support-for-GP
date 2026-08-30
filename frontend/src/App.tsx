@@ -10,6 +10,7 @@ import Login from "./pages/Login";
 import RoleRoute from "./components/RoleRoute";
 import Rag from "./pages/doctor/Rag";
 import Register from "./pages/Register";
+import NewConsultation from "./pages/patient/NewConsultation";
 
 // controls overall app & routing
 
@@ -30,8 +31,9 @@ function App() {
                 <Route path="/rag"element={<RoleRoute roles={["doctor", "admin"]}><Rag /></RoleRoute>} />
 
                 {/*Patient pathway*/}
-                <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>} />
-                <Route path="/chat" element={<RoleRoute roles={["patient", "admin"]}><Chat /></RoleRoute>} />
+                <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>}/>
+                <Route path="/new-consultation" element={<RoleRoute roles={["patient", "admin"]}><NewConsultation /></RoleRoute>}/>
+                <Route path="/chat/:consultationId" element={<Chat />}/>
 
 
                 {/*

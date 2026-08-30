@@ -42,7 +42,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
 # PURPOSE: Log in and get the security token.
 # CRITICAL NOTE: This endpoint requires FormData (application/x-www-form-urlencoded), NOT JSON
 # BODY TO SEND (FormData): username=John10 & password=password123
-# EXPECTED RESPONSE: { "access_token": "eyJhb...", "token_type": "bearer" }
+# EXPECTED RESPONSE: { "access_token": "eyJhb...", "token_type": "bearer", "user_id": 1 }
 # ACTION REQUIRED: Save 'access_token' to localStorage immediately upon success.
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
@@ -50,4 +50,9 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         raise HTTPException(status_code=401, detail="Incorrect username or password")
 
     token = create_access_token(data={"sub": user.username, "role": user.role})
-    return {"access_token": token, "token_type": "bearer"}
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user_id": user.id
+    }
