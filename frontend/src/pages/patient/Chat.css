@@ -16,7 +16,7 @@ h1 {
     height: 70vh;
     box-sizing: border-box;
 
-    background-color: var(--social-bg);
+    background-color: var(--code-bg);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
@@ -37,7 +37,7 @@ h1 {
     box-sizing: border-box;
     overflow-wrap: break-word;
     line-height: 1.5;
-    background-color: white;
+    background-color: var(--bg);
 }
 
 .messages-end {
@@ -70,8 +70,8 @@ h1 {
     background: var(--border);
 
     clip-path: polygon(100% 0,
-            100% 100%,
-            0 100%);
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 0 12px;
 
@@ -89,11 +89,11 @@ h1 {
     width: 16px;
     height: 16px;
 
-    background: white;
+    background: var(--bg);
 
     clip-path: polygon(100% 0,
-            100% 100%,
-            0 100%);
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 0 10px;
 
@@ -115,8 +115,8 @@ h1 {
     background: var(--border);
 
     clip-path: polygon(0 0,
-            100% 100%,
-            0 100%);
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 12px 0;
 
@@ -134,11 +134,11 @@ h1 {
     width: 16px;
     height: 16px;
 
-    background: white;
+    background: var(--bg);
 
     clip-path: polygon(0 0,
-            100% 100%,
-            0 100%);
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 10px 0;
 
