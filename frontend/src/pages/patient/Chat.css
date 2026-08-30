@@ -16,7 +16,7 @@ h1 {
     height: 70vh;
     box-sizing: border-box;
 
-    background-color: var(--social-bg);
+    background-color: var(--code-bg);
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.5rem;
@@ -28,7 +28,7 @@ h1 {
     gap: 1rem;
 }
 
-.messages > div {
+.messages>div {
     position: relative;
     padding: 0.6rem 0.9rem;
     border: 1px solid var(--border);
@@ -37,7 +37,7 @@ h1 {
     box-sizing: border-box;
     overflow-wrap: break-word;
     line-height: 1.5;
-    background-color: white;
+    background-color: var(--bg);
 }
 
 .messages-end {
@@ -69,11 +69,9 @@ h1 {
 
     background: var(--border);
 
-    clip-path: polygon(
-            100% 0,
-            100% 100%,
-            0 100%
-    );
+    clip-path: polygon(100% 0,
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 0 12px;
 
@@ -91,13 +89,11 @@ h1 {
     width: 16px;
     height: 16px;
 
-    background: white;
+    background: var(--bg);
 
-    clip-path: polygon(
-            100% 0,
-            100% 100%,
-            0 100%
-    );
+    clip-path: polygon(100% 0,
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 0 10px;
 
@@ -118,11 +114,9 @@ h1 {
 
     background: var(--border);
 
-    clip-path: polygon(
-            0 0,
-            100% 100%,
-            0 100%
-    );
+    clip-path: polygon(0 0,
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 12px 0;
 
@@ -140,13 +134,11 @@ h1 {
     width: 16px;
     height: 16px;
 
-    background: white;
+    background: var(--bg);
 
-    clip-path: polygon(
-            0 0,
-            100% 100%,
-            0 100%
-    );
+    clip-path: polygon(0 0,
+    100% 100%,
+    0 100%);
 
     border-radius: 0 0 10px 0;
 
@@ -214,4 +206,31 @@ h1 {
 
 .reset-button:hover {
     background-color: #D6D5D0;
+}
+
+ß
+
+.record-button {
+    min-width: 72px;
+}
+
+.record-button.recording {
+    color: white;
+    background-color: #c62828;
+    border-color: #8e0000;
+}
+
+.record-button.recording:hover {
+    background-color: #a51f1f;
+}
+
+.recording-status {
+    margin-top: 0.75rem;
+    color: #c62828;
+    font-weight: 600;
+}
+
+.chat-input button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }

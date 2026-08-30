@@ -1,4 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import (
+    APIRouter,
+    Depends,
+    File,
+    HTTPException,
+    Request,
+    UploadFile,
+)
+
+from app.services.transcribe_service import (
+    TranscriptionError,
+    transcribe_service,
+)
+
 from sqlalchemy.orm import Session
 from app.db.database import get_db
 from app.services.chat_rules import (
@@ -15,10 +28,10 @@ from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
 from app.services.prompts import SYSTEM_PROMPT
-from fastapi import Request
 from app.services.knowledge_rag import (
     build_query_from_consultation_summary,
     ask_structured,
+
 )
 
 
@@ -338,3 +351,44 @@ def get_rag_result(
     }
 
 
+@router.post("/{consultation_id}/audio-chat")
+def audio_chat(
+    consultation_id: int,
+    audio: UploadFile = File(...),
+    db: Session = Depends(get_db),
+):
+    content = audio.file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail="No audio was provided",
+        )
+
+    if len(content) > 25 * 1024 * 1024:
+        raise HTTPException(
+            status_code=413,
+            detail="Audio file is too large",
+        )
+
+    try:
+        transcript = transcribe_service.transcribe_upload(
+            audio,
+            content,
+        )
+    except TranscriptionError as exc:
+        raise HTTPException(
+            status_code=502,
+            detail=str(exc),
+        ) from exc
+
+    result = chat(
+        consultation_id,
+        ChatMessage(message=transcript),
+        db,
+    )
+
+    return {
+        "transcript": transcript,
+        "reply": result["reply"],
+    }
