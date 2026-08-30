@@ -7,7 +7,7 @@ from pathlib import Path
 import boto3
 from fastapi import UploadFile
 
-from .config import settings
+from app.config import settings
 
 
 class TranscriptionError(RuntimeError):
@@ -65,7 +65,7 @@ class TranscribeService:
             self.transcribe.start_transcription_job(**job_options)
 
 
-
+            
             deadline = time.monotonic() + settings.transcribe_timeout_seconds
 
             while time.monotonic() < deadline:
@@ -79,12 +79,12 @@ class TranscribeService:
                     with urllib.request.urlopen(uri, timeout=30) as response:
                         payload = json.load(response)
                     return payload["results"]["transcripts"][0]["transcript"]
-
+                
                 if status == "FAILED":
                     raise TranscriptionError(job.get("FailureReason", "Transcription failed"))
                 time.sleep(1)
             raise TranscriptionError("Transcription timed out")
-
+        
         finally:
             self.s3.delete_object(Bucket=settings.transcribe_s3_bucket, Key=key)
             try:
