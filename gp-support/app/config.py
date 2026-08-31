@@ -6,39 +6,20 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-def get_bool(name: str, default: bool = False) -> bool:
-    value = os.getenv(name)
-
-    if value is None:
-        return default
-
-    return value.strip().lower() in {"true", "1", "yes", "on"}
-
-
-def get_int(name: str, default: int) -> int:
-    value = os.getenv(name)
-
-    if not value:
-        return default
-
-    try:
-        return int(value)
-    except ValueError as error:
-        raise ValueError(
-            f"{name} must be an integer, but received: {value}"
-        ) from error
-
-
-# General configuration
 DATABASE_URL = os.getenv("DATABASE_URL")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_RAG_INDEX = get_bool("BUILD_RAG_INDEX", False)
 
-# AWS configuration
-AWS_REGION = os.getenv("AWS_REGION", "ap-southeast-2")
+BUILD_RAG_INDEX = (
+    os.getenv("BUILD_RAG_INDEX", "False").strip().lower() == "true"
+)
+
+AWS_REGION = os.getenv(
+    "AWS_REGION",
+    "ap-southeast-2",
+)
+
 AWS_PROFILE = os.getenv("AWS_PROFILE")
 
-# Amazon Bedrock
 BEDROCK_MODEL_ID = os.getenv(
     "BEDROCK_MODEL_ID",
     "amazon.nova-lite-v1:0",
@@ -64,9 +45,8 @@ class Settings:
         if code.strip()
     ]
 
-    transcribe_timeout_seconds = get_int(
-        "TRANSCRIBE_TIMEOUT_SECONDS",
-        180,
+    transcribe_timeout_seconds = int(
+        os.getenv("TRANSCRIBE_TIMEOUT_SECONDS", "180")
     )
 
     frontend_origin = os.getenv(
