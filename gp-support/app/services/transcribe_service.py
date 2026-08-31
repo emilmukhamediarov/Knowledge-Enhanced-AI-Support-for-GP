@@ -1,11 +1,13 @@
-import json
-import time
-import urllib.request
-import uuid
-from pathlib import Path
+"""Real-time Amazon Transcribe support without S3 storage."""
+
+from __future__ import annotations
+
+from collections.abc import Awaitable, Callable
 
 import boto3
-from fastapi import UploadFile
+from amazon_transcribe.auth import StaticCredentialResolver
+from amazon_transcribe.client import TranscribeStreamingClient
+from amazon_transcribe.handlers import TranscriptResultStreamHandler
 
 from app.config import settings
 
@@ -14,83 +16,77 @@ class TranscriptionError(RuntimeError):
     pass
 
 
+TranscriptCallback = Callable[[str, bool], Awaitable[None]]
+
+
+class _TranscriptHandler(TranscriptResultStreamHandler):
+    def __init__(self, output_stream, on_transcript: TranscriptCallback):
+        super().__init__(output_stream)
+        self.on_transcript = on_transcript
+        self.final_parts: list[str] = []
+
+    async def handle_transcript_event(self, transcript_event) -> None:
+        for result in transcript_event.transcript.results:
+            if not result.alternatives:
+                continue
+
+            text = result.alternatives[0].transcript.strip()
+            if not text:
+                continue
+
+            is_final = not result.is_partial
+            if is_final:
+                self.final_parts.append(text)
+            await self.on_transcript(text, is_final)
+
+    @property
+    def transcript(self) -> str:
+        return " ".join(self.final_parts).strip()
+
+
 class TranscribeService:
     def __init__(self):
-        self.s3 = boto3.client("s3", region_name=settings.aws_region)
-        self.transcribe = boto3.client("transcribe", region_name=settings.aws_region)
+        session = boto3.Session(
+            profile_name=settings.aws_profile,
+            region_name=settings.aws_region,
+        )
+        credentials = session.get_credentials()
+        if credentials is None:
+            raise TranscriptionError(
+                "No AWS credentials were found for the configured AWS profile"
+            )
 
-    def transcribe_upload(self, audio: UploadFile, content: bytes) -> str:
-        if not settings.transcribe_s3_bucket:
-            raise TranscriptionError("TRANSCRIBE_S3_BUCKET is not configured")
-
-        # Determine file suffix and generate unique S3 key and job name
-        suffix = Path(audio.filename or "recording.webm").suffix or ".webm"
-        token = uuid.uuid4().hex
-        key = f"gp-chatbot-uploads/{token}{suffix}"
-        job_name = f"gp-chatbot-{token}"
-
-        media_format = suffix.lstrip(".").lower()
-        if media_format == "m4a":
-            media_format = "mp4"
-
-        # Upload the audio file to S3
-        self.s3.put_object(
-            Bucket=settings.transcribe_s3_bucket,
-            Key=key,
-            Body=content,
-            ContentType=audio.content_type or "application/octet-stream",
+        frozen_credentials = credentials.get_frozen_credentials()
+        self.client = TranscribeStreamingClient(
+            region=settings.aws_region,
+            credential_resolver=StaticCredentialResolver(
+                frozen_credentials.access_key,
+                frozen_credentials.secret_key,
+                frozen_credentials.token,
+            ),
         )
 
-        #AWS Transcribe job
+    async def start_stream(self, on_transcript: TranscriptCallback):
+        options = settings.transcribe_language_options
+        if len(options) < 2:
+            raise TranscriptionError(
+                "TRANSCRIBE_LANGUAGE_OPTIONS must contain at least two languages"
+            )
+
         try:
+            stream = await self.client.start_stream_transcription(
+                language_code=None,
+                identify_language=True,
+                language_options=options,
+                media_sample_rate_hz=16000,
+                media_encoding="pcm",
+            )
+        except Exception as exc:
+            raise TranscriptionError(
+                f"Unable to start real-time transcription: {exc}"
+            ) from exc
 
-
-
-            job_options = {
-                "TranscriptionJobName": job_name,
-                "Media": {
-                     "MediaFileUri": f"s3://{settings.transcribe_s3_bucket}/{key}"
-                },
-                "MediaFormat": media_format,
-                "IdentifyLanguage": True,
-            }
-            if settings.transcribe_language_options:
-                if len(settings.transcribe_language_options) < 2:
-                    raise TranscriptionError(
-                          "TRANSCRIBE_LANGUAGE_OPTIONS must contain at least two languages"
-                    )
-                job_options["LanguageOptions"] = (
-                    settings.transcribe_language_options
-                )
-            self.transcribe.start_transcription_job(**job_options)
-
-
-            
-            deadline = time.monotonic() + settings.transcribe_timeout_seconds
-
-            while time.monotonic() < deadline:
-                job = self.transcribe.get_transcription_job(
-                    TranscriptionJobName=job_name
-                )["TranscriptionJob"]
-                status = job["TranscriptionJobStatus"]
-
-                if status == "COMPLETED":
-                    uri = job["Transcript"]["TranscriptFileUri"]
-                    with urllib.request.urlopen(uri, timeout=30) as response:
-                        payload = json.load(response)
-                    return payload["results"]["transcripts"][0]["transcript"]
-                
-                if status == "FAILED":
-                    raise TranscriptionError(job.get("FailureReason", "Transcription failed"))
-                time.sleep(1)
-            raise TranscriptionError("Transcription timed out")
-        
-        finally:
-            self.s3.delete_object(Bucket=settings.transcribe_s3_bucket, Key=key)
-            try:
-                self.transcribe.delete_transcription_job(TranscriptionJobName=job_name)
-            except self.transcribe.exceptions.BadRequestException:
-                pass
+        return stream, _TranscriptHandler(stream.output_stream, on_transcript)
 
 
 transcribe_service = TranscribeService()

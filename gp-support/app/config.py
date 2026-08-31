@@ -29,11 +29,6 @@ class Settings:
     aws_profile = AWS_PROFILE
     bedrock_model_id = BEDROCK_MODEL_ID
 
-    transcribe_s3_bucket = os.getenv(
-        "TRANSCRIBE_S3_BUCKET",
-        "",
-    )
-
     transcribe_language_options = [
         code.strip()
         for code in os.getenv(
@@ -42,10 +37,6 @@ class Settings:
         ).split(",")
         if code.strip()
     ]
-
-    transcribe_timeout_seconds = int(
-        os.getenv("TRANSCRIBE_TIMEOUT_SECONDS", "180")
-    )
 
     frontend_origin = os.getenv(
         "FRONTEND_ORIGIN",

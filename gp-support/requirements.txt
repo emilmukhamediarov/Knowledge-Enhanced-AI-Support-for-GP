@@ -1,5 +1,5 @@
 fastapi==0.141.1
-uvicorn==0.52.3
+uvicorn[standard]==0.52.3
 groq==1.6.0
 pydantic==2.13.4
 psycopg[binary]
@@ -18,5 +18,8 @@ llama-index
 llama-index-llms-bedrock-converse
 llama-index-embeddings-huggingface
 boto3
-sentence-transformers
 llama-index-vector-stores-postgres
+
+# Real-time audio transcription
+amazon-transcribe
+sentence-transformers
