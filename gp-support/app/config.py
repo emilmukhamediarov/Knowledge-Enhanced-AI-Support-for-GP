@@ -5,24 +5,36 @@ load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-BUILD_RAG_INDEX = True if os.getenv("BUILD_RAG_INDEX", "false").lower() == "true" else False
 
+BUILD_RAG_INDEX = False
+AWS_REGION = os.getenv(
+    "AWS_REGION",
+    "ap-southeast-2",
+)
+
+AWS_PROFILE = os.getenv("AWS_PROFILE")
+BEDROCK_MODEL_ID = os.getenv(
+    "BEDROCK_MODEL_ID",
+    "amazon.nova-lite-v1:0",
+)
 
 class Settings:
-    aws_region = os.getenv("AWS_REGION", "ap-southeast-2")
-    bedrock_model_id = os.getenv("BEDROCK_MODEL_ID", "amazon.nova-lite-v1:0")
-    transcribe_s3_bucket = os.getenv("TRANSCRIBE_S3_BUCKET", "")
-    frontend_origin = os.getenv("FRONTEND_ORIGIN", "http://localhost:5173")
+    aws_region = AWS_REGION
+    aws_profile = AWS_PROFILE
+    bedrock_model_id = BEDROCK_MODEL_ID
 
     transcribe_language_options = [
         code.strip()
-        for code in os.getenv("TRANSCRIBE_LANGUAGE_OPTIONS", "").split(",")
+        for code in os.getenv(
+            "TRANSCRIBE_LANGUAGE_OPTIONS",
+            "en-US,zh-CN,th-TH,ru-RU,es-US",
+        ).split(",")
         if code.strip()
     ]
 
-    transcribe_timeout_seconds = int(os.getenv("TRANSCRIBE_TIMEOUT_SECONDS", "180"))
+    frontend_origin = os.getenv(
+        "FRONTEND_ORIGIN",
+        "http://localhost:5173",
+    )
 
 settings = Settings()
-
-AWS_REGION = settings.aws_region
-BEDROCK_MODEL_ID = settings.bedrock_model_id

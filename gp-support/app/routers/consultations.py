@@ -1,10 +1,13 @@
+import asyncio
+import json
+
 from fastapi import (
     APIRouter,
     Depends,
-    File,
     HTTPException,
     Request,
-    UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
 )
 
 from app.services.transcribe_service import (
@@ -351,44 +354,41 @@ def get_rag_result(
     }
 
 
-@router.post("/{consultation_id}/audio-chat")
-def audio_chat(
-    consultation_id: int,
-    audio: UploadFile = File(...),
-    db: Session = Depends(get_db),
-):
-    content = audio.file.read()
+#audio-stream
+@router.websocket("/{consultation_id}/audio-stream")
+async def audio_stream(consultation_id: int, websocket: WebSocket):
+    """Relay browser PCM audio to Amazon Transcribe in real time."""
+    await websocket.accept()
 
-    if not content:
-        raise HTTPException(
-            status_code=400,
-            detail="No audio was provided",
-        )
-
-    if len(content) > 25 * 1024 * 1024:
-        raise HTTPException(
-            status_code=413,
-            detail="Audio file is too large",
+    async def send_transcript(text: str, is_final: bool) -> None:
+        await websocket.send_json(
+            {"event": "transcript", "text": text, "is_final": is_final}
         )
 
     try:
-        transcript = transcribe_service.transcribe_upload(
-            audio,
-            content,
+        stream, handler = await transcribe_service.start_stream(send_transcript)
+        handler_task = asyncio.create_task(handler.handle_events())
+
+        while True:
+            message = await websocket.receive()
+            if message["type"] == "websocket.disconnect":
+                break
+            if message.get("bytes") is not None:
+                await stream.input_stream.send_audio_event(
+                    audio_chunk=message["bytes"]
+                )
+                continue
+            if message.get("text") and json.loads(message["text"]).get("event") == "stop":
+                break
+
+        await stream.input_stream.end_stream()
+        await handler_task
+        await websocket.send_json(
+            {"event": "complete", "transcript": handler.transcript}
         )
-    except TranscriptionError as exc:
-        raise HTTPException(
-            status_code=502,
-            detail=str(exc),
-        ) from exc
-
-    result = chat(
-        consultation_id,
-        ChatMessage(message=transcript),
-        db,
-    )
-
-    return {
-        "transcript": transcript,
-        "reply": result["reply"],
-    }
+    except WebSocketDisconnect:
+        return
+    except Exception as exc:
+        await websocket.send_json({"event": "error", "detail": str(exc)})
+    finally:
+        await websocket.close()

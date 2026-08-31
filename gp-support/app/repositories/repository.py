@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
 from app.db.models import User, Consultation, Message
@@ -127,3 +127,12 @@ def save_user_message(
     db.refresh(message)
 
     return message
+
+def clear_rag_chunks(db: Session):
+    table_exists = db.execute(
+        text("SELECT to_regclass('public.data_rag_chunks')")
+    ).scalar()
+
+    if table_exists:
+        db.execute(text("DELETE FROM data_rag_chunks"))
+        db.commit()

@@ -20,12 +20,14 @@ function Chat() {
 
     // Audio recording state
     const [isRecording, setIsRecording] = useState(false);
-    const mediaRecorderRef =
-        useRef<MediaRecorder | null>(null);
     const mediaStreamRef =
         useRef<MediaStream | null>(null);
-    const audioChunksRef =
-        useRef<Blob[]>([]);
+    const audioContextRef = useRef<AudioContext | null>(null);
+    const audioProcessorRef = useRef<ScriptProcessorNode | null>(null);
+    const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
+    const transcriptionSocketRef = useRef<WebSocket | null>(null);
+    const partialTranscriptRef = useRef("");
+    const finalTranscriptRef = useRef<string[]>([]);
 
     // Used to automatically scroll to the newest message
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -132,9 +134,7 @@ function Chat() {
                 setMessages((previous) => {
                     const updatedMessages = [...previous];
 
-                    updatedMessages[
-                    updatedMessages.length - 1
-                        ] = {
+                    updatedMessages[updatedMessages.length - 1] = {
                         role: "assistant",
                         content: data.reply.slice(0, i + 1),
                     };
@@ -159,91 +159,30 @@ function Chat() {
         }
     };
 
-    // Added by James and Codex. Just to test voice input.
-    // ---------------------------------------------------
-    // ---------------------------------------------------
-    // ---------------------------------------------------
+    const downsampleTo16kPcm = (input: Float32Array, inputRate: number) => {
+        const ratio = inputRate / 16000;
+        const output = new Int16Array(Math.round(input.length / ratio));
 
-    const uploadAudio = async (
-        audioBlob: Blob,
-        extension: string,
-    ) => {
-        if (!consultationId) {
-            setError(
-                "Unable to identify the consultation."
-            );
-            return;
+        for (let index = 0; index < output.length; index += 1) {
+            const start = Math.floor(index * ratio);
+            const end = Math.min(Math.floor((index + 1) * ratio), input.length);
+            let total = 0;
+            for (let sample = start; sample < end; sample += 1) total += input[sample];
+            output[index] = Math.max(-1, Math.min(1, total / Math.max(1, end - start))) * 0x7fff;
         }
-
-        const formData = new FormData();
-
-        formData.append(
-            "audio",
-            audioBlob,
-            `recording.${extension}`,
-        );
-
-        setLoading(true);
-        setError("");
-
-        try {
-            const data = await apiFetch(
-                `/consultations/${consultationId}/audio-chat`,
-                {
-                    method: "POST",
-                    body: formData,
-                }
-            );
-
-            // Display the transcript as the user's message
-            setMessages((previous) => [
-                ...previous,
-                {
-                    role: "user",
-                    content: data.transcript,
-                },
-            ]);
-
-            // Display an empty assistant message
-            setMessages((previous) => [
-                ...previous,
-                {
-                    role: "assistant",
-                    content: "",
-                },
-            ]);
-
-            // Preserve the existing typing effect
-            for (let i = 0; i < data.reply.length; i++) {
-                await new Promise((resolve) =>
-                    setTimeout(resolve, 15)
-                );
-
-                setMessages((previous) => {
-                    const updatedMessages = [...previous];
-
-                    updatedMessages[
-                    updatedMessages.length - 1
-                        ] = {
-                        role: "assistant",
-                        content: data.reply.slice(0, i + 1),
-                    };
-
-                    return updatedMessages;
-                });
-            }
-        } catch (error) {
-            console.error("Audio chat error:", error);
-            setError("Failed to process the recording.");
-        } finally {
-            setLoading(false);
-
-            setTimeout(() => {
-                inputRef.current?.focus();
-            }, 0);
-        }
+        return output.buffer;
     };
 
+    const stopAudioResources = () => {
+        audioProcessorRef.current?.disconnect();
+        audioSourceRef.current?.disconnect();
+        void audioContextRef.current?.close();
+        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+        audioProcessorRef.current = null;
+        audioSourceRef.current = null;
+        audioContextRef.current = null;
+        mediaStreamRef.current = null;
+    };
 
     const startRecording = async () => {
         if (loading || isRecording) {
@@ -252,10 +191,7 @@ function Chat() {
 
         setError("");
 
-        if (
-            !navigator.mediaDevices?.getUserMedia ||
-            typeof MediaRecorder === "undefined"
-        ) {
+        if (!navigator.mediaDevices?.getUserMedia) {
             setError(
                 "Audio recording is not supported by this browser."
             );
@@ -270,66 +206,56 @@ function Chat() {
 
             mediaStreamRef.current = stream;
 
-            const supportedMimeTypes = [
-                "audio/webm;codecs=opus",
-                "audio/mp4",
-                "audio/webm",
-            ];
-
-            const mimeType = supportedMimeTypes.find(
-                (type) =>
-                    MediaRecorder.isTypeSupported(type)
+            const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+            const socketUrl = apiUrl.replace(/^http/, "ws");
+            const socket = new WebSocket(
+                `${socketUrl}/consultations/${consultationId}/audio-stream`,
             );
+            transcriptionSocketRef.current = socket;
+            finalTranscriptRef.current = [];
+            partialTranscriptRef.current = "";
 
-            const recorder = mimeType
-                ? new MediaRecorder(stream, { mimeType })
-                : new MediaRecorder(stream);
-
-            mediaRecorderRef.current = recorder;
-            audioChunksRef.current = [];
-
-            recorder.ondataavailable = (event) => {
-                if (event.data.size > 0) {
-                    audioChunksRef.current.push(event.data);
+            socket.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.event === "transcript") {
+                    if (data.is_final) {
+                        finalTranscriptRef.current.push(data.text);
+                        partialTranscriptRef.current = "";
+                    } else {
+                        partialTranscriptRef.current = data.text;
+                    }
+                    setMessage(
+                        [...finalTranscriptRef.current, partialTranscriptRef.current]
+                            .filter(Boolean)
+                            .join(" "),
+                    );
+                }
+                if (data.event === "complete") {
+                    void sendMessage(data.transcript);
+                }
+                if (data.event === "error") {
+                    setError(data.detail || "Live transcription failed.");
                 }
             };
+            socket.onerror = () => setError("Could not start live transcription.");
 
-            recorder.onstop = () => {
-                const recordedType =
-                    recorder.mimeType ||
-                    mimeType ||
-                    "audio/webm";
-
-                const extension =
-                    recordedType.includes("mp4")
-                        ? "m4a"
-                        : recordedType.includes("ogg")
-                            ? "ogg"
-                            : "webm";
-
-                const audioBlob = new Blob(
-                    audioChunksRef.current,
-                    {
-                        type: recordedType,
-                    }
-                );
-
-                stream
-                    .getTracks()
-                    .forEach((track) => track.stop());
-
-                mediaStreamRef.current = null;
-                mediaRecorderRef.current = null;
-
-                setIsRecording(false);
-
-                void uploadAudio(
-                    audioBlob,
-                    extension,
+            const context = new AudioContext();
+            const source = context.createMediaStreamSource(stream);
+            const processor = context.createScriptProcessor(4096, 1, 1);
+            source.connect(processor);
+            processor.connect(context.destination);
+            processor.onaudioprocess = (event) => {
+                if (socket.readyState !== WebSocket.OPEN) return;
+                socket.send(
+                    downsampleTo16kPcm(
+                        event.inputBuffer.getChannelData(0),
+                        context.sampleRate,
+                    ),
                 );
             };
-
-            recorder.start();
+            audioContextRef.current = context;
+            audioSourceRef.current = source;
+            audioProcessorRef.current = processor;
             setIsRecording(true);
         } catch (error) {
             console.error("Microphone error:", error);
@@ -342,14 +268,11 @@ function Chat() {
 
 
     const stopRecording = () => {
-        const recorder = mediaRecorderRef.current;
-
-        if (
-            recorder &&
-            recorder.state !== "inactive"
-        ) {
-            recorder.stop();
-        }
+        if (!isRecording) return;
+        stopAudioResources();
+        transcriptionSocketRef.current?.send(JSON.stringify({ event: "stop" }));
+        transcriptionSocketRef.current = null;
+        setIsRecording(false);
     };
 
     // ---------------------------------------------------
