@@ -1,11 +1,11 @@
-"""Real-time Amazon Transcribe support without S3 storage."""
-
 from __future__ import annotations
 
 from collections.abc import Awaitable, Callable
 
 import boto3
 from amazon_transcribe.auth import StaticCredentialResolver
+
+#Required for real-time audio transcription
 from amazon_transcribe.client import TranscribeStreamingClient
 from amazon_transcribe.handlers import TranscriptResultStreamHandler
 
@@ -68,11 +68,6 @@ class TranscribeService:
 
     async def start_stream(self, on_transcript: TranscriptCallback):
         options = settings.transcribe_language_options
-        if len(options) < 2:
-            raise TranscriptionError(
-                "TRANSCRIBE_LANGUAGE_OPTIONS must contain at least two languages"
-            )
-
         try:
             stream = await self.client.start_stream_transcription(
                 language_code=None,

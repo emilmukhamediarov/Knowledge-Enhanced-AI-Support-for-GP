@@ -354,6 +354,7 @@ def get_rag_result(
     }
 
 
+#audio-stream
 @router.websocket("/{consultation_id}/audio-stream")
 async def audio_stream(consultation_id: int, websocket: WebSocket):
     """Relay browser PCM audio to Amazon Transcribe in real time."""
