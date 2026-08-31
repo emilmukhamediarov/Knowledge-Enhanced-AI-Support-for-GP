@@ -19,3 +19,4 @@ llama-index-llms-bedrock-converse
 llama-index-embeddings-huggingface
 boto3
 sentence-transformers
+llama-index-vector-stores-postgres

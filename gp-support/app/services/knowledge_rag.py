@@ -20,12 +20,40 @@ from llama_index.core import PromptTemplate
 #from llama_index.llms.groq import Groq
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.bedrock_converse import BedrockConverse
+from llama_index.vector_stores.postgres import PGVectorStore
+from llama_index.core import StorageContext
+from sqlalchemy.engine import make_url
+from app.config import DATABASE_URL
 
 # Path to the knowledge base folder, relative to this file's location.
 # Using this instead of a hardcoded/relative-to-cwd path means it works
 # no matter which folder you run the app from.
 _THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 KNOWLEDGE_BASE_DIR = os.path.join(_THIS_DIR, "../knowledge_base")
+RAG_TABLE_NAME = "rag_chunks"
+EMBEDDING_DIM = 384
+
+def _get_vector_store():
+    url = make_url(DATABASE_URL)
+
+    return PGVectorStore.from_params(
+        database=url.database,
+        host=url.host,
+        password=url.password,
+        port=str(url.port or 5432),
+        user=url.username,
+        table_name=RAG_TABLE_NAME,
+        embed_dim=EMBEDDING_DIM,
+    )
+
+def load_index():
+    _configure_models()
+
+    vector_store = _get_vector_store()
+
+    return VectorStoreIndex.from_vector_store(
+        vector_store
+    )
 
 # Custom prompt template — this replaces llama-index's default prompt,
 # which does NOT forbid the model from adding its own outside knowledge.
@@ -83,7 +111,18 @@ def build_index():
             "and that .txt files exist there."
         )
     print(f"Loaded {len(documents)} document(s). Building index (embedding text)...", flush=True)
-    index = VectorStoreIndex.from_documents(documents)
+
+    ##Saving the index
+    vector_store = _get_vector_store()
+
+    storage_context = StorageContext.from_defaults(
+        vector_store=vector_store
+    )
+
+    index = VectorStoreIndex.from_documents(
+        documents,
+        storage_context=storage_context,
+    )
     print("Index built.", flush=True)
     return index
 
