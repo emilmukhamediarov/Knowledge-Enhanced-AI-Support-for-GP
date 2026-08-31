@@ -6,12 +6,15 @@ from app.routers import auth, users, consultations
 from app.dependencies.auth import get_current_user
 from app.services.knowledge_rag import build_index, load_index
 from app.config import BUILD_RAG_INDEX
+from app.db.database import SessionLocal
 app = FastAPI()
 
 @app.on_event("startup")
 def startup_event():
     if BUILD_RAG_INDEX:
-        app.state.rag_index = build_index()
+        db = SessionLocal()
+        app.state.rag_index = build_index(db)
+        db.close()
     else:
         app.state.rag_index = load_index()
 

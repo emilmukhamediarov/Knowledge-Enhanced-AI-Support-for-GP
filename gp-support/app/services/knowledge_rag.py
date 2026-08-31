@@ -24,6 +24,7 @@ from llama_index.vector_stores.postgres import PGVectorStore
 from llama_index.core import StorageContext
 from sqlalchemy.engine import make_url
 from app.config import DATABASE_URL
+from app.repositories import repository
 
 # Path to the knowledge base folder, relative to this file's location.
 # Using this instead of a hardcoded/relative-to-cwd path means it works
@@ -95,7 +96,7 @@ def _configure_models():
     )
 
 
-def build_index():
+def build_index(db):
     """
     Load documents from the knowledge base and build a searchable index.
     Call this once (e.g. at app startup) — it's the slow/expensive step.
@@ -103,6 +104,9 @@ def build_index():
     """
     print("Configuring models (this downloads the embedding model on first run)...", flush=True)
     _configure_models()
+
+    repository.clear_rag_chunks(db)
+
     print("Loading documents from knowledge base...", flush=True)
     documents = SimpleDirectoryReader(KNOWLEDGE_BASE_DIR).load_data()
     if not documents:
