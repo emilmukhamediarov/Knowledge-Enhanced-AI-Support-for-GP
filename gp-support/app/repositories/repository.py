@@ -129,5 +129,10 @@ def save_user_message(
     return message
 
 def clear_rag_chunks(db: Session):
-    db.execute(text("DELETE FROM data_rag_chunks"))
-    db.commit()
+    table_exists = db.execute(
+        text("SELECT to_regclass('public.data_rag_chunks')")
+    ).scalar()
+
+    if table_exists:
+        db.execute(text("DELETE FROM data_rag_chunks"))
+        db.commit()
