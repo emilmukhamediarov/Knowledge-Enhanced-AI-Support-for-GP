@@ -392,3 +392,24 @@ async def audio_stream(consultation_id: int, websocket: WebSocket):
         await websocket.send_json({"event": "error", "detail": str(exc)})
     finally:
         await websocket.close()
+
+#Getting a list of consultations related to userid
+@router.get("/users/{user_id}/consultations")
+def get_user_consultations(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    consultations = repository.get_consultations_by_user_id(
+        db,
+        user_id
+    )
+
+    return {
+        "consultations": [
+            {
+                "id": consultation.id,
+                "user_id": consultation.user_id,
+            }
+            for consultation in consultations
+        ]
+    }

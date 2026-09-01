@@ -1,7 +1,6 @@
 .new-consultation {
     min-height: calc(100vh - 64px);
     padding: 56px 24px 72px;
-    background: var(--bg);
 }
 
 .new-consultation-container {
@@ -19,8 +18,8 @@
 .consultation-header h1 {
     margin: 0;
 
-    color: var(--text);
-    font-size: 30px;
+    color: var(--accent);
+    font-size: 35px;
     font-weight: 600;
     line-height: 1.25;
     letter-spacing: -0.02em;
@@ -43,6 +42,7 @@
     border-radius: 14px;
 
     background: var(--social-bg);
+    box-shadow: var(--shadow);
 }
 
 .consultation-section + .consultation-section {
@@ -221,8 +221,8 @@
     border: none;
     border-radius: 9px;
 
-    background: var(--border);
-    color: var(--text);
+    background: var(--accent);
+    color: var(--bg);
 
     font-family: inherit;
     font-size: 15px;
@@ -231,15 +231,14 @@
     cursor: pointer;
 
     transition:
-            opacity 0.15s ease,
+            background-color 0.15s ease,
             box-shadow 0.15s ease,
             transform 0.15s ease;
 }
 
 .start-consultation-button:hover:not(:disabled) {
-    opacity: 0.92;
-    box-shadow: 0 4px 12px
-    rgba(0, 0, 0, 0.12);
+    background: var(--accent-hover);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
 .start-consultation-button:active:not(:disabled) {
@@ -255,7 +254,7 @@
 
 .consultation-option:focus-visible,
 .start-consultation-button:focus-visible {
-    outline: 2px solid var(--code-bg);
+    outline: 2px solid var(--accent);
     outline-offset: 3px;
 }
 

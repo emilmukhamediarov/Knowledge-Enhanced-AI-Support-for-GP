@@ -1,0 +1,285 @@
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100%;
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    box-sizing: border-box;
+    overflow: hidden;
+    border-right: 1px solid var(--border);
+    padding: 1rem;
+    background-color: var(--bg);
+}
+
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.sidebar-chats {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.sidebar-bottom {
+    flex-shrink: 0;
+    margin-top: auto;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.sidebar-new-chat {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    padding: 11px 14px;
+
+    border: 1px none var(--accent-border);
+    border-radius: 30px;
+
+    background: var(--accent-bg);
+    color: var(--accent);
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 650;
+
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.15s ease;
+}
+
+.sidebar-new-chat:hover {
+    background: var(--accent-border);
+}
+
+.sidebar-new-chat:active {
+    transform: scale(0.98);
+}
+
+.sidebar-new-chat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 20px;
+    height: 20px;
+
+    font-size: 20px;
+    line-height: 1;
+
+    position: relative;
+    bottom: 0.1rem;
+}
+
+.sidebar-new-chat-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    position: relative;
+    right: 0.25rem;
+}
+
+/* Theme toggle */
+
+.theme-toggle {
+    position: relative;
+
+    width: 56px;
+    height: 30px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: 1px solid var(--border);
+    border-radius: 999px;
+
+    background: var(--social-bg);
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.25s ease,
+            border-color 0.25s ease;
+}
+
+.theme-toggle.dark {
+    background: #1f2028;
+    border-color: #3a3c47;
+}
+
+.theme-toggle-thumb {
+    position: absolute;
+
+    top: 3px;
+    left: 3px;
+
+    width: 22px;
+    height: 22px;
+
+    border-radius: 50%;
+
+    background: var(--bg);
+
+    box-shadow: var(--shadow);
+
+    z-index: 2;
+
+    transition:
+            transform 0.25s ease,
+            background-color 0.25s ease;
+}
+
+.theme-toggle.dark .theme-toggle-thumb {
+    transform: translateX(26px);
+}
+
+.theme-toggle-icon {
+    position: absolute;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    z-index: 1;
+
+    font-size: 13px;
+    line-height: 1;
+
+    pointer-events: none;
+}
+
+.theme-toggle-icon.sun {
+    left: 7px;
+}
+
+.theme-toggle-icon.moon {
+    right: 7px;
+    color: #9ca3af;
+}
+
+.theme-toggle.dark .sun {
+    color: #6b7280;
+}
+
+.theme-toggle.dark .moon {
+    color: #f3f4f6;
+}
+
+.theme-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.theme-label {
+    white-space: nowrap;
+    font-size: 0.85rem;
+}
+
+
+/* =========================
+   Mobile
+   ========================= */
+
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 64px;
+    }
+
+    .sidebar {
+        width: 64px;
+        padding: 20px 8px;
+    }
+
+    /* Hide text but keep icons */
+    .sidebar-new-chat span:last-child,
+    .theme-label {
+        display: none;
+    }
+
+    .sidebar-new-chat {
+        justify-content: center;
+        gap: 0;
+
+        padding: 11px;
+    }
+
+    .sidebar-new-chat-icon {
+        flex-shrink: 0;
+    }
+
+    /* Centre the theme toggle */
+    .theme-toggle {
+        margin: 0 auto;
+    }
+}
+
+.sidebar-separator {
+    width: 100%;
+    height: 1px;
+
+    margin: 1rem 0;
+
+    background: var(--border);
+}
+
+.sidebar-section-title {
+    display: block;
+
+    margin-bottom: 0.5rem;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.sidebar-chat {
+    width: 100%;
+
+    display: block;
+
+    padding: 0.6rem 0.7rem;
+
+    border: none;
+    border-radius: 20px;
+
+    background: transparent;
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 0.85rem;
+    text-align: left;
+
+    cursor: pointer;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sidebar-chat:hover {
+    background: var(--social-bg);
+}
+
+.sidebar-chat.active {
+    background: color-mix(in srgb, var(--social-bg) 90%, var(--text) 10%);
+    color: var(--text);
+    font-weight: 600;
+}

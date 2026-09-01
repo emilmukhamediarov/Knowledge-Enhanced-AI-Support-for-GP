@@ -136,3 +136,14 @@ def clear_rag_chunks(db: Session):
     if table_exists:
         db.execute(text("DELETE FROM data_rag_chunks"))
         db.commit()
+
+def get_consultations_by_user_id(
+    db: Session,
+    user_id: int
+):
+    return (
+        db.query(Consultation)
+        .filter(Consultation.user_id == user_id)
+        .order_by(Consultation.id.desc())
+        .all()
+    )

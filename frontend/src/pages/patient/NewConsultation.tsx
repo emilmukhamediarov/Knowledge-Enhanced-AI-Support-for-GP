@@ -49,10 +49,10 @@ function NewConsultation() {
 
             try {
                 const data = await apiFetch(
-                    `/consultations?user_id=${userId}`
+                    `/consultations/users/${userId}/consultations`
                 );
 
-                setConsultations(data);
+                setConsultations(data.consultations);
             } catch (error) {
                 console.error(
                     "Failed to load consultations:",

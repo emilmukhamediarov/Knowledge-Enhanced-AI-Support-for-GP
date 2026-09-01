@@ -1,16 +1,28 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 
-import Home from './pages/Home';
-import PatientHome from './pages/patient/PatientHome';
-import DoctorHome from './pages/doctor/DoctorHome';
-import Chat from './pages/patient/Chat'
-import Summary from './pages/doctor/Summary'
+import Home from "./pages/Home";
+import PatientHome from "./pages/patient/PatientHome";
+import DoctorHome from "./pages/doctor/DoctorHome";
+import Chat from "./pages/patient/Chat";
+import Summary from "./pages/doctor/Summary";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import RoleRoute from "./components/RoleRoute";
 import Rag from "./pages/doctor/Rag";
 import Register from "./pages/Register";
 import NewConsultation from "./pages/patient/NewConsultation";
+import Sidebar from "./components/Sidebar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import AllConsultations from "./pages/patient/AllConsultations";
+
+function ProtectedLayout() {
+    return (
+        <div className="app-layout">
+            <Sidebar />
+            <Outlet />
+        </div>
+    );
+}
 
 // controls overall app & routing
 
@@ -19,32 +31,31 @@ function App() {
         <BrowserRouter>
             <Navbar />
             <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
+                {/* Public routes */}
+                <Route path="/" element={<Navigate to="/login" replace />}/>
+                <Route path="/login" element={<Login />}/>
+                <Route path="/register" element={<Register />}/>
 
-                <Route path="/home" element={<RoleRoute roles={["admin"]}><Home /></RoleRoute>} />
+                {/* Protected routes */}
+                <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
+                    {/* Admin */}
+                    <Route path="/home" element={<RoleRoute roles={["admin"]}><Home /></RoleRoute>}/>
 
-                {/*Doctor pathway*/}
-                <Route path="/doctorhome"element={<RoleRoute roles={["doctor", "admin"]}><DoctorHome /></RoleRoute>} />
-                <Route path="/summary"element={<RoleRoute roles={["doctor", "admin"]}><Summary /></RoleRoute>} />
-                <Route path="/rag"element={<RoleRoute roles={["doctor", "admin"]}><Rag /></RoleRoute>} />
+                    {/* Doctor pathway */}
+                    <Route path="/doctorhome" element={<RoleRoute roles={["doctor", "admin"]}><DoctorHome /></RoleRoute>}/>
+                    <Route path="/summary" element={<RoleRoute roles={["doctor", "admin"]}><Summary /></RoleRoute>}/>
+                    <Route path="/rag" element={<RoleRoute roles={["doctor", "admin"]}><Rag /></RoleRoute>}/>
 
-                {/*Patient pathway*/}
-                <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>}/>
-                <Route path="/new-consultation" element={<RoleRoute roles={["patient", "admin"]}><NewConsultation /></RoleRoute>}/>
-                <Route path="/chat/:consultationId" element={<Chat />}/>
+                    {/* Patient pathway */}
+                    <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>}/>
+                    <Route path="/new-consultation" element={<RoleRoute roles={["patient", "admin"]}><NewConsultation /></RoleRoute>}/>
+                    <Route path="/chat/:consultationId" element={<Chat />}/>
+                    <Route path="/all-chats" element={<RoleRoute roles={["patient", "admin"]}><AllConsultations /></RoleRoute>}/>
 
-
-                {/*
-                <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
-                <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
-                <Route path="/summary" element={<ProtectedRoute><Summary /></ProtectedRoute>} />
-                */}
-
+                </Route>
             </Routes>
         </BrowserRouter>
     );
 }
 
-export default App
+export default App;

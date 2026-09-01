@@ -2,6 +2,7 @@ import "./Chat.css";
 import { useState, useEffect, useRef } from "react";
 import { apiFetch } from "../../api/client";
 import { useParams } from "react-router-dom";
+import micIcon from "../../assets/mic-icon.png";
 
 interface Message {
     role: "user" | "assistant";
@@ -33,7 +34,9 @@ function Chat() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Used to automatically focus the input after the AI finishes
-    const inputRef = useRef<HTMLInputElement>(null);
+    const inputRef = useRef<HTMLTextAreaElement>(null);
+
+    const [showResetConfirmation, setShowResetConfirmation] = useState(false);
 
     // Load messages for this consultation
     useEffect(() => {
@@ -76,8 +79,10 @@ function Chat() {
         void loadMessages();
     }, [consultationId]);
 
-    const sendMessage = async () => {
-        if (!message.trim() || loading) return;
+    const sendMessage = async (text?: string) => {
+        const messageToSend = text ?? message;
+
+        if (!messageToSend.trim() || loading) return;
 
         if (!consultationId) {
             setError(
@@ -86,7 +91,7 @@ function Chat() {
             return;
         }
 
-        const userMessage = message.trim();
+        const userMessage = messageToSend.trim();
 
         setError("");
         setMessage("");
@@ -280,7 +285,7 @@ function Chat() {
     // ---------------------------------------------------
 
     const handleKeyDown = (
-        e: React.KeyboardEvent<HTMLInputElement>
+        e: React.KeyboardEvent<HTMLTextAreaElement>
     ) => {
         if (e.key === "Enter") {
             void sendMessage();
@@ -307,6 +312,7 @@ function Chat() {
             setMessages([]);
             setMessage("");
             setError("");
+            setShowResetConfirmation(false);
 
             setTimeout(() => {
                 inputRef.current?.focus();
@@ -319,9 +325,51 @@ function Chat() {
 
     return (
         <main>
-            <h1>Chatbot</h1>
+            {showResetConfirmation && (
+                <div className="reset-confirmation">
+                    <div className="reset-confirmation-box">
+                        <h3>Reset chat?</h3>
 
+                        <p>
+                            Are you sure you want to reset this chat?
+                            This will delete all messages and responses.
+                        </p>
+
+                        <div className="reset-confirmation-actions">
+                            <button
+                                type="button"
+                                onClick={() => setShowResetConfirmation(false)}
+                                className="reset-cancel-button"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => void resetChat()}
+                                className="reset-confirm-button"
+                            >
+                                Reset Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
             <div className="messages">
+                <button
+                    type="button"
+                    onClick={() => setShowResetConfirmation(true)}
+                    className="reset-button"
+                >
+                    Reset Chat
+                </button>
+
+                {messages.length === 0 && (
+                    <div className="chat-welcome">
+                        <h1>How can we help you today?</h1>
+                        <p>Tell us what’s bothering you, and we’ll help you work out what to do next.</p>
+                    </div>
+                )}
                 {messages.map((msg, index) => (
                     <div
                         key={index}
@@ -348,52 +396,55 @@ function Chat() {
             )}
 
             <div className="chat-input">
-                <input
-                    ref={inputRef}
-                    type="text"
-                    value={message}
-                    onChange={(event) =>
-                        setMessage(event.target.value)
-                    }
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type your message..."
-                    disabled={loading}
-                />
+    <textarea
+        ref={inputRef}
+        value={message}
+        onChange={(event) =>
+            setMessage(event.target.value)
+        }
+        onKeyDown={handleKeyDown}
+        placeholder="Type your message..."
+        disabled={loading}
+        rows={1}
+    />
 
-                <button
-                    type="button"
-                    className={
-                        isRecording
-                            ? "record-button recording"
-                            : "record-button"
-                    }
-                    onClick={
-                        isRecording
-                            ? stopRecording
-                            : startRecording
-                    }
-                    disabled={loading}
-                    aria-pressed={isRecording}
-                >
-                    {isRecording ? "Stop" : "🎤 Voice"}
-                </button>
+                <div className="chat-input-actions">
+                    <button
+                        type="button"
+                        className={
+                            isRecording
+                                ? "record-button recording"
+                                : "record-button"
+                        }
+                        onClick={
+                            isRecording
+                                ? stopRecording
+                                : startRecording
+                        }
+                        disabled={loading}
+                        aria-pressed={isRecording}
+                    >
+                        <img
+                            src={micIcon}
+                            alt={
+                                isRecording
+                                    ? "Stop recording"
+                                    : "Start voice recording"
+                            }
+                        />
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={() => void sendMessage()}
-                    disabled={loading}
-                >
-                    {loading ? "Sending..." : "Send"}
-                </button>
+                    <button
+                        type="button"
+                        className="send-button"
+                        onClick={() => void sendMessage()}
+                        disabled={loading || message.trim() === ""}
+                        aria-label="Send message"
+                    >
+                        ➤
+                    </button>
+                </div>
             </div>
-
-            <button
-                type="button"
-                onClick={() => void resetChat()}
-                className="reset-button"
-            >
-                New Chat
-            </button>
         </main>
     );
 }

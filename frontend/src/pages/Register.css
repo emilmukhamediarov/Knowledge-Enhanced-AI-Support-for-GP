@@ -10,10 +10,12 @@
 .register-form {
     width: 400px;
     padding: 2rem;
-    background-color: var(--social-bg);
+    background-color: var(--bg);
     border: 1px solid var(--border);
+    box-shadow: var(--shadow);
     border-radius: 12px;
     box-sizing: border-box;
+    margin-top: -6rem;
 }
 
 .register-form h1 {
@@ -59,10 +61,10 @@
     margin-top: 0.5rem;
     padding: 10px 20px;
 
-    background-color: #F4F3EC;
-    color: #61605C;
+    background-color: var(--accent);
+    color: #ffffff;
 
-    border: 2px solid #C3C2BC;
+    border: 2px solid var(--accent-bg);
     border-radius: 8px;
 
     font-size: 16px;
@@ -71,7 +73,7 @@
 }
 
 .register-button:hover {
-    background-color: #E5E4DD;
+    background-color: var(--accent-hover);
 }
 
 .register-button:disabled {

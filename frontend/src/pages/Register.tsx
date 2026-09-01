@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
 import { apiFetch } from "../api/client";
+import ThemeToggle from "../components/ThemeToggle";
 
 function Register() {
     const [name, setName] = useState("");
@@ -148,6 +149,9 @@ function Register() {
                     Already have an account? Login
                 </button>
 
+            </div>
+            <div className="login-theme-toggle">
+                <ThemeToggle />
             </div>
         </div>
     );

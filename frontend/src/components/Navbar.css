@@ -2,7 +2,8 @@ nav {
     display: flex;
     align-items: center;
     padding: 1rem 2rem;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--border);
+    background-color: var(--bg);
 }
 
 .nav-links {
@@ -11,10 +12,6 @@ nav {
     margin-left: 1rem;
 }
 
-nav div {
-    display: flex;
-    gap: 1.5rem;
-}
 
 nav a {
     height: 100%;
@@ -40,7 +37,7 @@ nav button {
     transition: filter 0.2s;
 }
 
-nav button:hover {
+nav button:hover:not(.logout-button):not(.theme-toggle) {
     filter: brightness(80%);
 }
 
@@ -57,7 +54,7 @@ nav button:hover {
 }
 
 .logout-button:hover {
-    opacity: 0.9;
+    background-color: var(--accent-hover);
 }
 
 .scaled-svg {
@@ -65,4 +62,75 @@ nav button:hover {
     width: auto;
     display: block;
     padding-right: 1.5rem;
+}
+
+.theme-toggle {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+}
+
+.theme-toggle-track {
+    position: relative;
+    width: 64px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--social-bg);
+    cursor: pointer;
+    transition:
+            background 0.25s ease,
+            border-color 0.25s ease;
+}
+
+.theme-toggle-track.dark {
+    background: #1f2028;
+    border-color: #3a3c47;
+}
+
+.theme-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--bg);
+    box-shadow: var(--shadow);
+    transition:
+            transform 0.25s ease,
+            background 0.25s ease;
+    z-index: 2;
+}
+
+.theme-toggle-track.dark .theme-toggle-thumb {
+    transform: translateX(30px);
+}
+
+.theme-toggle-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+    font-size: 15px;
+    line-height: 1;
+    pointer-events: none;
+}
+
+.theme-toggle-icon.sun {
+    left: 8px;
+}
+
+.theme-toggle-icon.moon {
+    right: 8px;
+    color: #9ca3af;
+}
+
+.theme-toggle-track.dark .sun {
+    color: #6b7280;
+}
+
+.theme-toggle-track.dark .moon {
+    color: #f3f4f6;
 }
