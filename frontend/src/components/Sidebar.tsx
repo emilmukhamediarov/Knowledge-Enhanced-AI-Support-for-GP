@@ -1,6 +1,6 @@
 import "./Sidebar.css";
 import { useTheme } from "../hooks/useTheme";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 
@@ -17,10 +17,11 @@ function Sidebar() {
     const role = localStorage.getItem("role");
     const userId = localStorage.getItem("userId");
 
+    const location = useLocation();
+
     const [recentConsultations, setRecentConsultations] =
         useState<Consultation[]>([]);
 
-    // Load recent consultations
     useEffect(() => {
         if (!userId) {
             setRecentConsultations([]);
@@ -47,12 +48,10 @@ function Sidebar() {
         };
 
         void fetchRecentConsultations();
-    }, [userId]);
+    }, [userId, location.pathname]);
 
     const toggleTheme = () => {
-        setTheme(
-            isDark ? "light" : "dark"
-        );
+        setTheme(isDark ? "light" : "dark");
     };
 
     return (
