@@ -134,3 +134,58 @@ nav button:hover:not(.logout-button):not(.theme-toggle) {
 .theme-toggle-track.dark .moon {
     color: #f3f4f6;
 }
+
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.nav-brand span {
+    color: var(--accent);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+}
+
+.public-login {
+    margin-left: auto;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    padding: 0.6rem 1rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.public-login:hover {
+    color: var(--accent-hover);
+}
+
+.public-nav-links {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.back-home-button,
+.public-login {
+    border: none;
+    background: transparent;
+    color: var(--text);
+    padding: 0.6rem 1rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.back-home-button:hover,
+.public-login:hover {
+    color: var(--accent-hover);
+}

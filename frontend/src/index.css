@@ -284,6 +284,7 @@ code {
   background: var(--code-bg);
 }
 
+/* Decor */
 body::before {
   content: "";
   position: fixed;
@@ -313,6 +314,42 @@ body::after {
 
   right: -65vmin;
   bottom: -65vmin;
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+html::before {
+  content: "";
+  position: fixed;
+
+  width: 110vmin;
+  height: 60vmin;
+
+  border: 1px solid rgba(2, 93, 154, 0.12);
+  border-radius: 50%;
+
+  top: 45vmin;
+  right: -35vmin;
+
+  pointer-events: none;
+  z-index: -1;
+}
+
+html::after {
+  content: "";
+  position: fixed;
+
+  width: 120vmin;
+  height: 60vmin;
+
+  border: 1px solid rgba(2, 93, 154, 0.10);
+  border-radius: 50%;
+
+  bottom: 55vmin;
+  left: -35vmin;
+
+  transform: rotate(20deg);
 
   pointer-events: none;
   z-index: -1;

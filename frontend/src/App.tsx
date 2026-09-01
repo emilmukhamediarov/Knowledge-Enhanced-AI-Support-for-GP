@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom";
 
 import Home from "./pages/Home";
 import PatientHome from "./pages/patient/PatientHome";
@@ -14,6 +14,7 @@ import NewConsultation from "./pages/patient/NewConsultation";
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AllConsultations from "./pages/patient/AllConsultations";
+import Landing from "./pages/Landing";
 
 function ProtectedLayout() {
     return (
@@ -32,7 +33,7 @@ function App() {
             <Navbar />
             <Routes>
                 {/* Public routes */}
-                <Route path="/" element={<Navigate to="/login" replace />}/>
+                <Route path="/" element={<Landing />} />
                 <Route path="/login" element={<Login />}/>
                 <Route path="/register" element={<Register />}/>
 
