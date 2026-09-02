@@ -1,7 +1,7 @@
-from datetime import datetime, UTC
+from datetime import datetime, date, UTC
 from enum import Enum
 
-from sqlalchemy import String, ForeignKey, DateTime, Text, UniqueConstraint, Enum as SQLEnum
+from sqlalchemy import String, ForeignKey, DateTime, Date, Text, UniqueConstraint, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -39,6 +39,11 @@ class User(Base):
     )
 
     name: Mapped[str] = mapped_column(String(100))
+
+    date_of_birth: Mapped[date | None] = mapped_column(
+        Date,
+        nullable=True
+    )
 
     nationality: Mapped[str | None] = mapped_column(
         String(100),
