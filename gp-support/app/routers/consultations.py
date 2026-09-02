@@ -1,5 +1,6 @@
 import asyncio
 import json
+from datetime import datetime, UTC
 
 from fastapi import (
     APIRouter,
@@ -17,6 +18,7 @@ from app.services.transcribe_service import (
 
 from sqlalchemy.orm import Session
 from app.db.database import get_db
+from app.db.models import ConsultationStatus
 from app.services.chat_rules import (
     is_advice_request,
     has_high_severity_rating,
@@ -47,8 +49,11 @@ def home():
 
 
 @router.post("")
-def create_consultation(data: ConsultationCreate,db: Session = Depends(get_db)):
-    user = repository.get_user_by_id(db,data.user_id)
+def create_consultation(
+    data: ConsultationCreate,
+    db: Session = Depends(get_db)
+):
+    user = repository.get_user_by_id(db, data.user_id)
 
     if user is None:
         raise HTTPException(
@@ -56,11 +61,17 @@ def create_consultation(data: ConsultationCreate,db: Session = Depends(get_db)):
             detail="User not found"
         )
 
-    consultation = repository.create_consultation(db,data.user_id)
+    consultation = repository.create_consultation(
+        db,
+        data.user_id
+    )
 
     return {
         "consultation_id": consultation.id,
-        "user_id": consultation.user_id
+        "user_id": consultation.user_id,
+        "status": consultation.status,
+        "created_at": consultation.created_at,
+        "closed_at": consultation.closed_at,
     }
 
 @router.delete("/{consultation_id}/messages")
@@ -86,6 +97,89 @@ def clear_conversation(
 
     return {
         "message": "Conversation cleared"
+    }
+
+@router.delete("/{consultation_id}")
+def delete_consultation(
+    consultation_id: int,
+    db: Session = Depends(get_db)
+):
+    consultation = repository.get_consultation_by_id(
+        db,
+        consultation_id
+    )
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    db.delete(consultation)
+    db.commit()
+
+    return {
+        "message": "Consultation deleted"
+    }
+
+@router.patch("/{consultation_id}/close")
+def close_consultation(
+    consultation_id: int,
+    db: Session = Depends(get_db)
+):
+    consultation = repository.get_consultation_by_id(
+        db,
+        consultation_id
+    )
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    consultation.status = ConsultationStatus.CLOSED
+    consultation.closed_at = datetime.now(UTC)
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "consultation_id": consultation.id,
+        "status": consultation.status,
+        "closed_at": consultation.closed_at
+    }
+
+
+@router.get("/user/{user_id}")
+def get_user_consultations(
+    user_id: int,
+    db: Session = Depends(get_db)
+):
+    user = repository.get_user_by_id(db, user_id)
+
+    if user is None:
+        raise HTTPException(
+            status_code=404,
+            detail="User not found"
+        )
+
+    consultations = repository.get_consultations_by_user(
+        db,
+        user_id
+    )
+
+    return {
+        "user_id": user_id,
+        "consultations": [
+            {
+                "consultation_id": consultation.id,
+                "status": consultation.status,
+                "created_at": consultation.created_at,
+                "closed_at": consultation.closed_at,
+            }
+            for consultation in consultations
+        ]
     }
 
 

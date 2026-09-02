@@ -34,6 +34,17 @@ def get_consultation_by_id(
 ):
     return db.get(Consultation, consultation_id)
 
+def get_consultations_by_user(
+    db: Session,
+    user_id: int
+):
+    return (
+        db.query(Consultation)
+        .filter(Consultation.user_id == user_id)
+        .order_by(Consultation.created_at.desc())
+        .all()
+    )
+
 
 def create_consultation(
     db: Session,
