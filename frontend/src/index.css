@@ -21,6 +21,7 @@
   --text: #586382;
   --text-h: #08060d;
   --bg: #fff;
+  --hover-bg: #f3f4f6;
   --border: #e5e4e7;
   --code-bg: #c9d1d6;
   --accent: #025d9a;
@@ -91,6 +92,7 @@
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
+    --hover-bg: #1e2027;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #3b8fc4;

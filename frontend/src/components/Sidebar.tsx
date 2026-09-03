@@ -23,7 +23,7 @@ function Sidebar() {
         useState<Consultation[]>([]);
 
     useEffect(() => {
-        if (!userId) {
+        if (role !== "patient" || !userId) {
             setRecentConsultations([]);
             return;
         }
@@ -48,7 +48,7 @@ function Sidebar() {
         };
 
         void fetchRecentConsultations();
-    }, [userId, location.pathname]);
+    }, [role, userId, location.pathname]);
 
     const toggleTheme = () => {
         setTheme(isDark ? "light" : "dark");
@@ -60,14 +60,15 @@ function Sidebar() {
             <div className="sidebar-top">
 
                 {(role === "patient" || role === "admin") && (
-                    <NavLink
-                        to="/new-consultation"
-                        className={({ isActive }) =>
-                            `sidebar-new-chat ${
-                                isActive ? "active" : ""
-                            }`
-                        }
-                    >
+                    <>
+                        <NavLink
+                            to="/new-consultation"
+                            className={({ isActive }) =>
+                                `sidebar-new-chat ${
+                                    isActive ? "active" : ""
+                                }`
+                            }
+                        >
                         <span className="sidebar-new-chat-content">
 
                             <span className="sidebar-new-chat-icon">
@@ -79,40 +80,71 @@ function Sidebar() {
                             </span>
 
                         </span>
-                    </NavLink>
+                        </NavLink>
+
+                        <div className="sidebar-separator" />
+
+                        <div className="sidebar-recent">
+
+                        <span className="sidebar-section-title">
+                            Recent
+                        </span>
+
+                            <div className="sidebar-chats">
+
+                                {recentConsultations.map(
+                                    (consultation) => (
+                                        <NavLink
+                                            key={consultation.id}
+                                            to={`/chat/${consultation.id}`}
+                                            className={({ isActive }) =>
+                                                `sidebar-chat ${
+                                                    isActive
+                                                        ? "active"
+                                                        : ""
+                                                }`
+                                            }
+                                        >
+                                            Chat {consultation.id}
+                                        </NavLink>
+                                    )
+                                )}
+
+                            </div>
+
+                        </div>
+                    </>
                 )}
+                {role === "doctor" && (
+                    <>
+                        <NavLink
+                            to="/doctorhome"
+                            className={({ isActive }) =>
+                                `sidebar-link ${isActive ? "active" : ""}`
+                            }
+                        >
+                            <span>Dashboard</span>
+                        </NavLink>
 
-                <div className="sidebar-separator" />
+                        <NavLink
+                            to="/doctor/patients"
+                            className={({ isActive }) =>
+                                `sidebar-link ${isActive ? "active" : ""}`
+                            }
+                        >
+                            <span>Patients</span>
+                        </NavLink>
 
-                <div className="sidebar-recent">
-
-                    <span className="sidebar-section-title">
-                        Recent
-                    </span>
-
-                    <div className="sidebar-chats">
-
-                        {recentConsultations.map(
-                            (consultation) => (
-                                <NavLink
-                                    key={consultation.id}
-                                    to={`/chat/${consultation.id}`}
-                                    className={({ isActive }) =>
-                                        `sidebar-chat ${
-                                            isActive
-                                                ? "active"
-                                                : ""
-                                        }`
-                                    }
-                                >
-                                    Chat {consultation.id}
-                                </NavLink>
-                            )
-                        )}
-
-                    </div>
-
-                </div>
+                        <NavLink
+                            to="/doctor/consultations"
+                            className={({ isActive }) =>
+                                `sidebar-link ${isActive ? "active" : ""}`
+                            }
+                        >
+                            <span>Consultations</span>
+                        </NavLink>
+                    </>
+                )}
 
             </div>
 
@@ -131,22 +163,22 @@ function Sidebar() {
                                 : "Switch to dark mode"
                         }
                     >
-                        <span className="theme-toggle-icon sun">
-                            ☀
-                        </span>
+                    <span className="theme-toggle-icon sun">
+                        ☀
+                    </span>
 
                         <span className="theme-toggle-icon moon">
-                            ☾
-                        </span>
+                        ☾
+                    </span>
 
                         <span className="theme-toggle-thumb" />
                     </button>
 
                     <span className="theme-label">
-                        {isDark
-                            ? "Dark mode"
-                            : "Light mode"}
-                    </span>
+                    {isDark
+                        ? "Dark mode"
+                        : "Light mode"}
+                </span>
 
                 </div>
 

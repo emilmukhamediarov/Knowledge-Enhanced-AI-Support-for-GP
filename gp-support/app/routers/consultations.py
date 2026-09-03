@@ -544,3 +544,45 @@ async def audio_stream(consultation_id: int, websocket: WebSocket):
     finally:
         await websocket.close()
 
+@router.get("/doctor")
+def get_doctor_consultations(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if current_user.role != "doctor":
+        raise HTTPException(
+            status_code=403,
+            detail="Only doctors can access this endpoint"
+        )
+
+    consultations = (
+        db.query(
+            models.Consultation,
+            models.User.name.label("patient_name")
+        )
+        .join(
+            models.User,
+            models.Consultation.user_id == models.User.id
+        )
+        .filter(
+            models.User.doctor_id == current_user.id
+        )
+        .order_by(
+            models.Consultation.created_at.desc()
+        )
+        .all()
+    )
+
+    return {
+        "consultations": [
+            {
+                "consultation_id": consultation.id,
+                "patient_id": consultation.user_id,
+                "patient_name": patient_name,
+                "status": consultation.status,
+                "created_at": consultation.created_at,
+                "closed_at": consultation.closed_at,
+            }
+            for consultation, patient_name in consultations
+        ]
+    }

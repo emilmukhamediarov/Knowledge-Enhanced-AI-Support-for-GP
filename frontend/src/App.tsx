@@ -4,17 +4,18 @@ import Home from "./pages/Home";
 import PatientHome from "./pages/patient/PatientHome";
 import DoctorHome from "./pages/doctor/DoctorHome";
 import Chat from "./pages/patient/Chat";
-import Summary from "./pages/doctor/Summary";
 import Navbar from "./components/Navbar";
 import Login from "./pages/Login";
 import RoleRoute from "./components/RoleRoute";
-import Rag from "./pages/doctor/Rag";
 import Register from "./pages/Register";
 import NewConsultation from "./pages/patient/NewConsultation";
 import Sidebar from "./components/Sidebar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AllConsultations from "./pages/patient/AllConsultations";
 import Landing from "./pages/Landing";
+import Patients from "./pages/doctor/Patients";
+import Consultations from "./pages/doctor/Consultations";
+import DoctorConsultation from "./pages/doctor/DoctorConsultation";
 
 function ProtectedLayout() {
     return (
@@ -44,8 +45,9 @@ function App() {
 
                     {/* Doctor pathway */}
                     <Route path="/doctorhome" element={<RoleRoute roles={["doctor", "admin"]}><DoctorHome /></RoleRoute>}/>
-                    <Route path="/summary" element={<RoleRoute roles={["doctor", "admin"]}><Summary /></RoleRoute>}/>
-                    <Route path="/rag" element={<RoleRoute roles={["doctor", "admin"]}><Rag /></RoleRoute>}/>
+                    <Route path="/doctor/patients" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><Patients /></RoleRoute></ProtectedRoute>}/>
+                    <Route path="/doctor/consultations" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><Consultations /></RoleRoute></ProtectedRoute>}/>
+                    <Route path="/doctor/consultations/:consultationId" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><DoctorConsultation /></RoleRoute></ProtectedRoute>}/>
 
                     {/* Patient pathway */}
                     <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>}/>
