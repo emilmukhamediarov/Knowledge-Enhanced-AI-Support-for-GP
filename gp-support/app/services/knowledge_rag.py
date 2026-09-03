@@ -22,9 +22,12 @@ from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.bedrock_converse import BedrockConverse
 from llama_index.vector_stores.postgres import PGVectorStore
 from llama_index.core import StorageContext
+from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.postprocessor import SimilarityPostprocessor
 from sqlalchemy.engine import make_url
 from app.config import DATABASE_URL
 from app.repositories import repository
+from app.db.database import SessionLocal
 
 # Path to the knowledge base folder, relative to this file's location.
 # Using this instead of a hardcoded/relative-to-cwd path means it works
@@ -86,13 +89,17 @@ STRICT_QA_PROMPT = PromptTemplate(
 
 
 def _configure_models():
-    """Set the LLM and embedding model used by llama-index globally."""
+    """Set the LLM, embedding model, and node splitter used by llama-index globally."""
     Settings.llm = BedrockConverse(
         model="amazon.nova-lite-v1:0",
         region_name="ap-southeast-2"
     )
     Settings.embed_model = HuggingFaceEmbedding(
         model_name="BAAI/bge-small-en-v1.5"
+    )
+    Settings.text_splitter = SentenceSplitter(
+        chunk_size=512,
+        chunk_overlap=50
     )
 
 
@@ -211,8 +218,12 @@ def ask(index, question: str, return_sources: bool = False):
         A string answer, or (answer, source_chunks) if return_sources=True.
     """
     print("Sending query to AWS...", flush=True)
+
+    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.55)
+
     query_engine = index.as_query_engine(
-        text_qa_template=STRICT_QA_PROMPT
+        text_qa_template=STRICT_QA_PROMPT,
+        node_postprocessors=[similarity_processor]
     )
     response = query_engine.query(question)
 
@@ -294,7 +305,7 @@ def _confidence_info(min_score: float | None) -> dict:
                 "Treat with caution and verify independently."
             ),
         }
-    if min_score >= 0.75:
+    if min_score >= 0.65:
         return {
             "label": "strong match",
             "message": (
@@ -343,8 +354,12 @@ def ask_structured(index, question: str) -> dict:
     }
     """
     print("Sending structured query to AWS...", flush=True)
+
+    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.55)
+
     query_engine = index.as_query_engine(
-        text_qa_template=STRUCTURED_QA_PROMPT
+        text_qa_template=STRUCTURED_QA_PROMPT,
+        node_postprocessors=[similarity_processor]
     )
     response = query_engine.query(question)
     sources = [node.node.get_text() for node in response.source_nodes]
@@ -407,13 +422,15 @@ def ask_structured(index, question: str) -> dict:
 
 # Quick manual test — only runs if you execute this file directly,
 # not when it's imported by another module.
+
+
 if __name__ == "__main__":
-    idx = build_index()
+    idx = load_index()
 
     # Test 1: plain question (as before)
     answer, sources = ask(
         idx,
-        "A patient has had a cough for 4 weeks. What should I check?",
+        "A patient has had a joint pain for 3 months, what should I check?",
         return_sources=True,
     )
     print("\nAnswer:\n", answer)
@@ -421,16 +438,15 @@ if __name__ == "__main__":
     for s in sources:
         print("-", s[:200], "...")
 
-    # Test 2: simulating a ConsultationSummary dict from chatbot.py,
-    # (as it would be returned by chat_service.summary())
+    # Test 2: simulating a ConsultationSummary dict from chatbot.py
     example_summary = {
         "session_id": "test-session",
-        "reason_for_visit": "persistent cough",
-        "symptoms": ["cough", "occasional wheeze"],
+        "reason_for_visit": "joint pain",
+        "symptoms": ["stiffness"],
         "symptom_location": None,
         "onset": "gradual",
-        "duration": "4 weeks",
-        "severity": "moderate",
+        "duration": "1 day",
+        "severity": "mild",
         "medical_history": {"status": "confirmed_none", "items": []},
         "current_medications": {"status": "unknown", "items": []},
         "allergies": {"status": "confirmed_none", "items": []},
@@ -442,11 +458,12 @@ if __name__ == "__main__":
     answer2, sources2 = ask(idx, query, return_sources=True)
     print("\nAnswer:\n", answer2)
 
-    # Test 3: structured version, showing red-flag detection
+    # Test 3: structured version, showing red-flag detection & confidence metadata
     print("\n\n--- Structured response test ---")
     structured = ask_structured(idx, query)
     print("Answer:", structured["answer"])
     print("Red flags identified:", structured["red_flags_identified"])
     print("Requires urgent attention:", structured["requires_urgent_attention"])
+    print("Confidence rating:", structured["confidence"])
+    print("Confidence message:", structured["confidence_message"])
     print("Parse error:", structured["parse_error"])
-
