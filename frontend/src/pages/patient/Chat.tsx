@@ -4,6 +4,9 @@ import { apiFetch } from "../../api/client";
 import { useParams } from "react-router-dom";
 import micIcon from "../../assets/mic-icon.png";
 
+import { AvatarSpeaker } from "../../components/Avatar/AvatarSpeaker";
+
+
 interface Message {
     role: "user" | "assistant";
     content: string;
@@ -37,6 +40,36 @@ function Chat() {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
     const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+
+
+
+    // Used to control the avatar's mouth movement
+    const avatarContainerRef = useRef<HTMLDivElement>(null);
+    const avatarRef = useRef<AvatarSpeaker | null>(null);
+
+    // Initialize the avatar
+    useEffect(() => {
+        if (!avatarContainerRef.current) return;
+        const avatar = new AvatarSpeaker(
+            avatarContainerRef.current
+        );
+        avatarRef.current = avatar;
+        void avatar.init().catch((error) => {
+            console.error(
+                "Avatar initialization failed:",
+                error
+            );
+        });
+        return () => {
+            avatar.dispose();
+
+            if (avatarRef.current === avatar) {
+                avatarRef.current = null;
+            }
+        };
+    }, []);
+
+
 
     // Load messages for this consultation
     useEffect(() => {
@@ -120,6 +153,9 @@ function Chat() {
                     }),
                 }
             );
+
+            // Speak the chatbot's response using the avatar
+            void avatarRef.current?.speak(data.reply);
 
             // Add an empty AI message
             setMessages((previous) => [
@@ -280,9 +316,6 @@ function Chat() {
         setIsRecording(false);
     };
 
-    // ---------------------------------------------------
-    // ---------------------------------------------------
-    // ---------------------------------------------------
 
     const handleKeyDown = (
         e: React.KeyboardEvent<HTMLTextAreaElement>
@@ -325,6 +358,10 @@ function Chat() {
 
     return (
         <main>
+            <div
+                ref={avatarContainerRef}
+                className="avatar-container"
+            />
             {showResetConfirmation && (
                 <div className="reset-confirmation">
                     <div className="reset-confirmation-box">
@@ -396,17 +433,17 @@ function Chat() {
             )}
 
             <div className="chat-input">
-    <textarea
-        ref={inputRef}
-        value={message}
-        onChange={(event) =>
-            setMessage(event.target.value)
-        }
-        onKeyDown={handleKeyDown}
-        placeholder="Type your message..."
-        disabled={loading}
-        rows={1}
-    />
+                <textarea
+                    ref={inputRef}
+                    value={message}
+                    onChange={(event) =>
+                        setMessage(event.target.value)
+                    }
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your message..."
+                    disabled={loading}
+                    rows={1}
+                />
 
                 <div className="chat-input-actions">
                     <button
