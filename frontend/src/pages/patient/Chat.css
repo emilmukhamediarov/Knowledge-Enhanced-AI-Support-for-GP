@@ -224,12 +224,78 @@ h1 {
     transform: scale(0.94);
 }
 
+/* Voice Level Indicator */
+
+.voice-indicator-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 75%;
+
+    box-sizing: border-box;
+
+    margin-top: 0.75rem;
+    padding: 8px 14px;
+
+    background-color: var(--accent-bg);
+
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    animation: welcome-slide-in 0.3s ease-out;
+}
+
+.voice-status-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-danger);
+}
+
+.audio-wave-bars {
+    display: flex;
+    align-items: center;
+
+    gap: 4px;
+
+    height: 20px;
+}
+
+.wave-bar {
+    width: 4px;
+
+    background-color: var(--color-danger);
+
+    border-radius: 2px;
+
+    transition: height 0.08s ease-out;
+}
+
+/* Microphone Dynamic Active State Overrides */
+
+.chat-input-actions .record-button.recording {
+    background-color: var(--color-danger);
+    color: var(--bg);
+}
+
+.chat-input-actions .record-button.recording img {
+    filter: brightness(0) invert(1);
+}
+
+.chat-input-actions .record-button.recording:hover {
+    background-color: var(--color-danger-hover, var(--color-danger));
+}
 
 /* Microphone */
 
 .chat-input-actions .record-button {
     background-color: transparent;
     color: var(--text);
+    transition:
+            background-color 0.15s ease,
+            color 0.15s ease,
+            transform 0.1s ease-out,
+            box-shadow 0.1s ease-out;
 }
 
 .chat-input-actions .record-button:hover:not(:disabled) {
