@@ -219,7 +219,7 @@ def ask(index, question: str, return_sources: bool = False):
     """
     print("Sending query to AWS...", flush=True)
 
-    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.72)
+    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.74)
 
     query_engine = index.as_query_engine(
         text_qa_template=STRICT_QA_PROMPT,
@@ -355,7 +355,7 @@ def ask_structured(index, question: str) -> dict:
     """
     print("Sending structured query to AWS...", flush=True)
 
-    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.72)
+    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.74)
 
     query_engine = index.as_query_engine(
         text_qa_template=STRUCTURED_QA_PROMPT,
