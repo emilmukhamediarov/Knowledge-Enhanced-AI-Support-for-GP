@@ -28,9 +28,41 @@
 
 .sidebar-bottom {
     flex-shrink: 0;
+    padding: 1rem 0.75rem;
     margin-top: auto;
     display: flex;
     justify-content: flex-start;
+}
+
+.sidebar-content {
+    flex: 1;
+    min-height: 0;
+    padding: 1rem 0.75rem;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 0.9rem;
+    box-sizing: border-box;
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-link:hover {
+    background: var(--hover-bg);
+    color: var(--text-h);
+}
+
+.sidebar-link.active {
+    background: var(--hover-bg);
+    color: var(--accent);
+    font-weight: 600;
 }
 
 .sidebar-new-chat {

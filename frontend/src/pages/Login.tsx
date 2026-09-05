@@ -14,37 +14,13 @@ function Login() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
-
+        console.log("LOGIN BUTTON PRESSED");
         setError("");
 
         if (!username.trim() || !password) {
             setError("Please enter your username and password.");
             return;
         }
-
-        // ====================================================================================
-        // TEMPORARY HARD-CODED TEST ACCOUNTS
-        if (username === "admin" && password === "password123") {
-            localStorage.setItem("loggedIn", "true");
-            localStorage.setItem("role", "admin");
-            navigate("/home");
-            return;
-        }
-        if (username === "doctor" && password === "password123") {
-            localStorage.setItem("loggedIn", "true");
-            localStorage.setItem("role", "doctor");
-            navigate("/doctorhome");
-            return;
-        }
-        if (username === "patient" && password === "password123") {
-            localStorage.setItem("loggedIn", "true");
-            localStorage.setItem("role", "patient");
-            navigate("/patienthome");
-            return;
-        }
-
-        // ====================================================================================
-        // REAL BACKEND LOGIN -- registered users are patients for now
 
         setLoading(true);
 
@@ -60,22 +36,22 @@ function Login() {
                 }),
             });
 
+            console.log("Login response:", data);
+
             localStorage.setItem("loggedIn", "true");
-            localStorage.setItem(
-                "access_token",
-                data.access_token
-            );
-            localStorage.setItem(
-                "userId",
-                String(data.user_id)
-            );
+            localStorage.setItem("access_token", data.access_token);
+            localStorage.setItem("userId", String(data.user_id));
+            localStorage.setItem("role", data.role);
 
-            // TEMPORARY:
-            // All normally registered users are patients
-            localStorage.setItem("role", "patient");
-
-            navigate("/patienthome");
-
+            if (data.role === "doctor") {
+                navigate("/doctorhome");
+            } else if (data.role === "patient") {
+                navigate("/patienthome");
+            } else if (data.role === "admin") {
+                navigate("/home");
+            } else {
+                setError(`Unknown user role: ${data.role}`);
+            }
         } catch (error) {
             console.error("Login error:", error);
             setError("Invalid username or password.");

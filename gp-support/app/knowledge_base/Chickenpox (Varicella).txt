@@ -1,0 +1,95 @@
+Chickenpox (Varicella)
+
+Key points:
+- Varicella (chickenpox) is an acute infectious disease caused by varicella-zoster virus (VZV).
+- The most common chickenpox complications are bacterial infections of the skin and soft tissues in children and pneumonia in adults.
+- The most effective prevention for varicella is chickenpox vaccination.
+
+Cause:
+- Varicella is highly caused by varicella-zoster virus (VZV), which is a DNA virus that is a member of the herpesvirus group. Primary infection with VZV causes varicella. After the primary infection, VZV stays in the body (in the sensory nerve ganglia) as a latent infection.
+- Reactivation of latent infection causes herpes zoster (shingles).
+
+Who is at risk:
+- People at risk for severe varicella include:
+- Immunocompromised people without evidence of immunity to varicella.
+- Pregnant women without evidence of immunity to varicella.
+- Newborns whose mothers have varicella from 5 days before to 2 days after delivery.
+- Premature babies exposed to varicella or herpes zoster.
+
+Incubation period:
+- The average incubation period for varicella is 14 to 16 days after exposure to a varicella or a herpes zoster rash. 
+- It takes from 10 to 21 days after exposure to the virus for someone to develop varicella.
+
+
+How it spreads:
+- Varicella is highly contagious
+- Varicella is more contagious than mumps and rubella and less contagious than measles.
+- People with breakthrough varicella are also contagious.
+- The virus can be spread from person to person by direct contact, inhalation of aerosols from vesicular fluid of skin lesions of acute varicella or zoster; and possibly through infected respiratory secretions that also may be aerosolized.
+- A person with varicella is considered contagious beginning 1 to 2 days before rash onset until all the chickenpox lesions have crusted. Vaccinated people may develop lesions that do not crust. These people are considered contagious until no new lesions have appeared for 24 hours.
+- Based on studies of transmission among household members, about 90% of susceptible close contacts will get varicella after exposure to a person with disease.
+- Although limited data are available to assess the risk of VZV transmission from zoster, one household study1 found that the risk for VZV transmission from herpes zoster was approximately 20% of the risk for transmission from varicella.
+- Breakthrough varicella is also contagious. One study2 of varicella transmission in household settings found that people with mild breakthrough varicella (<50 lesions), who were vaccinated with one dose of varicella vaccine, were one-third as contagious as unvaccinated people with varicella. However, people with breakthrough varicella with 50 or more lesions were just as contagious as unvaccinated people with the disease.
+
+
+Disease rates:
+- Prior to vaccine introduction:
+- Varicella used to be very common in the United States and contributed significantly to the burden of childhood disease. In the early 1990s each year:
+- More than 4 million people got varicella
+10,500 to 13,500 were hospitalized
+100 to 150 died
+- More than 90% of cases, 70% of hospitalizations, and about half of the deaths occurred in children.
+
+
+Clinical features:
+- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.
+- In unvaccinated people, varicella progresses rapidly from macular to papular to vesicular lesions before crusting.
+- The most common chickenpox complications are bacterial infections of the skin and soft tissues in children and pneumonia in adults.
+- Breakthrough varicella occurs less frequently among those who have received 2 doses of vaccine; compared with those who have received only 1 dose.
+
+
+Testing and diagnosis:
+- Varicella-zoster virus (VZV) laboratory testing information applies to testing and diagnosis of primary VZV infection (varicella) and reactivation (herpes zoster). Polymerase chain reaction (PCR) is the most helpful laboratory test for confirming cases of varicella. PCR can detect VZV DNA rapidly.
+
+
+Patient management:
+- Routine testing after 2 doses is not recommended
+- Routine testing for varicella immunity after 2 doses of vaccine is not recommended. Available commercial assays are not sensitive enough to detect antibodies after vaccination in all instances. Documented receipt of 2 doses of varicella vaccine supersedes results of subsequent serologic testing.
+
+
+Isolation:
+- Healthcare providers should follow standard precautions, airborne precautions (negative air-flow rooms), and contact precautions until lesions are dry and crusted. If negative air-flow rooms are not available, patients with varicella should be isolated in closed rooms. They should have no contact with people without evidence of immunity. Patients with varicella should be cared for by staff with evidence of immunity.
+
+
+Clinical features:
+- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.
+
+
+Symptoms in unvaccinated patients:
+- The rash is generalized and pruritic. It progresses rapidly from macular to papular to vesicular lesions before crusting. Lesions are typically present in all stages of development at the same time.
+- The rash usually appears on the chest, back, and face first, then spreads over the entire body. The lesions are usually most concentrated on the chest and back. Symptoms typically last 4 to 7 days.
+- In healthy children, varicella is generally mild, with an itchy rash, malaise, and temperature up to 102°F for 2 to 3 days. Infants, adolescents, adults, pregnant women, and immunocompromised people are at risk for more severe disease and have a higher incidence of complications.
+- Recovery from primary varicella infection usually provides immunity for life. In otherwise healthy people, a second occurrence of varicella is uncommon. The second occurrence of varicella may be more likely to occur in people with weakened immune systems.
+- As with other viral infections, re-exposure to natural (wild-type) varicella may lead to re-infection that boosts antibody titers without causing illness or detectable viremia.
+
+
+Symptoms in vaccinated patients (breakthrough varicella):
+- Breakthrough varicella is infection with wild-type varicella-zoster virus (VZV) occurring in a vaccinated person more than 42 days after varicella vaccination.
+- Breakthrough varicella is usually mild. Patients typically are afebrile or have low fever and develop fewer than 50 skin lesions. They usually have a shorter illness compared to unvaccinated people who get varicella. The rash is more likely to be predominantly maculopapular rather than vesicular. However, 25% to 30% of people vaccinated with one dose who get breakthrough varicella will have clinical features similar to unvaccinated people with varicella.
+
+
+Complications - Most common complications from varicella:‎
+- Bacterial infections of the skin and soft tissues in children and pneumonia in adults.
+- Severe complications caused by the virus include cerebellar ataxia, encephalitis, viral pneumonia, and hemorrhagic conditions. Other severe complications are due to bacterial infections and include:
+* Septicemia
+* Toxic shock syndrome
+* Necrotizing fasciitis
+* Osteomyelitis
+* Bacterial pneumonia
+* Septic arthritis
+
+
+Sources:
+https://www.cdc.gov/chickenpox/hcp/clinical-overview/index.html
+https://www.cdc.gov/chickenpox/hcp/clinical-signs/index.html
+
