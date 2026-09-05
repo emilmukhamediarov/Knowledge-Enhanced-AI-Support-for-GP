@@ -1,0 +1,476 @@
+.doctor-consultation-page {
+    width: 100%;
+    margin: 0;
+    padding: 1.5rem 1.5rem 2rem;
+    box-sizing: border-box;
+}
+
+.consultation-header {
+    margin-bottom: 1.25rem;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.82rem;
+}
+
+.back-link:hover {
+    color: var(--accent);
+}
+
+.consultation-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.consultation-header-row h1 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 1.55rem;
+    font-weight: 650;
+}
+
+.consultation-status {
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    background: rgba(34, 197, 94, 0.15);
+    color: #15803d;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.reference-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.reference-card {
+    min-width: 0;
+    align-self: start;
+    background: var(--social-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.reference-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.reference-button:hover {
+    background: var(--hover-bg);
+}
+
+.reference-button > div:first-child {
+    min-width: 0;
+}
+
+.reference-label,
+.section-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: var(--accent);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.reference-button h2 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 0.98rem;
+    font-weight: 600;
+}
+
+.reference-preview {
+    max-width: 100%;
+    margin: 0.35rem 0 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 0.77rem;
+    line-height: 1.45;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.reference-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-shrink: 0;
+}
+
+.reference-arrow {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    flex-shrink: 0;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    transition:
+            background-color 0.2s ease,
+            border-color 0.2s ease;
+}
+
+.reference-arrow::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-right: 1.5px solid var(--text);
+    border-bottom: 1.5px solid var(--text);
+    transform: rotate(45deg) translate(-1px, -1px);
+    transition: transform 0.2s ease;
+}
+
+.reference-button:hover .reference-arrow {
+    border-color: var(--accent);
+    background: var(--accent-bg);
+}
+
+.reference-button:hover .reference-arrow::before {
+    border-color: var(--accent);
+}
+
+.reference-button[aria-expanded="true"] .reference-arrow::before {
+    transform: rotate(225deg) translate(-1px, -1px);
+}
+
+.reference-content {
+    padding: 0 1.15rem 1.15rem;
+    border-top: 1px solid var(--border);
+}
+
+.urgent-badge {
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    background: rgba(198, 40, 40, 0.12);
+    color: var(--color-danger);
+    font-size: 0.68rem;
+    font-weight: 600;
+}
+
+.summary-main,
+.summary-item,
+.rag-answer,
+.rag-item,
+.rag-confidence {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+.summary-main {
+    margin-top: 0.9rem;
+    padding: 0.85rem;
+}
+
+.summary-main p,
+.summary-item p,
+.rag-answer p,
+.rag-item p,
+.rag-confidence p {
+    margin: 0;
+    color: var(--text);
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.field-label {
+    display: block;
+    margin-bottom: 0.3rem;
+    color: var(--text-h);
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+    margin-top: 0.65rem;
+}
+
+.summary-item {
+    padding: 0.75rem;
+}
+
+.summary-item ul,
+.red-flags {
+    margin: 0;
+    padding-left: 1rem;
+    color: var(--text);
+    font-size: 0.8rem;
+}
+
+.summary-item li,
+.red-flags li {
+    margin-bottom: 0.15rem;
+}
+
+.rag-answer {
+    margin-top: 0.9rem;
+    padding: 0.85rem;
+}
+
+.rag-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 0.75fr 0.75fr;
+    gap: 0.65rem;
+    margin-top: 0.65rem;
+}
+
+.rag-item {
+    padding: 0.75rem;
+}
+
+.rag-item.urgent {
+    border-color: rgba(198, 40, 40, 0.3);
+    background: rgba(198, 40, 40, 0.05);
+}
+
+.rag-item.urgent p {
+    color: var(--color-danger);
+    font-weight: 600;
+}
+
+.red-flags {
+    color: var(--color-danger);
+}
+
+.rag-confidence {
+    margin-top: 0.65rem;
+    padding: 0.75rem;
+}
+
+.rag-sources {
+    margin-top: 0.65rem;
+    padding: 0.7rem 0.8rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+}
+
+.rag-sources summary {
+    color: var(--text-h);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.rag-sources pre {
+    margin: 0.65rem 0 0;
+    padding: 0.65rem;
+    overflow-x: auto;
+    background: var(--social-bg);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.clinical-notes {
+    display: block;
+    width: 100%;
+    max-width: none;
+    margin-top: 0.5rem;
+}
+
+.section-heading {
+    margin-bottom: 0.8rem;
+}
+
+.section-heading h2 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.section-heading p {
+    margin: 0.25rem 0 0;
+    color: var(--text);
+    font-size: 0.78rem;
+}
+
+.soap-grid {
+    display: grid;
+    grid-template-columns:minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+}
+
+.soap-section {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.soap-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.8rem;
+}
+
+.soap-title > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--accent-bg);
+    color: var(--accent);
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.soap-title h3 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.soap-title p {
+    margin: 0.1rem 0 0;
+    color: var(--text);
+    font-size: 0.7rem;
+}
+
+.soap-section textarea {
+    width: 100%;
+    min-height: 180px;
+    padding: 0.75rem;
+    box-sizing: border-box;
+    resize: vertical;
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+    background: var(--input-bg);
+    color: var(--text-h);
+    font-family: inherit;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    outline: none;
+}
+
+.soap-section textarea::placeholder {
+    color: var(--input-placeholder);
+}
+
+.soap-section textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
+}
+
+.consultation-footer {
+    display: flex;
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 1rem;
+    margin-right: 1rem;
+    padding-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+.save-button {
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    background: var(--accent);
+    color: white;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.save-button:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+.consultation-message {
+    padding: 3rem 1rem;
+    text-align: center;
+    color: var(--text);
+}
+
+.consultation-message.error {
+    color: var(--color-danger);
+}
+
+@media (max-width: 850px) {
+    .doctor-consultation-page {
+        padding: 1.25rem 1.5rem 2rem;
+    }
+
+    .reference-grid,
+    .soap-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rag-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .doctor-consultation-page {
+        padding: 1rem;
+    }
+
+    .consultation-header-row {
+        align-items: flex-start;
+    }
+
+    .summary-grid,
+    .rag-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .soap-section textarea {
+        min-height: 160px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reference-button,
+    .soap-section textarea,
+    .save-button {
+        transition: none;
+    }
+}

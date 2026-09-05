@@ -28,7 +28,6 @@ from app.services.chat_rules import (
     background_question,
 )
 
-from app.schemas.consultations import ConsultationCreate
 from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
@@ -39,31 +38,23 @@ from app.services.knowledge_rag import (
 
 )
 
+from app.dependencies.auth import get_current_user, require_role
+from app.db import models
+
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
 
-@router.get("/")
-def home():
-    return {"message": "GP Support API is running"}
-
-
 @router.post("")
 def create_consultation(
-    data: ConsultationCreate,
-    db: Session = Depends(get_db)
-):
-    user = repository.get_user_by_id(db, data.user_id)
-
-    if user is None:
-        raise HTTPException(
-            status_code=404,
-            detail="User not found"
+    db: Session = Depends(get_db),
+        current_user: models.User = Depends(
+            require_role([models.UserRole.PATIENT])
         )
-
+):
     consultation = repository.create_consultation(
         db,
-        data.user_id
+        current_user.id
     )
 
     return {
@@ -77,7 +68,10 @@ def create_consultation(
 @router.delete("/{consultation_id}/messages")
 def clear_conversation(
     consultation_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.PATIENT])
+    )
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -88,6 +82,12 @@ def clear_conversation(
         raise HTTPException(
             status_code=404,
             detail="Consultation not found"
+        )
+
+    if consultation.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to access this consultation"
         )
 
     repository.clear_conversation(
@@ -102,7 +102,10 @@ def clear_conversation(
 @router.delete("/{consultation_id}")
 def delete_consultation(
     consultation_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.PATIENT])
+    )
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -115,6 +118,12 @@ def delete_consultation(
             detail="Consultation not found"
         )
 
+    if consultation.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to access this consultation"
+        )
+
     db.delete(consultation)
     db.commit()
 
@@ -125,7 +134,10 @@ def delete_consultation(
 @router.patch("/{consultation_id}/close")
 def close_consultation(
     consultation_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.PATIENT])
+    )
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -136,6 +148,12 @@ def close_consultation(
         raise HTTPException(
             status_code=404,
             detail="Consultation not found"
+        )
+
+    if consultation.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to access this consultation"
         )
 
     consultation.status = ConsultationStatus.CLOSED
@@ -150,18 +168,41 @@ def close_consultation(
         "closed_at": consultation.closed_at
     }
 
-
 @router.get("/user/{user_id}")
 def get_user_consultations(
     user_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
-    user = repository.get_user_by_id(db, user_id)
+    user = repository.get_user_by_id(
+        db,
+        user_id
+    )
 
     if user is None:
         raise HTTPException(
             status_code=404,
             detail="User not found"
+        )
+
+    # Patient can only access their own consultations
+    if (
+        current_user.role == models.UserRole.PATIENT
+        and current_user.id != user_id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to access this user's consultations"
+        )
+
+    # Doctor can only access assigned patients
+    if (
+        current_user.role == models.UserRole.DOCTOR
+        and user.doctor_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Patient is not assigned to this doctor"
         )
 
     consultations = repository.get_consultations_by_user(
@@ -183,11 +224,11 @@ def get_user_consultations(
     }
 
 
-@router.post("/{consultation_id}/messages")
-def create_message(
+@router.get("/{consultation_id}/messages")
+def get_messages(
     consultation_id: int,
-    data: MessageCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -200,36 +241,24 @@ def create_message(
             detail="Consultation not found"
         )
 
-    message = repository.create_message(
-        db,
-        consultation,
-        data.role,
-        data.content
-    )
-
-    return {
-        "message_id": message.id,
-        "consultation_id": message.consultation_id,
-        "role": message.role,
-        "content": message.content,
-        "created_at": message.created_at
-    }
-
-
-@router.get("/{consultation_id}/messages")
-def get_messages(
-    consultation_id: int,
-    db: Session = Depends(get_db)
-):
-    consultation = repository.get_consultation_by_id(
-        db,
-        consultation_id
-    )
-
-    if consultation is None:
+    # Patient can only access their own consultation
+    if (
+        current_user.role == models.UserRole.PATIENT
+        and consultation.user_id != current_user.id
+    ):
         raise HTTPException(
-            status_code=404,
-            detail="Consultation not found"
+            status_code=403,
+            detail="Not allowed to access this consultation"
+        )
+
+    # Doctor can only access consultations of assigned patients
+    if (
+        current_user.role == models.UserRole.DOCTOR
+        and consultation.user.doctor_id != current_user.id
+    ):
+        raise HTTPException(
+            status_code=403,
+            detail="Patient is not assigned to this doctor"
         )
 
     messages = repository.get_messages(
@@ -255,7 +284,10 @@ def get_messages(
 def chat(
     consultation_id: int,
     data: ChatMessage,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.PATIENT])
+    )
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -267,6 +299,13 @@ def chat(
             status_code=404,
             detail="Consultation not found"
         )
+
+    if consultation.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to access this consultation"
+        )
+
 
     repository.save_user_message(
         db,
@@ -365,7 +404,10 @@ def chat(
 @router.get("/{consultation_id}/summary")
 def get_summary(
     consultation_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -376,6 +418,12 @@ def get_summary(
         raise HTTPException(
             status_code=404,
             detail="Consultation not found"
+        )
+
+    if consultation.user.doctor_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Patient is not assigned to this doctor"
         )
 
     messages = repository.get_messages(
@@ -402,7 +450,10 @@ def get_summary(
 def get_rag_result(
     consultation_id: int,
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
 ):
     consultation = repository.get_consultation_by_id(
         db,
@@ -413,6 +464,12 @@ def get_rag_result(
         raise HTTPException(
             status_code=404,
             detail="Consultation not found"
+        )
+
+    if consultation.user.doctor_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Patient is not assigned to this doctor"
         )
 
     messages = repository.get_messages(
@@ -487,23 +544,45 @@ async def audio_stream(consultation_id: int, websocket: WebSocket):
     finally:
         await websocket.close()
 
-#Getting a list of consultations related to userid
-@router.get("/users/{user_id}/consultations")
-def get_user_consultations(
-    user_id: int,
-    db: Session = Depends(get_db)
+@router.get("/doctor")
+def get_doctor_consultations(
+    current_user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ):
-    consultations = repository.get_consultations_by_user_id(
-        db,
-        user_id
+    if current_user.role != "doctor":
+        raise HTTPException(
+            status_code=403,
+            detail="Only doctors can access this endpoint"
+        )
+
+    consultations = (
+        db.query(
+            models.Consultation,
+            models.User.name.label("patient_name")
+        )
+        .join(
+            models.User,
+            models.Consultation.user_id == models.User.id
+        )
+        .filter(
+            models.User.doctor_id == current_user.id
+        )
+        .order_by(
+            models.Consultation.created_at.desc()
+        )
+        .all()
     )
 
     return {
         "consultations": [
             {
-                "id": consultation.id,
-                "user_id": consultation.user_id,
+                "consultation_id": consultation.id,
+                "patient_id": consultation.user_id,
+                "patient_name": patient_name,
+                "status": consultation.status,
+                "created_at": consultation.created_at,
+                "closed_at": consultation.closed_at,
             }
-            for consultation in consultations
+            for consultation, patient_name in consultations
         ]
     }

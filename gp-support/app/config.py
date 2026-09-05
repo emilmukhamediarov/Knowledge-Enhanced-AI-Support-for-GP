@@ -18,6 +18,23 @@ BEDROCK_MODEL_ID = os.getenv(
     "amazon.nova-lite-v1:0",
 )
 
+AUTH_SECRET_KEY = os.getenv(
+    "AUTH_SECRET_KEY",
+    "my_super_secret_key_for_gp_support"
+)
+
+AUTH_ALGORITHM = os.getenv(
+    "AUTH_ALGORITHM",
+    "HS256"
+)
+
+ACCESS_TOKEN_EXPIRE_MINUTES = int(
+    os.getenv(
+        "ACCESS_TOKEN_EXPIRE_MINUTES",
+        "30"
+    )
+)
+
 class Settings:
     aws_region = AWS_REGION
     aws_profile = AWS_PROFILE

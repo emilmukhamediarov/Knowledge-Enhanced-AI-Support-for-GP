@@ -1,0 +1,79 @@
+.session-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: rgba(0, 0, 0, 0.45);
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.session-modal {
+    width: min(100%, 400px);
+    padding: 1.75rem;
+
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    text-align: center;
+    box-shadow: 0 12px 40px var(--shadow-soft);
+}
+
+.session-modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 42px;
+    height: 42px;
+    margin: 0 auto 1rem;
+
+    border-radius: 50%;
+    background: var(--accent-bg);
+    color: var(--accent);
+
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.session-modal h2 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 1.15rem;
+    font-weight: 650;
+}
+
+.session-modal p {
+    margin: 0.6rem 0 1.25rem;
+
+    color: var(--text);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+.session-modal-button {
+    width: 100%;
+    padding: 0.65rem 1rem;
+
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+
+    background: var(--accent);
+    color: white;
+
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.session-modal-button:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
