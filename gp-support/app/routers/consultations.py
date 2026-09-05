@@ -31,7 +31,7 @@ from app.services.chat_rules import (
 from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
-from app.services.prompts import SYSTEM_PROMPT
+from app.services.prompts import build_system_prompt
 from app.services.knowledge_rag import (
     build_query_from_consultation_summary,
     ask_structured,
@@ -300,6 +300,19 @@ def chat(
             detail="Consultation not found"
         )
 
+    # Fetch the user to get their language preference
+    user = repository.get_user_by_id(db, consultation.user_id)
+    user_lang = user.preferred_language if user else "en-US"
+
+    # Map the enum to a human-readable language for the LLM
+    LANGUAGE_MAP = {
+        "en-US": "English (en-US)",
+        "zh-CN": "Simplified Chinese (zh-CN)",
+        "th-TH": "Thai (th-TH)",
+        "ru-RU": "Russian (ru-RU)",
+        "es-US": "Spanish (es-US)",
+    }
+    target_language = LANGUAGE_MAP.get(user_lang, "English (en-US)")
     if consultation.user_id != current_user.id:
         raise HTTPException(
             status_code=403,
@@ -313,15 +326,14 @@ def chat(
         data.message
     )
 
-    messages = repository.get_messages(
-        db,
-        consultation_id
-    )
+    repository.save_user_message(db, consultation, data.message)
+    messages = repository.get_messages(db, consultation_id)
 
+    # Inject the explicit language requirement into the system prompt
     prepared_messages = [
         {
             "role": "system",
-            "content": SYSTEM_PROMPT
+            "content": build_system_prompt(target_language)
         }
     ]
 
@@ -387,9 +399,7 @@ def chat(
         missing_background is not None
         and moving_to_background_or_completion
     ):
-        reply = background_question(
-            missing_background
-        )
+        reply = background_question(missing_background, user_lang)
 
     repository.save_assistant_message(
         db,
