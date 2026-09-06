@@ -21,6 +21,7 @@ function Chat() {
 
     // Audio recording state
     const [isRecording, setIsRecording] = useState(false);
+    const [volumeLevel, setVolumeLevel] = useState(0); // 0 to 100
     const mediaStreamRef =
         useRef<MediaStream | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
@@ -79,7 +80,25 @@ function Chat() {
         void loadMessages();
     }, [consultationId]);
 
+    // Cleanup Effect (FOR VOICE INPUT RESET so when using voice input does keep whole conversation) still keep old useEffect()
+    useEffect(() => {
+        return () => {
+            stopAudioResources();
+            if (
+                transcriptionSocketRef.current &&
+                transcriptionSocketRef.current.readyState === WebSocket.OPEN
+            ) {
+                transcriptionSocketRef.current.close();
+            }
+        };
+    }, []);
+
     const sendMessage = async (text?: string) => {
+        // Stop active recording immediately if sending
+        if (isRecording) {
+            stopRecording();
+        }
+
         const messageToSend = text ?? message;
 
         if (!messageToSend.trim() || loading) return;
@@ -95,6 +114,10 @@ function Chat() {
 
         setError("");
         setMessage("");
+
+        // Clear transcript refs after extracting the message
+        finalTranscriptRef.current = [];
+        partialTranscriptRef.current = "";
 
         // Add user's message
         setMessages((previous) => [
@@ -187,6 +210,7 @@ function Chat() {
         audioSourceRef.current = null;
         audioContextRef.current = null;
         mediaStreamRef.current = null;
+        setVolumeLevel(0);
     };
 
     const startRecording = async () => {
@@ -250,6 +274,16 @@ function Chat() {
             source.connect(processor);
             processor.connect(context.destination);
             processor.onaudioprocess = (event) => {
+                const inputData = event.inputBuffer.getChannelData(0);
+
+                // Calculate volume level (RMS)
+                let sum = 0;
+                for (let i = 0; i < inputData.length; i++) {
+                    sum += inputData[i] * inputData[i];
+                }
+                const rms = Math.sqrt(sum / inputData.length);
+                setVolumeLevel(Math.min(Math.round(rms * 400), 100));
+
                 if (socket.readyState !== WebSocket.OPEN) return;
                 socket.send(
                     downsampleTo16kPcm(
@@ -273,12 +307,28 @@ function Chat() {
 
 
     const stopRecording = () => {
-        if (!isRecording) return;
         stopAudioResources();
-        transcriptionSocketRef.current?.send(JSON.stringify({ event: "stop" }));
+
+        if (
+            transcriptionSocketRef.current &&
+            transcriptionSocketRef.current.readyState === WebSocket.OPEN
+        ) {
+            transcriptionSocketRef.current.send(
+                JSON.stringify({ event: "stop" })
+            );
+        }
+
         transcriptionSocketRef.current = null;
+        finalTranscriptRef.current = [];
+        partialTranscriptRef.current = "";
         setIsRecording(false);
     };
+    //     if (!isRecording) return;
+    //     stopAudioResources();
+    //     transcriptionSocketRef.current?.send(JSON.stringify({ event: "stop" }));
+    //     transcriptionSocketRef.current = null;
+    //     setIsRecording(false);
+    // };
 
     // ---------------------------------------------------
     // ---------------------------------------------------
@@ -395,6 +445,27 @@ function Chat() {
                 </p>
             )}
 
+            {/* Visualizer bar shown above input while recording */}
+            {isRecording && (
+                <div className="voice-indicator-container">
+                    <span className="voice-status-text">Listening...</span>
+                    <div className="audio-wave-bars">
+                        <div
+                            className="wave-bar"
+                            style={{ height: `${Math.max(15, volumeLevel * 0.8)}%` }}
+                        />
+                        <div
+                            className="wave-bar"
+                            style={{ height: `${Math.max(25, volumeLevel * 1.2)}%` }}
+                        />
+                        <div
+                            className="wave-bar"
+                            style={{ height: `${Math.max(15, volumeLevel * 0.9)}%` }}
+                        />
+                    </div>
+                </div>
+            )}
+
             <div className="chat-input">
     <textarea
         ref={inputRef}
@@ -411,26 +482,22 @@ function Chat() {
                 <div className="chat-input-actions">
                     <button
                         type="button"
-                        className={
-                            isRecording
-                                ? "record-button recording"
-                                : "record-button"
-                        }
-                        onClick={
-                            isRecording
-                                ? stopRecording
-                                : startRecording
-                        }
+                        className={`record-button ${isRecording ? "recording" : ""}`}
+                        onClick={isRecording ? stopRecording : startRecording}
                         disabled={loading}
                         aria-pressed={isRecording}
+                        style={{
+                            transform: isRecording
+                                ? `scale(${1 + (volumeLevel / 100) * 0.25})`
+                                : "scale(1)",
+                            boxShadow: isRecording
+                                ? `0 0 ${8 + volumeLevel * 0.3}px rgba(239, 68, 68, 0.8)`
+                                : "none",
+                        }}
                     >
                         <img
                             src={micIcon}
-                            alt={
-                                isRecording
-                                    ? "Stop recording"
-                                    : "Start voice recording"
-                            }
+                            alt={isRecording ? "Stop recording" : "Start voice recording"}
                         />
                     </button>
 
