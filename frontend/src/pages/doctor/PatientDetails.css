@@ -1,0 +1,290 @@
+.patient-details-page {
+    padding-bottom: 2.5rem;
+}
+
+.patient-details-header {
+    margin-bottom: 1.5rem;
+}
+
+.patient-back {
+    display: inline-block;
+    margin-bottom: 1rem;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: color 0.2s ease;
+}
+
+.patient-back:hover {
+    color: var(--accent);
+}
+
+.patient-title-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.patient-title-row h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.patient-title-row p {
+    margin: 0.25rem 0 0;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.patient-avatar {
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.patient-details-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(260px, 1fr);
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.patient-details-card {
+    background: var(--bg);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.patient-card-header {
+    padding: 1rem 1.25rem;
+    background: var(--code-bg);
+    border-bottom: 1px solid var(--accent-bg);
+}
+
+.patient-card-header h2 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.patient-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+}
+
+.patient-info-item {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--accent-bg);
+}
+
+.patient-info-item:nth-last-child(-n + 2) {
+    border-bottom: none;
+}
+
+.patient-info-item:nth-child(odd) {
+    border-right: 1px solid var(--accent-bg);
+}
+
+.patient-info-item span,
+.patient-summary-item span,
+.medical-info-section > span {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--text);
+    font-size: 0.78rem;
+    font-weight: 500;
+}
+
+.patient-info-item strong {
+    display: block;
+    color: var(--text);
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.patient-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.patient-summary-item {
+    padding: 1.25rem;
+}
+
+.patient-summary-item + .patient-summary-item {
+    border-left: 1px solid var(--accent-bg);
+}
+
+.patient-summary-item strong {
+    display: block;
+    color: var(--text);
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.medical-card {
+    margin-bottom: 1rem;
+}
+
+.medical-info {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.medical-info-section {
+    padding: 1.15rem 1.25rem;
+    min-width: 0;
+}
+
+.medical-info-section + .medical-info-section {
+    border-left: 1px solid var(--accent-bg);
+}
+
+.medical-info-section p {
+    margin: 0;
+    color: var(--text);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.consultations-card {
+    margin-bottom: 1rem;
+}
+
+.patient-consultations-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-consultation-row {
+    min-height: 3.75rem;
+    padding: 0.8rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--accent-bg);
+    transition: background 0.2s ease;
+}
+
+.patient-consultation-row:last-child {
+    border-bottom: none;
+}
+
+.patient-consultation-row:hover {
+    background: var(--hover-bg);
+}
+
+.consultation-main {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+.consultation-main strong {
+    min-width: 3rem;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+.consultation-main span {
+    color: var(--text);
+    font-size: 0.85rem;
+}
+
+.consultation-status {
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: var(--hover-bg);
+    color: var(--text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.consultation-status.closed {
+    color: var(--text);
+}
+
+.consultation-status.open,
+.consultation-status.active {
+    color: var(--accent);
+}
+
+.consultation-status.in-progress {
+    background: rgba(34, 175, 80, 0.40);
+    white-space: nowrap;
+    min-width: 5.5rem;
+    text-align: center;
+}
+
+.patient-details-empty {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 900px) {
+    .patient-details-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .medical-info {
+        grid-template-columns: 1fr;
+    }
+
+    .medical-info-section + .medical-info-section {
+        border-left: none;
+        border-top: 1px solid var(--accent-bg);
+    }
+}
+
+@media (max-width: 600px) {
+    .patient-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-info-item:nth-child(odd) {
+        border-right: none;
+    }
+
+    .patient-info-item:nth-last-child(-n + 2) {
+        border-bottom: 1px solid var(--accent-bg);
+    }
+
+    .patient-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .patient-summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .patient-summary-item + .patient-summary-item {
+        border-left: none;
+        border-top: 1px solid var(--accent-bg);
+    }
+
+    .patient-consultation-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
