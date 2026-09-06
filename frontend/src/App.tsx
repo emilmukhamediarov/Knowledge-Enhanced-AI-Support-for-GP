@@ -16,6 +16,7 @@ import Landing from "./pages/Landing";
 import Patients from "./pages/doctor/Patients";
 import Consultations from "./pages/doctor/Consultations";
 import DoctorConsultation from "./pages/doctor/DoctorConsultation";
+import SessionExpiredModal from "./components/SessionExpiredModal";
 
 function ProtectedLayout() {
     return (
@@ -32,6 +33,7 @@ function App() {
     return (
         <BrowserRouter>
             <Navbar />
+            <SessionExpiredModal />
             <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />

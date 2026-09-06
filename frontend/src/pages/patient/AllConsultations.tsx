@@ -4,7 +4,13 @@ import { apiFetch } from "../../api/client";
 import "./AllConsultations.css";
 
 interface Consultation {
-    id: number;
+    consultation_id: number;
+    created_at: string;
+}
+
+interface ConsultationResponse {
+    user_id: number;
+    consultations: Consultation[];
 }
 
 function Consultations() {
@@ -23,85 +29,111 @@ function Consultations() {
 
         const fetchConsultations = async () => {
             try {
+                setLoading(true);
+                setError(false);
+
                 const data = await apiFetch(
-                    `/consultations/users/${userId}/consultations`
-);
+                    `/consultations/user/${userId}`
+                ) as ConsultationResponse;
 
-setConsultations(data.consultations);
-} catch (error) {
-    console.error(
-        "Failed to fetch consultations:",
-        error
-    );
+                const sortedConsultations = [...data.consultations].sort(
+                    (a, b) =>
+                        new Date(b.created_at).getTime() -
+                        new Date(a.created_at).getTime()
+                );
 
-    setError(true);
-} finally {
-    setLoading(false);
-}
-};
+                setConsultations(sortedConsultations);
+            } catch (error) {
+                console.error(
+                    "Failed to fetch consultations:",
+                    error
+                );
 
-void fetchConsultations();
-}, [userId]);
+                setConsultations([]);
+                setError(true);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-return (
-    <main className="consultations-page">
-        <section className="consultations-header">
-            <h1>Your consultations</h1>
-            <p>
-                View and revisit your previous consultations.
-            </p>
-        </section>
+        void fetchConsultations();
+    }, [userId]);
 
-        {loading && (
-            <div className="consultations-message">
-                <p>Loading consultations...</p>
-            </div>
-        )}
+    const formatDateTime = (dateString: string) => {
+        const date = new Date(dateString);
 
-        {error && (
-            <div className="consultations-message">
+        return date.toLocaleString("en-NZ", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+        });
+    };
+
+    return (
+        <main className="consultations-page">
+            <section className="consultations-header">
+                <h1>Your consultations</h1>
                 <p>
-                    Unable to load your consultations.
-                    Please try again later.
+                    View and revisit your previous consultations.
                 </p>
-            </div>
-        )}
+            </section>
 
-        {!loading && !error && consultations.length === 0 && (
-            <div className="consultations-message">
-                <p>
-                    You don't have any previous consultations yet.
-                </p>
-            </div>
-        )}
+            {loading && (
+                <div className="consultations-message">
+                    <p>Loading consultations...</p>
+                </div>
+            )}
 
-        {!loading && !error && consultations.length > 0 && (
-            <div className="all-consultations">
-                {consultations.map((consultation) => (
-                    <NavLink
-                        key={consultation.id}
-                        to={`/chat/${consultation.id}`}
-                        className="consultation-card"
-                    >
-                        <div>
-                            <h2>
-                                Consultation {consultation.id}
-                            </h2>
+            {error && (
+                <div className="consultations-message">
+                    <p>
+                        Unable to load your consultations.
+                        Please try again later.
+                    </p>
+                </div>
+            )}
 
-                            <p>
-                                View consultation
-                            </p>
-                        </div>
+            {!loading && !error && consultations.length === 0 && (
+                <div className="consultations-message">
+                    <p>
+                        You don't have any previous consultations yet.
+                    </p>
+                </div>
+            )}
 
-                        <span className="consultation-arrow">
+            {!loading && !error && consultations.length > 0 && (
+                <div className="all-consultations">
+                    {consultations.map((consultation) => (
+                        <NavLink
+                            key={consultation.consultation_id}
+                            to={`/chat/${consultation.consultation_id}`}
+                            className="consultation-card"
+                        >
+                            <div>
+                                <h2>
+                                    Consultation{" "}
+                                    {consultation.consultation_id}
+                                </h2>
+
+                                <p>
+                                    {formatDateTime(
+                                        consultation.created_at
+                                    )}
+                                </p>
+                            </div>
+
+                            <span className="consultation-arrow">
                                 →
                             </span>
-                    </NavLink>
-                ))}
-            </div>
-        )}
-    </main>
-);
+                        </NavLink>
+                    ))}
+                </div>
+            )}
+        </main>
+    );
 }
 
 export default Consultations;

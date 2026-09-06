@@ -4,7 +4,7 @@ import { apiFetch } from "../../api/client";
 import "./NewConsultation.css";
 
 interface Consultation {
-    id: number;
+    consultation_id: number;
     created_at: string;
 }
 
@@ -49,7 +49,7 @@ function NewConsultation() {
 
             try {
                 const data = await apiFetch(
-                    `/consultations/users/${userId}/consultations`
+                    `/consultations/user/${userId}`
                 );
 
                 setConsultations(data.consultations);
@@ -250,15 +250,15 @@ function NewConsultation() {
                                         (consultation) => (
                                             <option
                                                 key={
-                                                    consultation.id
+                                                    consultation.consultation_id
                                                 }
                                                 value={String(
-                                                    consultation.id
+                                                    consultation.consultation_id
                                                 )}
                                             >
                                                 Consultation #
                                                 {
-                                                    consultation.id
+                                                    consultation.consultation_id
                                                 }{" "}
                                                 —{" "}
                                                 {new Date(

@@ -20,3 +20,4 @@ class Token(BaseModel):
     token_type: str
     user_id: int
     role: str
+    name: str

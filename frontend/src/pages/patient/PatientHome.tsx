@@ -3,9 +3,8 @@ import { NavLink } from "react-router-dom";
 import { apiFetch } from "../../api/client";
 import "./PatientHome.css";
 
-
 interface Consultation {
-    id: number;
+    consultation_id: number;
 }
 
 function Home() {
@@ -19,9 +18,8 @@ function Home() {
     const [showTryConsultation, setShowTryConsultation] = useState(false);
 
     const userId = localStorage.getItem("userId");
-    const userName = localStorage.getItem("userName") || "there";
+    const userName = localStorage.getItem("userName")?.trim() || "there";
 
-    // Backend connection
     useEffect(() => {
         apiFetch("/")
             .then(() => setBackendConnected(true))
@@ -31,7 +29,6 @@ function Home() {
             });
     }, []);
 
-    // Recent consultations
     useEffect(() => {
         if (!userId) {
             setRecentConsultations([]);
@@ -41,11 +38,15 @@ function Home() {
         const fetchRecentConsultations = async () => {
             try {
                 const data = await apiFetch(
-                    `/consultations/users/${userId}/consultations`
+                    `/consultations/user/${userId}`
+                );
+
+                const sortedConsultations = [...data.consultations].sort(
+                    (a, b) => b.consultation_id - a.consultation_id
                 );
 
                 setRecentConsultations(
-                    data.consultations.slice(0, 5)
+                    sortedConsultations.slice(0, 5)
                 );
             } catch (error) {
                 console.error(
@@ -60,7 +61,6 @@ function Home() {
         void fetchRecentConsultations();
     }, [userId]);
 
-    // Homepage animation
     useEffect(() => {
         const timers = [
             setTimeout(() => setShowHowItWorks(true), 1200),
@@ -80,11 +80,11 @@ function Home() {
         <main className="patient-home">
             <section className="patient-welcome">
                 <div className="patient-welcome-title">
-                    <h1>Hello, {userName} 👋</h1>
+                    <h1>Hello, {userName} </h1>
                 </div>
 
                 <p>
-                    Welcome back. Here's how your consultations work.
+                    Here's how your consultations work.
                 </p>
             </section>
 
@@ -176,13 +176,14 @@ function Home() {
                     <div className="consultation-list">
                         {recentConsultations.map((consultation) => (
                             <NavLink
-                                key={consultation.id}
-                                to={`/chat/${consultation.id}`}
+                                key={consultation.consultation_id}
+                                to={`/chat/${consultation.consultation_id}`}
                                 className="consultation-row"
                             >
                                 <div>
                                     <h3>
-                                        Consultation {consultation.id}
+                                        Consultation{" "}
+                                        {consultation.consultation_id}
                                     </h3>
 
                                     <p>
