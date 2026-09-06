@@ -21,9 +21,6 @@
     opacity: 0.65;
 }
 
-
-/* Consultation list */
-
 .all-consultations {
     display: flex;
     flex-direction: column;
@@ -34,46 +31,45 @@
 .consultation-card {
     width: 100%;
     box-sizing: border-box;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding: 1.2vw 2vw;
-
     border: 1px solid var(--border);
     border-radius: 1vw;
-
     color: inherit;
     text-decoration: none;
+    transition:
+            background 0.2s ease,
+            border-color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+    opacity: 0;
+    transform: translateY(15px);
+    animation: consultation-enter 0.45s ease forwards;
 }
-
-/* Light mode */
 
 .theme-light .consultations-page .consultation-card {
     background: rgba(255, 255, 255, 0.55);
 }
 
-/* Dark mode */
-
 .theme-dark .consultations-page .consultation-card {
     background: var(--social-bg);
 }
 
-.consultation-card:hover {
-    transform: translateX(2px);
-}
-
 .theme-light .consultations-page .consultation-card:hover {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.85);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
 }
 
 .theme-dark .consultations-page .consultation-card:hover {
-    background: var(--social-bg-dark);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
 }
-
-
-/* Text */
 
 .consultation-card h2 {
     margin: 0 0 5px;
@@ -90,14 +86,18 @@
 .consultation-arrow {
     font-size: 1.2rem;
     opacity: 0.5;
+    transition:
+            opacity 0.2s ease,
+            transform 0.2s ease;
 }
 
-
-/* Empty / loading / error */
+.consultation-card:hover .consultation-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+}
 
 .consultations-message {
     padding: 25px;
-
     border: 1px solid var(--border);
     border-radius: 16px;
 }
@@ -115,9 +115,6 @@
     opacity: 0.65;
 }
 
-
-/* Responsive */
-
 @media (max-width: 768px) {
     .consultations-page {
         padding: 40px 25px;
@@ -126,29 +123,6 @@
     .consultations-header h1 {
         font-size: 2rem;
     }
-}
-
-/*Animations*/
-.consultation-card {
-    width: 100%;
-    box-sizing: border-box;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    padding: 1.2vw 2vw;
-
-    border: 1px solid var(--border);
-    border-radius: 1vw;
-
-    color: inherit;
-    text-decoration: none;
-
-    opacity: 0;
-    transform: translateY(15px);
-
-    animation: consultation-enter 0.45s ease forwards;
 }
 
 .consultation-card:nth-child(1) {

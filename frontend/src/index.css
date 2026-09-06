@@ -96,6 +96,7 @@
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #3b8fc4;
+    --accent-color: #025d9a;
     --accent-hover: #5aa6d6;
     --accent-secondary: #6f9aaa;
     --accent-secondary-hover: #89afbd;
@@ -150,6 +151,7 @@ html.theme-dark {
   --border: #2e303a;
   --code-bg: #1f2028;
   --accent: #3b8fc4;
+  --accent-color: #025d9a;
   --accent-hover: #5aa6d6;
   --accent-secondary: #6f9aaa;
   --accent-secondary-hover: #89afbd;
