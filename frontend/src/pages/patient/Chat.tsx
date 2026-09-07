@@ -4,7 +4,7 @@ import { apiFetch } from "../../api/client";
 import { useParams } from "react-router-dom";
 import micIcon from "../../assets/mic-icon.png";
 
-import { AvatarSpeaker } from "../../components/Avatar/AvatarSpeaker";
+import { AvatarSpeaker } from "../../components/Avatar/AvatarSpeaker.tsx";
 
 
 interface Message {
@@ -58,7 +58,7 @@ function Chat() {
             avatarContainerRef.current
         );
         avatarRef.current = avatar;
-        void avatar.init().catch((error) => {
+        void avatar.init().catch((error: any) => {
             console.error(
                 "Avatar initialization failed:",
                 error

@@ -1,7 +1,13 @@
+// @ts-ignore - Bypasses the missing type declaration error for the .mjs file
 import { TalkingHead } from "./talkinghead/talkinghead.mjs";
 
 export class AvatarSpeaker {
-  constructor(container) {
+  // 1. We must declare class properties in TypeScript
+  container: HTMLElement;
+  head: any;
+
+  // 2. We define 'container' as an HTML element
+  constructor(container: HTMLElement) {
     this.container = container;
     this.head = null;
   }
@@ -12,9 +18,8 @@ export class AvatarSpeaker {
       lipsyncModules: ["en"],
       cameraView: "upper",
     });
+
     await this.head.showAvatar({
-      // The URL of the avatar model to load（you can change to other model）
-      // set up lip sync language to English
       url: "/avatars/avaturn.glb",
       body: "F",
       avatarMood: "neutral",
@@ -22,17 +27,16 @@ export class AvatarSpeaker {
     });
   }
 
-
-  // Speak the given text using the avatar's voice and lipsync, using the TTS API to generate speech audioc
-  async speak(text) {
+  // 3. We define 'text' as a string
+  async speak(text: string) {
     if (!this.head) {
       throw new Error("AvatarSpeaker has not been initialized.");
     }
     if (!text || !text.trim()) {
       return;
     }
-    const apiUrl =
-      import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+    const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
     const response = await fetch(`${apiUrl}/tts/tts`, {
       method: "POST",
@@ -51,20 +55,22 @@ export class AvatarSpeaker {
     const data = await response.json();
 
     const audioBytes = Uint8Array.from(
-      atob(data.audio),
-      (char) => char.charCodeAt(0)
+        atob(data.audio),
+        (char) => char.charCodeAt(0)
     );
 
     const audioContext = new AudioContext();
 
     const audioBuffer = await audioContext.decodeAudioData(
-      audioBytes.buffer
+        audioBytes.buffer
     );
 
-    const words = data.words.map((word) => word.value);
-    const wordTimes = data.words.map((word) => word.time);
+    // 4. We tell TypeScript that 'word' is an object containing any data
+    const words = data.words.map((word: any) => word.value);
+    const wordTimes = data.words.map((word: any) => word.time);
 
-    const wordDurations = wordTimes.map((time, index) => {
+    // 5. We define 'time' and 'index' as numbers
+    const wordDurations = wordTimes.map((time: number, index: number) => {
       if (index < wordTimes.length - 1) {
         return wordTimes[index + 1] - time;
       }
@@ -73,18 +79,17 @@ export class AvatarSpeaker {
     });
 
     this.head.speakAudio(
-      {
-        audio: audioBuffer,
-        words: words,
-        wtimes: wordTimes,
-        wdurations: wordDurations,
-      },
-      {
-        lipsyncLang: "en",
-      }
+        {
+          audio: audioBuffer,
+          words: words,
+          wtimes: wordTimes,
+          wdurations: wordDurations,
+        },
+        {
+          lipsyncLang: "en",
+        }
     );
   }
-
 
   // Dispose of the TalkingHead instance and clean up resources
   dispose() {
