@@ -42,6 +42,7 @@ function Login() {
             localStorage.setItem("access_token", data.access_token);
             localStorage.setItem("userId", String(data.user_id));
             localStorage.setItem("role", data.role);
+            localStorage.setItem("userName", data.name);
 
             if (data.role === "doctor") {
                 navigate("/doctorhome");
@@ -110,6 +111,7 @@ function Login() {
                     </button>
                 </div>
             </div>
+
             <div className="login-theme-toggle">
                 <ThemeToggle />
             </div>

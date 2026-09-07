@@ -16,6 +16,8 @@ import Landing from "./pages/Landing";
 import Patients from "./pages/doctor/Patients";
 import Consultations from "./pages/doctor/Consultations";
 import DoctorConsultation from "./pages/doctor/DoctorConsultation";
+import SessionExpiredModal from "./components/SessionExpiredModal";
+import PatientDetails from "./pages/doctor/PatientDetails";
 
 function ProtectedLayout() {
     return (
@@ -32,6 +34,7 @@ function App() {
     return (
         <BrowserRouter>
             <Navbar />
+            <SessionExpiredModal />
             <Routes>
                 {/* Public routes */}
                 <Route path="/" element={<Landing />} />
@@ -48,6 +51,7 @@ function App() {
                     <Route path="/doctor/patients" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><Patients /></RoleRoute></ProtectedRoute>}/>
                     <Route path="/doctor/consultations" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><Consultations /></RoleRoute></ProtectedRoute>}/>
                     <Route path="/doctor/consultations/:consultationId" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><DoctorConsultation /></RoleRoute></ProtectedRoute>}/>
+                    <Route path="/doctor/patients/:patientId" element={<ProtectedRoute><RoleRoute roles={["doctor", "admin"]}><PatientDetails /></RoleRoute></ProtectedRoute>}/>
 
                     {/* Patient pathway */}
                     <Route path="/patienthome" element={<RoleRoute roles={["patient", "admin"]}><PatientHome /></RoleRoute>}/>

@@ -21,8 +21,9 @@ function Chat() {
 
     // Audio recording state
     const [isRecording, setIsRecording] = useState(false);
-    const mediaStreamRef =
-        useRef<MediaStream | null>(null);
+    const [volumeLevel, setVolumeLevel] = useState(0);
+
+    const mediaStreamRef = useRef<MediaStream | null>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
     const audioProcessorRef = useRef<ScriptProcessorNode | null>(null);
     const audioSourceRef = useRef<MediaStreamAudioSourceNode | null>(null);
@@ -37,6 +38,8 @@ function Chat() {
     const inputRef = useRef<HTMLTextAreaElement>(null);
 
     const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+    const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+    const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
 
     // Load messages for this consultation
     useEffect(() => {
@@ -65,29 +68,49 @@ function Chat() {
                     )
                 );
             } catch (error) {
-                console.error(
-                    "Failed to load messages:",
-                    error
-                );
-
-                setError(
-                    "Failed to load conversation."
-                );
+                console.error("Failed to load messages:", error);
+                setError("Failed to load conversation.");
             }
         };
 
         void loadMessages();
     }, [consultationId]);
 
+    // Automatically scroll to the newest message
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth",
+        });
+    }, [messages]);
+
+    // Cleanup audio resources when leaving the page
+    useEffect(() => {
+        return () => {
+            stopAudioResources();
+
+            if (
+                transcriptionSocketRef.current &&
+                transcriptionSocketRef.current.readyState === WebSocket.OPEN
+            ) {
+                transcriptionSocketRef.current.close();
+            }
+        };
+    }, []);
+
+    // Send a message
     const sendMessage = async (text?: string) => {
+        if (isRecording) {
+            stopRecording();
+        }
+
         const messageToSend = text ?? message;
 
-        if (!messageToSend.trim() || loading) return;
+        if (!messageToSend.trim() || loading) {
+            return;
+        }
 
         if (!consultationId) {
-            setError(
-                "Unable to identify the consultation."
-            );
+            setError("Unable to identify the consultation.");
             return;
         }
 
@@ -96,7 +119,9 @@ function Chat() {
         setError("");
         setMessage("");
 
-        // Add user's message
+        finalTranscriptRef.current = [];
+        partialTranscriptRef.current = "";
+
         setMessages((previous) => [
             ...previous,
             {
@@ -121,7 +146,6 @@ function Chat() {
                 }
             );
 
-            // Add an empty AI message
             setMessages((previous) => [
                 ...previous,
                 {
@@ -148,47 +172,74 @@ function Chat() {
                 });
             }
 
-            // Focus input after AI finishes
             inputRef.current?.focus();
-
         } catch (error) {
             console.error("Chat error:", error);
             setError("Failed to send message.");
         } finally {
             setLoading(false);
 
-            // Make sure input receives focus after loading finishes
             setTimeout(() => {
                 inputRef.current?.focus();
             }, 0);
         }
     };
 
-    const downsampleTo16kPcm = (input: Float32Array, inputRate: number) => {
+    // Downsample microphone audio to 16 kHz PCM
+    const downsampleTo16kPcm = (
+        input: Float32Array,
+        inputRate: number
+    ) => {
         const ratio = inputRate / 16000;
-        const output = new Int16Array(Math.round(input.length / ratio));
+        const output = new Int16Array(
+            Math.round(input.length / ratio)
+        );
 
         for (let index = 0; index < output.length; index += 1) {
             const start = Math.floor(index * ratio);
-            const end = Math.min(Math.floor((index + 1) * ratio), input.length);
+            const end = Math.min(
+                Math.floor((index + 1) * ratio),
+                input.length
+            );
+
             let total = 0;
-            for (let sample = start; sample < end; sample += 1) total += input[sample];
-            output[index] = Math.max(-1, Math.min(1, total / Math.max(1, end - start))) * 0x7fff;
+
+            for (let sample = start; sample < end; sample += 1) {
+                total += input[sample];
+            }
+
+            output[index] =
+                Math.max(
+                    -1,
+                    Math.min(
+                        1,
+                        total / Math.max(1, end - start)
+                    )
+                ) * 0x7fff;
         }
+
         return output.buffer;
     };
 
+    // Stop and clean up audio resources
     const stopAudioResources = () => {
         audioProcessorRef.current?.disconnect();
         audioSourceRef.current?.disconnect();
         void audioContextRef.current?.close();
-        mediaStreamRef.current?.getTracks().forEach((track) => track.stop());
+
+        mediaStreamRef.current
+            ?.getTracks()
+            .forEach((track) => track.stop());
+
         audioProcessorRef.current = null;
         audioSourceRef.current = null;
         audioContextRef.current = null;
         mediaStreamRef.current = null;
+
+        setVolumeLevel(0);
     };
 
+    // Start voice recording
     const startRecording = async () => {
         if (loading || isRecording) {
             return;
@@ -203,6 +254,11 @@ function Chat() {
             return;
         }
 
+        if (!consultationId) {
+            setError("Unable to identify the consultation.");
+            return;
+        }
+
         try {
             const stream =
                 await navigator.mediaDevices.getUserMedia({
@@ -211,59 +267,128 @@ function Chat() {
 
             mediaStreamRef.current = stream;
 
-            const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+            const apiUrl =
+                import.meta.env.VITE_API_URL ||
+                "http://localhost:8000";
+
             const socketUrl = apiUrl.replace(/^http/, "ws");
+
             const socket = new WebSocket(
-                `${socketUrl}/consultations/${consultationId}/audio-stream`,
+                `${socketUrl}/consultations/${consultationId}/audio-stream`
             );
+
             transcriptionSocketRef.current = socket;
             finalTranscriptRef.current = [];
             partialTranscriptRef.current = "";
 
             socket.onmessage = (event) => {
                 const data = JSON.parse(event.data);
+
                 if (data.event === "transcript") {
                     if (data.is_final) {
-                        finalTranscriptRef.current.push(data.text);
+                        finalTranscriptRef.current.push(
+                            data.text
+                        );
+
                         partialTranscriptRef.current = "";
                     } else {
-                        partialTranscriptRef.current = data.text;
+                        partialTranscriptRef.current =
+                            data.text;
                     }
+
                     setMessage(
-                        [...finalTranscriptRef.current, partialTranscriptRef.current]
+                        [
+                            ...finalTranscriptRef.current,
+                            partialTranscriptRef.current,
+                        ]
                             .filter(Boolean)
-                            .join(" "),
+                            .join(" ")
                     );
                 }
+
                 if (data.event === "complete") {
                     void sendMessage(data.transcript);
                 }
+
                 if (data.event === "error") {
-                    setError(data.detail || "Live transcription failed.");
+                    setError(
+                        data.detail ||
+                        "Live transcription failed."
+                    );
                 }
             };
-            socket.onerror = () => setError("Could not start live transcription.");
 
-            const context = new AudioContext();
-            const source = context.createMediaStreamSource(stream);
-            const processor = context.createScriptProcessor(4096, 1, 1);
-            source.connect(processor);
-            processor.connect(context.destination);
-            processor.onaudioprocess = (event) => {
-                if (socket.readyState !== WebSocket.OPEN) return;
-                socket.send(
-                    downsampleTo16kPcm(
-                        event.inputBuffer.getChannelData(0),
-                        context.sampleRate,
-                    ),
+            socket.onerror = () => {
+                setError(
+                    "Could not start live transcription."
                 );
             };
+
+            const context = new AudioContext();
+            const source =
+                context.createMediaStreamSource(stream);
+
+            const processor =
+                context.createScriptProcessor(
+                    4096,
+                    1,
+                    1
+                );
+
+            source.connect(processor);
+            processor.connect(context.destination);
+
+            processor.onaudioprocess = (event) => {
+                const inputData =
+                    event.inputBuffer.getChannelData(0);
+
+                // Calculate volume level (RMS)
+                let sum = 0;
+
+                for (
+                    let i = 0;
+                    i < inputData.length;
+                    i++
+                ) {
+                    sum += inputData[i] * inputData[i];
+                }
+
+                const rms = Math.sqrt(
+                    sum / inputData.length
+                );
+
+                setVolumeLevel(
+                    Math.min(
+                        Math.round(rms * 400),
+                        100
+                    )
+                );
+
+                if (
+                    socket.readyState !==
+                    WebSocket.OPEN
+                ) {
+                    return;
+                }
+
+                socket.send(
+                    downsampleTo16kPcm(
+                        inputData,
+                        context.sampleRate
+                    )
+                );
+            };
+
             audioContextRef.current = context;
             audioSourceRef.current = source;
             audioProcessorRef.current = processor;
+
             setIsRecording(true);
         } catch (error) {
-            console.error("Microphone error:", error);
+            console.error(
+                "Microphone error:",
+                error
+            );
 
             setError(
                 "Microphone permission was denied or unavailable."
@@ -271,28 +396,40 @@ function Chat() {
         }
     };
 
-
+    // Stop voice recording
     const stopRecording = () => {
-        if (!isRecording) return;
         stopAudioResources();
-        transcriptionSocketRef.current?.send(JSON.stringify({ event: "stop" }));
+
+        if (
+            transcriptionSocketRef.current &&
+            transcriptionSocketRef.current.readyState ===
+            WebSocket.OPEN
+        ) {
+            transcriptionSocketRef.current.send(
+                JSON.stringify({
+                    event: "stop",
+                })
+            );
+        }
+
         transcriptionSocketRef.current = null;
+        finalTranscriptRef.current = [];
+        partialTranscriptRef.current = "";
+
         setIsRecording(false);
     };
 
-    // ---------------------------------------------------
-    // ---------------------------------------------------
-    // ---------------------------------------------------
-
+    // Handle Enter key
     const handleKeyDown = (
         e: React.KeyboardEvent<HTMLTextAreaElement>
     ) => {
         if (e.key === "Enter") {
+            e.preventDefault();
             void sendMessage();
         }
     };
 
-    // New chat functionality
+    // Reset chat messages
     const resetChat = async () => {
         if (!consultationId) {
             setError(
@@ -318,27 +455,103 @@ function Chat() {
                 inputRef.current?.focus();
             }, 0);
         } catch (error) {
-            console.error("Reset error:", error);
-            setError("Failed to clear conversation.");
+            console.error(
+                "Reset error:",
+                error
+            );
+
+            setError(
+                "Failed to clear conversation."
+            );
+        }
+    };
+
+    const closeConsultation = async () => {
+        if (!consultationId) {
+            setError(
+                "Unable to identify the consultation."
+            );
+            return;
+        }
+
+        try {
+            await apiFetch(
+                `/consultations/${consultationId}/close`,
+                {
+                    method: "PATCH",
+                }
+            );
+
+            setShowCloseConfirmation(false);
+
+            window.location.href = "/home";
+        } catch (error) {
+            console.error(
+                "Close consultation error:",
+                error
+            );
+
+            setError(
+                "Failed to close consultation."
+            );
+        }
+    };
+
+    const deleteChat = async () => {
+        if (!consultationId) {
+            setError(
+                "Unable to identify the consultation."
+            );
+            return;
+        }
+
+        try {
+            await apiFetch(
+                `/consultations/${consultationId}`,
+                {
+                    method: "DELETE",
+                }
+            );
+
+            setShowDeleteConfirmation(false);
+
+            // Refresh the app so the sidebar reloads
+            // and removes the deleted consultation.
+            window.location.href = "/home";
+        } catch (error) {
+            console.error(
+                "Delete chat error:",
+                error
+            );
+
+            setError(
+                "Failed to delete conversation."
+            );
         }
     };
 
     return (
         <main>
+            {/* Reset confirmation */}
             {showResetConfirmation && (
                 <div className="reset-confirmation">
                     <div className="reset-confirmation-box">
                         <h3>Reset chat?</h3>
 
                         <p>
-                            Are you sure you want to reset this chat?
-                            This will delete all messages and responses.
+                            Are you sure you want to reset
+                            this chat? This will delete all
+                            messages and responses.
                         </p>
 
                         <div className="reset-confirmation-actions">
                             <button
                                 type="button"
-                                onClick={() => setShowResetConfirmation(false)}
+                                onClick={() =>
+                                    setShowResetConfirmation(
+                                        false
+                                    )
+                                }
                                 className="reset-cancel-button"
                             >
                                 Cancel
@@ -346,7 +559,9 @@ function Chat() {
 
                             <button
                                 type="button"
-                                onClick={() => void resetChat()}
+                                onClick={() =>
+                                    void resetChat()
+                                }
                                 className="reset-confirm-button"
                             >
                                 Reset Chat
@@ -355,21 +570,132 @@ function Chat() {
                     </div>
                 </div>
             )}
+
+            {showCloseConfirmation && (
+                <div className="reset-confirmation">
+                    <div className="reset-confirmation-box">
+                        <h3>Close consultation?</h3>
+
+                        <p>
+                            Are you sure you want to close this
+                            consultation? You will no longer be
+                            able to continue this conversation.
+                        </p>
+
+                        <div className="reset-confirmation-actions">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowCloseConfirmation(false)
+                                }
+                                className="reset-cancel-button"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    void closeConsultation()
+                                }
+                                className="reset-confirm-button"
+                            >
+                                Close Consultation
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showDeleteConfirmation && (
+                <div className="reset-confirmation">
+                    <div className="reset-confirmation-box">
+                        <h3>Delete chat?</h3>
+
+                        <p>
+                            Are you sure you want to delete
+                            this chat? This will permanently
+                            delete the consultation and all
+                            of its messages.
+                        </p>
+
+                        <div className="reset-confirmation-actions">
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    setShowDeleteConfirmation(
+                                        false
+                                    )
+                                }
+                                className="reset-cancel-button"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    void deleteChat()
+                                }
+                                className="reset-confirm-button"
+                            >
+                                Delete Chat
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="messages">
-                <button
-                    type="button"
-                    onClick={() => setShowResetConfirmation(true)}
-                    className="reset-button"
-                >
-                    Reset Chat
-                </button>
+                {/* Chat actions */}
+                <div className="chat-actions">
+                    <div className="chat-actions-left">
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowResetConfirmation(true)
+                            }
+                            className="reset-button"
+                        >
+                            Reset Chat
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() =>
+                                setShowDeleteConfirmation(true)
+                            }
+                            className="delete-button"
+                        >
+                            Delete Chat
+                        </button>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowCloseConfirmation(true)
+                        }
+                        className="close-button"
+                    >
+                        Close Consultation
+                    </button>
+                </div>
 
                 {messages.length === 0 && (
                     <div className="chat-welcome">
-                        <h1>How can we help you today?</h1>
-                        <p>Tell us what’s bothering you, and we’ll help you work out what to do next.</p>
+                        <h1>
+                            How can we help you today?
+                        </h1>
+
+                        <p>
+                            Tell us what’s bothering you,
+                            and we’ll help you work out what
+                            to do next.
+                        </p>
                     </div>
                 )}
+
                 {messages.map((msg, index) => (
                     <div
                         key={index}
@@ -395,27 +721,69 @@ function Chat() {
                 </p>
             )}
 
+            {/* Voice visualizer */}
+            {isRecording && (
+                <div className="voice-indicator-container">
+                    <span className="voice-status-text">
+                        Listening...
+                    </span>
+
+                    <div className="audio-wave-bars">
+                        <div
+                            className="wave-bar"
+                            style={{
+                                height: `${Math.max(
+                                    15,
+                                    volumeLevel * 0.8
+                                )}%`,
+                            }}
+                        />
+
+                        <div
+                            className="wave-bar"
+                            style={{
+                                height: `${Math.max(
+                                    25,
+                                    volumeLevel * 1.2
+                                )}%`,
+                            }}
+                        />
+
+                        <div
+                            className="wave-bar"
+                            style={{
+                                height: `${Math.max(
+                                    15,
+                                    volumeLevel * 0.9
+                                )}%`,
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Chat input */}
             <div className="chat-input">
-    <textarea
-        ref={inputRef}
-        value={message}
-        onChange={(event) =>
-            setMessage(event.target.value)
-        }
-        onKeyDown={handleKeyDown}
-        placeholder="Type your message..."
-        disabled={loading}
-        rows={1}
-    />
+                <textarea
+                    ref={inputRef}
+                    value={message}
+                    onChange={(event) =>
+                        setMessage(event.target.value)
+                    }
+                    onKeyDown={handleKeyDown}
+                    placeholder="Type your message..."
+                    disabled={loading}
+                    rows={1}
+                />
 
                 <div className="chat-input-actions">
                     <button
                         type="button"
-                        className={
+                        className={`record-button ${
                             isRecording
-                                ? "record-button recording"
-                                : "record-button"
-                        }
+                                ? "recording"
+                                : ""
+                        }`}
                         onClick={
                             isRecording
                                 ? stopRecording
@@ -423,6 +791,23 @@ function Chat() {
                         }
                         disabled={loading}
                         aria-pressed={isRecording}
+                        style={{
+                            transform: isRecording
+                                ? `scale(${
+                                    1 +
+                                    (volumeLevel /
+                                        100) *
+                                    0.25
+                                })`
+                                : "scale(1)",
+                            boxShadow: isRecording
+                                ? `0 0 ${
+                                    8 +
+                                    volumeLevel *
+                                    0.3
+                                }px rgba(239, 68, 68, 0.8)`
+                                : "none",
+                        }}
                     >
                         <img
                             src={micIcon}
@@ -437,8 +822,13 @@ function Chat() {
                     <button
                         type="button"
                         className="send-button"
-                        onClick={() => void sendMessage()}
-                        disabled={loading || message.trim() === ""}
+                        onClick={() =>
+                            void sendMessage()
+                        }
+                        disabled={
+                            loading ||
+                            message.trim() === ""
+                        }
                         aria-label="Send message"
                     >
                         ➤

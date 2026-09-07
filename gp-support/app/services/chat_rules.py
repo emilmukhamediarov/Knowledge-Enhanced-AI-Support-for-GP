@@ -1,5 +1,5 @@
 import re
-
+from app.db.models import LanguagePreference
 
 def is_advice_request(text: str) -> bool:
     text = text.lower().strip()
@@ -171,17 +171,50 @@ def get_missing_background_field(messages):
     return None
 
 
-def background_question(field):
-    questions = {
-        "medical_history": (
-            "Do you have any relevant medical conditions or medical history?"
-        ),
-        "medications": (
-            "Are you currently taking any medications?"
-        ),
-        "allergies": (
-            "Do you have any allergies?"
-        ),
-    }
+QUESTIONS_BY_LANG = {
+    "en-US": {
+        "medical_history": "Do you have any relevant medical conditions or medical history?",
+        "medications": "Are you currently taking any medications?",
+        "allergies": "Do you have any allergies?",
+    },
+    "es-US": {
+        "medical_history": "¿Tiene alguna condición médica relevante o antecedentes médicos?",
+        "medications": "¿Está tomando algún medicamento actualmente?",
+        "allergies": "¿Tiene alguna alergia?",
+    },
+    "zh-CN": {
+        "medical_history": "您是否有任何相关的医疗状况或病史？",
+        "medications": "您目前是否正在服用任何药物？",
+        "allergies": "您是否有任何过敏症状？",
+    },
+    "th-TH": {
+        "medical_history": "คุณมีภาวะทางการแพทย์หรือประวัติการรักษาที่เกี่ยวข้องหรือไม่?",
+        "medications": "คุณกำลังรับประทานยาใดๆ อยู่ในขณะนี้หรือไม่?",
+        "allergies": "คุณมีอาการแพ้ใดๆ หรือไม่?",
+    },
+    "ru-RU": {
+        "medical_history": "Есть ли у вас какие-либо заболевания или медицинский анамнез?",
+        "medications": "Принимаете ли вы в настоящее время какие-либо лекарственные препараты?",
+        "allergies": "Есть ли у вас какие-либо аллергии?",
+    },
+}
 
-    return questions[field]
+def background_question(field: str, user_lang: str = "en-US") -> str:
+    lang_questions = QUESTIONS_BY_LANG.get(user_lang, QUESTIONS_BY_LANG["en-US"])
+    return lang_questions.get(field, QUESTIONS_BY_LANG["en-US"][field])
+
+
+# def background_question(field):
+#     questions = {
+#         "medical_history": (
+#             "Do you have any relevant medical conditions or medical history?"
+#         ),
+#         "medications": (
+#             "Are you currently taking any medications?"
+#         ),
+#         "allergies": (
+#             "Do you have any allergies?"
+#         ),
+#     }
+#
+#     return questions[field]

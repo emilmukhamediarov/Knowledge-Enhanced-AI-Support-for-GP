@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
 
 interface Consultation {
-    id: number;
-    user_id: number;
+    consultation_id: number;
 }
 
 function Sidebar() {
@@ -31,11 +30,18 @@ function Sidebar() {
         const fetchRecentConsultations = async () => {
             try {
                 const data = await apiFetch(
-                    `/consultations/users/${userId}/consultations`
+                    `/consultations/user/${userId}`
+                );
+
+                const sortedConsultations = [
+                    ...data.consultations,
+                ].sort(
+                    (a, b) =>
+                        b.consultation_id - a.consultation_id
                 );
 
                 setRecentConsultations(
-                    data.consultations.slice(0, 5)
+                    sortedConsultations.slice(0, 5)
                 );
             } catch (error) {
                 console.error(
@@ -69,34 +75,36 @@ function Sidebar() {
                                 }`
                             }
                         >
-                        <span className="sidebar-new-chat-content">
+                            <span className="sidebar-new-chat-content">
 
-                            <span className="sidebar-new-chat-icon">
-                                +
+                                <span className="sidebar-new-chat-icon">
+                                    +
+                                </span>
+
+                                <span>
+                                    New Chat
+                                </span>
+
                             </span>
-
-                            <span>
-                                New Chat
-                            </span>
-
-                        </span>
                         </NavLink>
 
                         <div className="sidebar-separator" />
 
                         <div className="sidebar-recent">
 
-                        <span className="sidebar-section-title">
-                            Recent
-                        </span>
+                            <span className="sidebar-section-title">
+                                Recent
+                            </span>
 
                             <div className="sidebar-chats">
 
                                 {recentConsultations.map(
                                     (consultation) => (
                                         <NavLink
-                                            key={consultation.id}
-                                            to={`/chat/${consultation.id}`}
+                                            key={
+                                                consultation.consultation_id
+                                            }
+                                            to={`/chat/${consultation.consultation_id}`}
                                             className={({ isActive }) =>
                                                 `sidebar-chat ${
                                                     isActive
@@ -105,7 +113,7 @@ function Sidebar() {
                                                 }`
                                             }
                                         >
-                                            Chat {consultation.id}
+                                            Chat {consultation.consultation_id}
                                         </NavLink>
                                     )
                                 )}
@@ -115,12 +123,15 @@ function Sidebar() {
                         </div>
                     </>
                 )}
+
                 {role === "doctor" && (
                     <>
                         <NavLink
                             to="/doctorhome"
                             className={({ isActive }) =>
-                                `sidebar-link ${isActive ? "active" : ""}`
+                                `sidebar-link ${
+                                    isActive ? "active" : ""
+                                }`
                             }
                         >
                             <span>Dashboard</span>
@@ -129,7 +140,9 @@ function Sidebar() {
                         <NavLink
                             to="/doctor/patients"
                             className={({ isActive }) =>
-                                `sidebar-link ${isActive ? "active" : ""}`
+                                `sidebar-link ${
+                                    isActive ? "active" : ""
+                                }`
                             }
                         >
                             <span>Patients</span>
@@ -138,7 +151,9 @@ function Sidebar() {
                         <NavLink
                             to="/doctor/consultations"
                             className={({ isActive }) =>
-                                `sidebar-link ${isActive ? "active" : ""}`
+                                `sidebar-link ${
+                                    isActive ? "active" : ""
+                                }`
                             }
                         >
                             <span>Consultations</span>
@@ -163,22 +178,22 @@ function Sidebar() {
                                 : "Switch to dark mode"
                         }
                     >
-                    <span className="theme-toggle-icon sun">
-                        ☀
-                    </span>
+                        <span className="theme-toggle-icon sun">
+                            ☀
+                        </span>
 
                         <span className="theme-toggle-icon moon">
-                        ☾
-                    </span>
+                            ☾
+                        </span>
 
                         <span className="theme-toggle-thumb" />
                     </button>
 
                     <span className="theme-label">
-                    {isDark
-                        ? "Dark mode"
-                        : "Light mode"}
-                </span>
+                        {isDark
+                            ? "Dark mode"
+                            : "Light mode"}
+                    </span>
 
                 </div>
 

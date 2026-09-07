@@ -47,6 +47,9 @@ def chat_aws(messages):
     while bedrock_messages and bedrock_messages[0]["role"] != "user":
         bedrock_messages.pop(0)
 
+    if not bedrock_messages:
+        raise ValueError("Conversation payload must contain at least one user message.")
+
     system_prompt = "\n\n".join(system_prompts)
 
     bedrock_messages = bedrock_messages[-MAX_HISTORY_MESSAGES:]
