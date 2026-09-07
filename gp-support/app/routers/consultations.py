@@ -116,6 +116,10 @@ def clear_conversation(
         consultation
     )
 
+    consultation.title = None
+    db.commit()
+    db.refresh(consultation)
+
     return {
         "message": "Conversation cleared"
     }
