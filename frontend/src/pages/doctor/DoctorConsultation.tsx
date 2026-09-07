@@ -526,12 +526,6 @@ function DoctorConsultation() {
                         </div>
 
                         <div className="reference-right">
-                            {rag.requires_urgent_attention && (
-                                <span className="urgent-badge">
-                                    Urgent
-                                </span>
-                            )}
-
                             <span className="reference-arrow">
                                 {ragOpen ? "" : ""}
                             </span>
@@ -554,7 +548,7 @@ function DoctorConsultation() {
                             <div className="rag-grid">
                                 <div className="rag-item">
                                     <span className="field-label">
-                                        Red flags
+                                        Symptoms identified
                                     </span>
 
                                     {rag.red_flags_identified.length >
@@ -573,24 +567,6 @@ function DoctorConsultation() {
                                             None identified
                                         </p>
                                     )}
-                                </div>
-
-                                <div
-                                    className={`rag-item ${
-                                        rag.requires_urgent_attention
-                                            ? "urgent"
-                                            : ""
-                                    }`}
-                                >
-                                    <span className="field-label">
-                                        Urgent attention
-                                    </span>
-
-                                    <p>
-                                        {rag.requires_urgent_attention
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
                                 </div>
 
                                 <div className="rag-item">

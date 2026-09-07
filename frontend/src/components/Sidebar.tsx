@@ -6,6 +6,7 @@ import { apiFetch } from "../api/client";
 
 interface Consultation {
     consultation_id: number;
+    title: string | null;
 }
 
 function Sidebar() {
@@ -113,7 +114,28 @@ function Sidebar() {
                                                 }`
                                             }
                                         >
-                                            Chat {consultation.consultation_id}
+                                            {consultation.title ? (
+                                                <>
+                                                    <span className="sidebar-chat-title">
+                                                        {consultation.title}
+                                                    </span>
+
+                                                    <span className="sidebar-chat-number">
+                                                        (#
+                                                        {
+                                                            consultation.consultation_id
+                                                        }
+                                                        )
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Chat{" "}
+                                                    {
+                                                        consultation.consultation_id
+                                                    }
+                                                </>
+                                            )}
                                         </NavLink>
                                     )
                                 )}
