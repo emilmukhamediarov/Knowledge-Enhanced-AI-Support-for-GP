@@ -25,13 +25,13 @@ from app.services.chat_rules import (
     keep_one_question,
     remove_medical_advice,
     get_missing_background_field,
-    background_question,
 )
 
 from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
 from app.services.prompts import build_system_prompt
+from app.services.state_service import get_empty_state
 from app.services.knowledge_rag import (
     build_query_from_consultation_summary,
     ask_structured,
@@ -313,30 +313,40 @@ def chat(
         "es-US": "Spanish (es-US)",
     }
     target_language = LANGUAGE_MAP.get(user_lang, "English (en-US)")
+
     if consultation.user_id != current_user.id:
         raise HTTPException(
             status_code=403,
             detail="Not allowed to access this consultation"
         )
+    # 1. Fetch history BEFORE the new message to calculate current state
+    existing_messages = repository.get_messages(db, consultation_id)
 
+    if not existing_messages:
+        current_state = get_empty_state()
+    else:
+        prepared_history = [
+            {"role": m.role, "content": m.content}
+            for m in existing_messages
+        ]
+        # Use existing Bedrock summary extraction to populate the state
+        current_state = chat_service.summary_aws(prepared_history, consultation_id)
 
-    repository.save_user_message(
-        db,
-        consultation,
-        data.message
-    )
-
+    # 2. Save the new user message
     repository.save_user_message(db, consultation, data.message)
-    messages = repository.get_messages(db, consultation_id)
 
-    # Inject the explicit language requirement into the system prompt
+    # 3. Fetch the updated history (including the message we just saved)
+    all_messages = repository.get_messages(db, consultation_id)
+
+    # 4. Inject the state into the system prompt
     prepared_messages = [
         {
             "role": "system",
-            "content": build_system_prompt(target_language)
+            "content": build_system_prompt(target_language, current_state)
         }
     ]
 
+    # Apply safety rule prompts
     if is_advice_request(data.message):
         prepared_messages.append(
             {
@@ -364,43 +374,23 @@ def chat(
             }
         )
 
+    # Append the actual conversation
     prepared_messages.extend(
         {
             "role": message.role,
             "content": message.content
         }
-        for message in messages
+        for message in all_messages
     )
 
+    # 5. Get the LLM reply
     reply = chat_service.chat_aws(prepared_messages)
+
+    # Clean the reply using your remaining rules
     reply = remove_medical_advice(reply)
     reply = keep_one_question(reply)
 
-    missing_background = get_missing_background_field(messages)
-
-    reply_lower = reply.lower()
-
-    moving_to_background_or_completion = any(
-        phrase in reply_lower
-        for phrase in [
-            "medical history",
-            "medical condition",
-            "medication",
-            "allerg",
-            "anything else",
-            "other concerns",
-            "before we conclude",
-            "before we wrap up",
-            "pre-consultation information is complete",
-        ]
-    )
-
-    if (
-        missing_background is not None
-        and moving_to_background_or_completion
-    ):
-        reply = background_question(missing_background, user_lang)
-
+    # 6. Save and return
     repository.save_assistant_message(
         db,
         consultation,
