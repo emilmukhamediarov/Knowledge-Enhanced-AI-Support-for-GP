@@ -344,6 +344,13 @@ def chat(
     user = repository.get_user_by_id(db, consultation.user_id)
     user_lang = user.preferred_language if user else "en-US"
 
+    # Determine the language code to use for the LLM
+    language_code = (
+        user_lang.value
+        if isinstance(user_lang, models.LanguagePreference)
+        else user_lang
+    )
+
     # Map the enum to a human-readable language for the LLM
     LANGUAGE_MAP = {
         "en-US": "English (en-US)",
@@ -352,7 +359,12 @@ def chat(
         "ru-RU": "Russian (ru-RU)",
         "es-US": "Spanish (es-US)",
     }
-    target_language = LANGUAGE_MAP.get(user_lang, "English (en-US)")
+
+    # Use the mapped language or default to English if not found
+    target_language = LANGUAGE_MAP.get(
+        language_code,
+        "English (en-US)",
+    )
 
     if consultation.user_id != current_user.id:
         raise HTTPException(
@@ -438,7 +450,8 @@ def chat(
     )
 
     return {
-        "reply": reply
+        "reply": reply,
+        "language_code": language_code
     }
 
 @router.get("/{consultation_id}/summary")

@@ -24,7 +24,7 @@ export class AvatarSpeaker {
 
 
   // Speak the given text using the avatar's voice and lipsync, using the TTS API to generate speech audioc
-  async speak(text) {
+  async speak(text, languageCode = "en-US") {
     if (!this.head) {
       throw new Error("AvatarSpeaker has not been initialized.");
     }
@@ -41,6 +41,7 @@ export class AvatarSpeaker {
       },
       body: JSON.stringify({
         text: text,
+        language_code: languageCode,
       }),
     });
 
