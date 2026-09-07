@@ -62,12 +62,14 @@ def _get_doctor_consultation(
 
     return consultation
 
+
+
 @router.post("")
 def create_consultation(
     db: Session = Depends(get_db),
-        current_user: models.User = Depends(
-            require_role([models.UserRole.PATIENT])
-        )
+    current_user: models.User = Depends(
+        require_role([models.UserRole.PATIENT])
+    )
 ):
     consultation = repository.create_consultation(
         db,
@@ -77,6 +79,8 @@ def create_consultation(
     return {
         "consultation_id": consultation.id,
         "user_id": consultation.user_id,
+        "related_consultation_id": consultation.related_consultation_id,
+        "title": consultation.title,
         "status": consultation.status,
         "created_at": consultation.created_at,
         "closed_at": consultation.closed_at,
@@ -181,8 +185,12 @@ def close_consultation(
 
     return {
         "consultation_id": consultation.id,
+        "user_id": consultation.user_id,
+        "related_consultation_id": consultation.related_consultation_id,
+        "title": consultation.title,
         "status": consultation.status,
-        "closed_at": consultation.closed_at
+        "created_at": consultation.created_at,
+        "closed_at": consultation.closed_at,
     }
 
 @router.get("/user/{user_id}")
@@ -227,17 +235,32 @@ def get_user_consultations(
         user_id
     )
 
+    consultation_list = []
+
+    for consultation in consultations:
+        consultation_data = {
+            "consultation_id": consultation.id,
+            "user_id": consultation.user_id,
+            "related_consultation_id": consultation.related_consultation_id,
+            "title": consultation.title,
+            "status": consultation.status,
+            "created_at": consultation.created_at,
+            "closed_at": consultation.closed_at,
+        }
+
+        if current_user.role == models.UserRole.DOCTOR:
+            consultation_data.update({
+                "subjective": consultation.subjective,
+                "objective": consultation.objective,
+                "assessment": consultation.assessment,
+                "plan": consultation.plan,
+            })
+
+        consultation_list.append(consultation_data)
+
     return {
         "user_id": user_id,
-        "consultations": [
-            {
-                "consultation_id": consultation.id,
-                "status": consultation.status,
-                "created_at": consultation.created_at,
-                "closed_at": consultation.closed_at,
-            }
-            for consultation in consultations
-        ]
+        "consultations": consultation_list
     }
 
 
@@ -566,7 +589,7 @@ def get_doctor_consultations(
     current_user: models.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    if current_user.role != "doctor":
+    if current_user.role != models.UserRole.DOCTOR:
         raise HTTPException(
             status_code=403,
             detail="Only doctors can access this endpoint"
@@ -594,11 +617,17 @@ def get_doctor_consultations(
         "consultations": [
             {
                 "consultation_id": consultation.id,
-                "patient_id": consultation.user_id,
+                "user_id": consultation.user_id,
                 "patient_name": patient_name,
+                "related_consultation_id": consultation.related_consultation_id,
+                "title": consultation.title,
                 "status": consultation.status,
                 "created_at": consultation.created_at,
                 "closed_at": consultation.closed_at,
+                "subjective": consultation.subjective,
+                "objective": consultation.objective,
+                "assessment": consultation.assessment,
+                "plan": consultation.plan,
             }
             for consultation, patient_name in consultations
         ]
