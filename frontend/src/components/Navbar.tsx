@@ -1,6 +1,6 @@
 import { useNavigate, NavLink } from "react-router-dom";
 import "./Navbar.css";
-import bitwiseLogo from "../assets/bitwiseLogo.svg";
+import bitwiseLogo from "../assets/BitwiseLogo.svg";
 
 function Navbar() {
     const navigate = useNavigate();
