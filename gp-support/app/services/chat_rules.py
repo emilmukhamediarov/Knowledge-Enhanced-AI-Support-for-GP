@@ -202,19 +202,3 @@ QUESTIONS_BY_LANG = {
 def background_question(field: str, user_lang: str = "en-US") -> str:
     lang_questions = QUESTIONS_BY_LANG.get(user_lang, QUESTIONS_BY_LANG["en-US"])
     return lang_questions.get(field, QUESTIONS_BY_LANG["en-US"][field])
-
-
-# def background_question(field):
-#     questions = {
-#         "medical_history": (
-#             "Do you have any relevant medical conditions or medical history?"
-#         ),
-#         "medications": (
-#             "Are you currently taking any medications?"
-#         ),
-#         "allergies": (
-#             "Do you have any allergies?"
-#         ),
-#     }
-#
-#     return questions[field]

@@ -4,6 +4,9 @@ import { apiFetch } from "../../api/client";
 import { useParams } from "react-router-dom";
 import micIcon from "../../assets/mic-icon.png";
 
+import { AvatarSpeaker } from "../../components/Avatar/AvatarSpeaker";
+
+
 interface Message {
     role: "user" | "assistant";
     content: string;
@@ -40,6 +43,36 @@ function Chat() {
     const [showResetConfirmation, setShowResetConfirmation] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [showCloseConfirmation, setShowCloseConfirmation] = useState(false);
+
+
+
+    // Used to control the avatar's mouth movement
+    const avatarContainerRef = useRef<HTMLDivElement>(null);
+    const avatarRef = useRef<AvatarSpeaker | null>(null);
+
+    // Initialize the avatar
+    useEffect(() => {
+        if (!avatarContainerRef.current) return;
+        const avatar = new AvatarSpeaker(
+            avatarContainerRef.current
+        );
+        avatarRef.current = avatar;
+        void avatar.init().catch((error) => {
+            console.error(
+                "Avatar initialization failed:",
+                error
+            );
+        });
+        return () => {
+            avatar.dispose();
+
+            if (avatarRef.current === avatar) {
+                avatarRef.current = null;
+            }
+        };
+    }, []);
+
+
 
     // Load messages for this consultation
     useEffect(() => {
@@ -146,6 +179,10 @@ function Chat() {
                 }
             );
 
+            // Speak the chatbot's response using the avatar
+            void avatarRef.current?.speak(data.reply);
+
+            // Add an empty AI message
             setMessages((previous) => [
                 ...previous,
                 {
@@ -532,119 +569,127 @@ function Chat() {
 
     return (
         <main>
+            <div
+                ref={avatarContainerRef}
+                className="avatar-container"
+            />
+
             {/* Reset confirmation */}
-            {showResetConfirmation && (
-                <div className="reset-confirmation">
-                    <div className="reset-confirmation-box">
-                        <h3>Reset chat?</h3>
+            {
+                showResetConfirmation && (
+                    <div className="reset-confirmation">
+                        <div className="reset-confirmation-box">
+                            <h3>Reset chat?</h3>
 
-                        <p>
-                            Are you sure you want to reset
-                            this chat? This will delete all
-                            messages and responses.
-                        </p>
+                            <p>
+                                Are you sure you want to reset
+                                this chat? This will delete all
+                                messages and responses.
+                            </p>
 
-                        <div className="reset-confirmation-actions">
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setShowResetConfirmation(
-                                        false
-                                    )
-                                }
-                                className="reset-cancel-button"
-                            >
-                                Cancel
-                            </button>
+                            <div className="reset-confirmation-actions">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowResetConfirmation(false)
+                                    }
+                                    className="reset-cancel-button"
+                                >
+                                    Cancel
+                                </button>
 
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    void resetChat()
-                                }
-                                className="reset-confirm-button"
-                            >
-                                Reset Chat
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        void resetChat()
+                                    }
+                                    className="reset-confirm-button"
+                                >
+                                    Reset Chat
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+            {
+                showCloseConfirmation && (
+                    <div className="reset-confirmation">
+                        <div className="reset-confirmation-box">
+                            <h3>Close consultation?</h3>
 
-            {showCloseConfirmation && (
-                <div className="reset-confirmation">
-                    <div className="reset-confirmation-box">
-                        <h3>Close consultation?</h3>
+                            <p>
+                                Are you sure you want to close this
+                                consultation? You will no longer be
+                                able to continue this conversation.
+                            </p>
 
-                        <p>
-                            Are you sure you want to close this
-                            consultation? You will no longer be
-                            able to continue this conversation.
-                        </p>
+                            <div className="reset-confirmation-actions">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowCloseConfirmation(false)
+                                    }
+                                    className="reset-cancel-button"
+                                >
+                                    Cancel
+                                </button>
 
-                        <div className="reset-confirmation-actions">
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setShowCloseConfirmation(false)
-                                }
-                                className="reset-cancel-button"
-                            >
-                                Cancel
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    void closeConsultation()
-                                }
-                                className="reset-confirm-button"
-                            >
-                                Close Consultation
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        void closeConsultation()
+                                    }
+                                    className="reset-confirm-button"
+                                >
+                                    Close Consultation
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
-            {showDeleteConfirmation && (
-                <div className="reset-confirmation">
-                    <div className="reset-confirmation-box">
-                        <h3>Delete chat?</h3>
+            {
+                showDeleteConfirmation && (
+                    <div className="reset-confirmation">
+                        <div className="reset-confirmation-box">
+                            <h3>Delete chat?</h3>
 
-                        <p>
-                            Are you sure you want to delete
-                            this chat? This will permanently
-                            delete the consultation and all
-                            of its messages.
-                        </p>
+                            <p>
+                                Are you sure you want to delete
+                                this chat? This will permanently
+                                delete the consultation and all
+                                of its messages.
+                            </p>
 
-                        <div className="reset-confirmation-actions">
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    setShowDeleteConfirmation(
-                                        false
-                                    )
-                                }
-                                className="reset-cancel-button"
-                            >
-                                Cancel
-                            </button>
+                            <div className="reset-confirmation-actions">
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setShowDeleteConfirmation(
+                                            false
+                                        )
+                                    }
+                                    className="reset-cancel-button"
+                                >
+                                    Cancel
+                                </button>
 
-                            <button
-                                type="button"
-                                onClick={() =>
-                                    void deleteChat()
-                                }
-                                className="reset-confirm-button"
-                            >
-                                Delete Chat
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        void deleteChat()
+                                    }
+                                    className="reset-confirm-button"
+                                >
+                                    Delete Chat
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             <div className="messages">
                 {/* Chat actions */}
@@ -715,52 +760,56 @@ function Chat() {
                 />
             </div>
 
-            {error && (
-                <p className="chat-error">
-                    {error}
-                </p>
-            )}
+            {
+                error && (
+                    <p className="chat-error">
+                        {error}
+                    </p>
+                )
+            }
 
             {/* Voice visualizer */}
-            {isRecording && (
-                <div className="voice-indicator-container">
-                    <span className="voice-status-text">
-                        Listening...
-                    </span>
+            {
+                isRecording && (
+                    <div className="voice-indicator-container">
+                        <span className="voice-status-text">
+                            Listening...
+                        </span>
 
-                    <div className="audio-wave-bars">
-                        <div
-                            className="wave-bar"
-                            style={{
-                                height: `${Math.max(
-                                    15,
-                                    volumeLevel * 0.8
-                                )}%`,
-                            }}
-                        />
+                        <div className="audio-wave-bars">
+                            <div
+                                className="wave-bar"
+                                style={{
+                                    height: `${Math.max(
+                                        15,
+                                        volumeLevel * 0.8
+                                    )}%`,
+                                }}
+                            />
 
-                        <div
-                            className="wave-bar"
-                            style={{
-                                height: `${Math.max(
-                                    25,
-                                    volumeLevel * 1.2
-                                )}%`,
-                            }}
-                        />
+                            <div
+                                className="wave-bar"
+                                style={{
+                                    height: `${Math.max(
+                                        25,
+                                        volumeLevel * 1.2
+                                    )}%`,
+                                }}
+                            />
 
-                        <div
-                            className="wave-bar"
-                            style={{
-                                height: `${Math.max(
-                                    15,
-                                    volumeLevel * 0.9
-                                )}%`,
-                            }}
-                        />
+                            <div
+                                className="wave-bar"
+                                style={{
+                                    height: `${Math.max(
+                                        15,
+                                        volumeLevel * 0.9
+                                    )}%`,
+                                }}
+                            />
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
 
             {/* Chat input */}
             <div className="chat-input">
@@ -779,11 +828,10 @@ function Chat() {
                 <div className="chat-input-actions">
                     <button
                         type="button"
-                        className={`record-button ${
-                            isRecording
-                                ? "recording"
-                                : ""
-                        }`}
+                        className={`record-button ${isRecording
+                            ? "recording"
+                            : ""
+                            }`}
                         onClick={
                             isRecording
                                 ? stopRecording
@@ -793,18 +841,16 @@ function Chat() {
                         aria-pressed={isRecording}
                         style={{
                             transform: isRecording
-                                ? `scale(${
-                                    1 +
-                                    (volumeLevel /
-                                        100) *
-                                    0.25
+                                ? `scale(${1 +
+                                (volumeLevel /
+                                    100) *
+                                0.25
                                 })`
                                 : "scale(1)",
                             boxShadow: isRecording
-                                ? `0 0 ${
-                                    8 +
-                                    volumeLevel *
-                                    0.3
+                                ? `0 0 ${8 +
+                                volumeLevel *
+                                0.3
                                 }px rgba(239, 68, 68, 0.8)`
                                 : "none",
                         }}
@@ -835,7 +881,7 @@ function Chat() {
                     </button>
                 </div>
             </div>
-        </main>
+        </main >
     );
 }
 

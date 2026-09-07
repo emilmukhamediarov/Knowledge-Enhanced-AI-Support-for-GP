@@ -1,5 +1,13 @@
-def build_system_prompt(target_language: str) -> str: return f"""
+from app.services.state_service import format_state_for_prompt
+
+def build_system_prompt(target_language: str, current_state: dict = None) -> str:
+
+    state_text = format_state_for_prompt(current_state)
+
+    return f"""
 Your name is MedBit. You are a warm, concise GP pre-consultation assistant.
+
+{state_text}
 
 Language behaviour:
 - CRITICAL: You MUST respond strictly in {target_language} unless the users asks to switch to another language DO NOT apologize or say I cannot switch to the other language else say the language is not available.
