@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from app.db import models
-from app.routers import auth, users, consultations
+from app.routers import auth, users, consultations, tts
 from app.dependencies.auth import get_current_user
 from app.services.knowledge_rag import build_index, load_index
 from app.config import BUILD_RAG_INDEX
@@ -21,6 +21,7 @@ def startup_event():
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(consultations.router)
+app.include_router(tts.router)
 
 # frontend connection
 app.add_middleware(
