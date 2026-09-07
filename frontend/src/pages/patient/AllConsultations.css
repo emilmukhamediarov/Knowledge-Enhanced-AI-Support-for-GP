@@ -168,3 +168,22 @@
         transform: translateY(0);
     }
 }
+
+.consultation-info h2 {
+    margin: 0 0 4px;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.consultation-number {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 0.75rem;
+    opacity: 0.45;
+}
+
+.consultation-info p {
+    margin: 0;
+    font-size: 0.85rem;
+    opacity: 0.55;
+}

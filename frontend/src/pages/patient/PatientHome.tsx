@@ -5,6 +5,7 @@ import "./PatientHome.css";
 
 interface Consultation {
     consultation_id: number;
+    title: string | null;
 }
 
 function Home() {
@@ -182,8 +183,28 @@ function Home() {
                             >
                                 <div>
                                     <h3>
-                                        Consultation{" "}
-                                        {consultation.consultation_id}
+                                        {consultation.title ? (
+                                            <>
+                                                <span className="consultation-title">
+                                                    {consultation.title}
+                                                </span>
+
+                                                <span className="consultation-number">
+                                                    (#
+                                                    {
+                                                        consultation.consultation_id
+                                                    }
+                                                    )
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                Consultation{" "}
+                                                {
+                                                    consultation.consultation_id
+                                                }
+                                            </>
+                                        )}
                                     </h3>
 
                                     <p>

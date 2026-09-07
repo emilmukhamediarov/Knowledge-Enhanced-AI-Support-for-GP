@@ -5,6 +5,7 @@ import "./AllConsultations.css";
 
 interface Consultation {
     consultation_id: number;
+    title: string | null;
     created_at: string;
 }
 
@@ -35,6 +36,8 @@ function Consultations() {
                 const data = await apiFetch(
                     `/consultations/user/${userId}`
                 ) as ConsultationResponse;
+
+                console.log("Consultations:", data.consultations);
 
                 const sortedConsultations = [...data.consultations].sort(
                     (a, b) =>
@@ -112,11 +115,16 @@ function Consultations() {
                             to={`/chat/${consultation.consultation_id}`}
                             className="consultation-card"
                         >
-                            <div>
+                            <div className="consultation-info">
                                 <h2>
+                                    {consultation.title ||
+                                        "New Consultation"}
+                                </h2>
+
+                                <span className="consultation-number">
                                     Consultation{" "}
                                     {consultation.consultation_id}
-                                </h2>
+                                </span>
 
                                 <p>
                                     {formatDateTime(
