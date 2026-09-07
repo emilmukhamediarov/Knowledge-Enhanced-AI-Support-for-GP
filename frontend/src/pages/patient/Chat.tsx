@@ -21,6 +21,7 @@ function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const sendingRef = useRef(false);
 
     // Audio recording state
     const [isRecording, setIsRecording] = useState(false);
@@ -132,6 +133,8 @@ function Chat() {
 
     // Send a message
     const sendMessage = async (text?: string) => {
+        if (sendingRef.current) return;
+
         if (isRecording) {
             stopRecording();
         }
@@ -146,6 +149,9 @@ function Chat() {
             setError("Unable to identify the consultation.");
             return;
         }
+
+        sendingRef.current = true;
+        setLoading(true);
 
         const userMessage = messageToSend.trim();
 
@@ -210,10 +216,13 @@ function Chat() {
             }
 
             inputRef.current?.focus();
+
         } catch (error) {
             console.error("Chat error:", error);
             setError("Failed to send message.");
+
         } finally {
+            sendingRef.current = false;
             setLoading(false);
 
             setTimeout(() => {
