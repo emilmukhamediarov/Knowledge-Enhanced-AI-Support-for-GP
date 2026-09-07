@@ -168,6 +168,45 @@ class Consultation(Base):
         passive_deletes=True
     )
 
+    related_consultation_id: Mapped[int | None] = mapped_column(
+        ForeignKey(
+            "consultations.id",
+            ondelete="SET NULL"
+        ),
+        nullable=True
+    )
+
+    related_consultation: Mapped["Consultation | None"] = relationship(
+        "Consultation",
+        remote_side="Consultation.id",
+        foreign_keys=[related_consultation_id]
+    )
+
+    title: Mapped[str | None] = mapped_column(
+        String(255),
+        nullable=True
+    )
+
+    subjective: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    objective: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    assessment: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    plan: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
 
 class Message(Base):
     __tablename__ = "messages"
