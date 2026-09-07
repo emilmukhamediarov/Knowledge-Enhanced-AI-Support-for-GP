@@ -303,7 +303,6 @@ h1 {
     color: var(--accent-secondary);
 }
 
-
 /* Recording */
 
 .chat-input-actions .record-button.recording {
@@ -354,6 +353,28 @@ h1 {
     filter: brightness(0.75);
 }
 
+/* microphone for darkmode users  */
+.theme-dark .record-button {
+    background-color: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .record-button:hover:not(:disabled) {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.theme-dark .record-button img {
+    filter: invert(1);
+}
+
+.theme-dark .record-button.recording {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+}
+
+.theme-dark .record-button.recording img {
+    filter: brightness(0) invert(1);
+}
 
 /* Send */
 
@@ -678,4 +699,12 @@ h1 {
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+}
+
+/* Move chat area upward */
+.chat-labels,
+.messages,
+.chat-input {
+    position: relative;
+    top: -30px;
 }

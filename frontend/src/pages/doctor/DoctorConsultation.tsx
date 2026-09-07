@@ -44,6 +44,22 @@ interface RagData {
     rag_response: RagResponse;
 }
 
+interface SubjectiveResponse {
+    subjective: string | null;
+}
+
+interface ObjectiveResponse {
+    objective: string | null;
+}
+
+interface AssessmentResponse {
+    assessment: string | null;
+}
+
+interface PlanResponse {
+    plan: string | null;
+}
+
 function DoctorConsultation() {
     const { consultationId } = useParams();
 
@@ -59,6 +75,9 @@ function DoctorConsultation() {
     const [assessment, setAssessment] = useState("");
     const [plan, setPlan] = useState("");
 
+    const [saving, setSaving] = useState(false);
+    const [saveMessage, setSaveMessage] = useState("");
+
     useEffect(() => {
         const fetchConsultation = async () => {
             if (!consultationId) {
@@ -71,16 +90,56 @@ function DoctorConsultation() {
                 setLoading(true);
                 setError("");
 
-                const response = await apiFetch(
+                const ragResponse = await apiFetch(
                     `/consultations/${consultationId}/rag`
                 ) as RagData;
 
-                setData(response);
+                setData(ragResponse);
+
+                const [
+                    subjectiveResponse,
+                    objectiveResponse,
+                    assessmentResponse,
+                    planResponse,
+                ] = await Promise.all([
+                    apiFetch(
+                        `/consultations/${consultationId}/subjective`
+                    ) as Promise<SubjectiveResponse>,
+
+                    apiFetch(
+                        `/consultations/${consultationId}/objective`
+                    ) as Promise<ObjectiveResponse>,
+
+                    apiFetch(
+                        `/consultations/${consultationId}/assessment`
+                    ) as Promise<AssessmentResponse>,
+
+                    apiFetch(
+                        `/consultations/${consultationId}/plan`
+                    ) as Promise<PlanResponse>,
+                ]);
+
+                setSubjective(
+                    subjectiveResponse.subjective || ""
+                );
+
+                setObjective(
+                    objectiveResponse.objective || ""
+                );
+
+                setAssessment(
+                    assessmentResponse.assessment || ""
+                );
+
+                setPlan(
+                    planResponse.plan || ""
+                );
             } catch (err) {
                 console.error(
                     "Failed to fetch consultation:",
                     err
                 );
+
                 setError("Unable to load consultation.");
             } finally {
                 setLoading(false);
@@ -89,6 +148,84 @@ function DoctorConsultation() {
 
         fetchConsultation();
     }, [consultationId]);
+
+    const saveNotes = async () => {
+        if (!consultationId) {
+            return;
+        }
+
+        try {
+            setSaving(true);
+            setSaveMessage("");
+
+            await Promise.all([
+                apiFetch(
+                    `/consultations/${consultationId}/subjective`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            subjective,
+                        }),
+                    }
+                ),
+
+                apiFetch(
+                    `/consultations/${consultationId}/objective`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            objective,
+                        }),
+                    }
+                ),
+
+                apiFetch(
+                    `/consultations/${consultationId}/assessment`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            assessment,
+                        }),
+                    }
+                ),
+
+                apiFetch(
+                    `/consultations/${consultationId}/plan`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            plan,
+                        }),
+                    }
+                ),
+            ]);
+
+            setSaveMessage("Notes saved successfully.");
+        } catch (err) {
+            console.error(
+                "Failed to save clinical notes:",
+                err
+            );
+
+            setSaveMessage(
+                "Failed to save notes. Please try again."
+            );
+        } finally {
+            setSaving(false);
+        }
+    };
 
     if (loading) {
         return (
@@ -305,8 +442,7 @@ function DoctorConsultation() {
                                     ) : (
                                         <p>
                                             {
-                                                summary
-                                                    .current_medications
+                                                summary.current_medications
                                                     .status
                                             }
                                         </p>
@@ -390,12 +526,6 @@ function DoctorConsultation() {
                         </div>
 
                         <div className="reference-right">
-                            {rag.requires_urgent_attention && (
-                                <span className="urgent-badge">
-                                    Urgent
-                                </span>
-                            )}
-
                             <span className="reference-arrow">
                                 {ragOpen ? "" : ""}
                             </span>
@@ -418,7 +548,7 @@ function DoctorConsultation() {
                             <div className="rag-grid">
                                 <div className="rag-item">
                                     <span className="field-label">
-                                        Red flags
+                                        Symptoms identified
                                     </span>
 
                                     {rag.red_flags_identified.length >
@@ -437,24 +567,6 @@ function DoctorConsultation() {
                                             None identified
                                         </p>
                                     )}
-                                </div>
-
-                                <div
-                                    className={`rag-item ${
-                                        rag.requires_urgent_attention
-                                            ? "urgent"
-                                            : ""
-                                    }`}
-                                >
-                                    <span className="field-label">
-                                        Urgent attention
-                                    </span>
-
-                                    <p>
-                                        {rag.requires_urgent_attention
-                                            ? "Yes"
-                                            : "No"}
-                                    </p>
                                 </div>
 
                                 <div className="rag-item">
@@ -524,6 +636,7 @@ function DoctorConsultation() {
                     <div className="soap-section">
                         <div className="soap-title">
                             <span>S</span>
+
                             <div>
                                 <h3>Subjective</h3>
                                 <p>
@@ -535,9 +648,7 @@ function DoctorConsultation() {
                         <textarea
                             value={subjective}
                             onChange={(event) =>
-                                setSubjective(
-                                    event.target.value
-                                )
+                                setSubjective(event.target.value)
                             }
                             placeholder="Document the patient's symptoms, concerns, and relevant history..."
                         />
@@ -546,6 +657,7 @@ function DoctorConsultation() {
                     <div className="soap-section">
                         <div className="soap-title">
                             <span>O</span>
+
                             <div>
                                 <h3>Objective</h3>
                                 <p>
@@ -557,9 +669,7 @@ function DoctorConsultation() {
                         <textarea
                             value={objective}
                             onChange={(event) =>
-                                setObjective(
-                                    event.target.value
-                                )
+                                setObjective(event.target.value)
                             }
                             placeholder="Document observations, examination findings, and vital signs..."
                         />
@@ -568,6 +678,7 @@ function DoctorConsultation() {
                     <div className="soap-section">
                         <div className="soap-title">
                             <span>A</span>
+
                             <div>
                                 <h3>Assessment</h3>
                                 <p>
@@ -579,9 +690,7 @@ function DoctorConsultation() {
                         <textarea
                             value={assessment}
                             onChange={(event) =>
-                                setAssessment(
-                                    event.target.value
-                                )
+                                setAssessment(event.target.value)
                             }
                             placeholder="Document your clinical assessment and diagnosis..."
                         />
@@ -590,6 +699,7 @@ function DoctorConsultation() {
                     <div className="soap-section">
                         <div className="soap-title">
                             <span>P</span>
+
                             <div>
                                 <h3>Plan</h3>
                                 <p>
@@ -601,9 +711,7 @@ function DoctorConsultation() {
                         <textarea
                             value={plan}
                             onChange={(event) =>
-                                setPlan(
-                                    event.target.value
-                                )
+                                setPlan(event.target.value)
                             }
                             placeholder="Document treatment, medications, follow-up, and patient instructions..."
                         />
@@ -612,11 +720,19 @@ function DoctorConsultation() {
             </section>
 
             <div className="consultation-footer">
+                {saveMessage && (
+                    <span className="save-message">
+                        {saveMessage}
+                    </span>
+                )}
+
                 <button
                     type="button"
                     className="save-button"
+                    onClick={saveNotes}
+                    disabled={saving}
                 >
-                    Save notes
+                    {saving ? "Saving..." : "Save notes"}
                 </button>
             </div>
         </main>

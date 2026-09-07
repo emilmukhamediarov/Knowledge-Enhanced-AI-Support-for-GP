@@ -368,3 +368,15 @@
         transform: none;
     }
 }
+
+.consultation-title {
+   font-size: inherit;
+   font-weight: inherit;
+}
+
+.consultation-number {
+    font-size: 0.7em;
+    font-weight: 400;
+    opacity: 0.45;
+    vertical-align: middle;
+}

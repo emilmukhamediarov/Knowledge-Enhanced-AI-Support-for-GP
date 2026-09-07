@@ -1,10 +1,11 @@
-from app.dependencies.auth import require_role
 from app.db.models import User, UserRole
-
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.db import models
+from app.dependencies.auth import require_role, get_current_user
+from app.schemas.users import PatientSettingsUpdate
 
 
 router = APIRouter(
@@ -31,7 +32,7 @@ def get_my_patients(
         ]
     }
 
-@router.get("/{patient_id}")
+@router.get("/patients/{patient_id}")
 def get_patient_details(
     patient_id: int,
     db: Session = Depends(get_db),
@@ -62,4 +63,51 @@ def get_patient_details(
         "medical_history": patient.medical_history,
         "allergies": patient.allergies,
         "medications": patient.medications,
+    }
+
+
+@router.get("/me")
+def get_my_details(
+    current_user: User = Depends(
+        require_role([UserRole.PATIENT])
+    )
+):
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "date_of_birth": current_user.date_of_birth,
+        "nationality": current_user.nationality,
+        "preferred_language": current_user.preferred_language,
+        "medical_history": current_user.medical_history,
+        "allergies": current_user.allergies,
+        "medications": current_user.medications,
+    }
+
+
+@router.patch("/me")
+def update_my_settings(
+    data: PatientSettingsUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_role([UserRole.PATIENT])
+    )
+):
+    if data.preferred_language is not None:
+        current_user.preferred_language = data.preferred_language
+
+    if data.date_of_birth is not None:
+        current_user.date_of_birth = data.date_of_birth
+
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "date_of_birth": current_user.date_of_birth,
+        "nationality": current_user.nationality,
+        "preferred_language": current_user.preferred_language,
+        "medical_history": current_user.medical_history,
+        "allergies": current_user.allergies,
+        "medications": current_user.medications,
     }

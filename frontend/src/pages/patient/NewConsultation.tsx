@@ -143,12 +143,7 @@ function NewConsultation() {
             <div className="new-consultation-container">
 
                 <header className="consultation-header">
-                    <h1>Start a New Consultation</h1>
-
-                    <p>
-                        Is this consultation related to a
-                        previous issue?
-                    </p>
+                    <h1>Is this consultation related to a previous issue?</h1>
                 </header>
 
                 <section className="consultation-section">

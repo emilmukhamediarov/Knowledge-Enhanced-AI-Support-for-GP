@@ -186,7 +186,14 @@ function Chat() {
             );
 
             // Speak the chatbot's response using the avatar
-            void avatarRef.current?.speak(data.reply);
+            void avatarRef.current
+                ?.speak(
+                    data.reply,
+                    data.language_code ?? "en-US"
+                )
+                .catch((error) => {
+                    console.error("Avatar speech failed:", error);
+                });
 
             // Add an empty AI message
             setMessages((previous) => [

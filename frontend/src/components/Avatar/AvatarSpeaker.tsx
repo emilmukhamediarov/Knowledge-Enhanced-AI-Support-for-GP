@@ -20,6 +20,8 @@ export class AvatarSpeaker {
     });
 
     await this.head.showAvatar({
+      // The URL of the avatar model to load（you can change to other model）
+      // set up lip sync language to English
       url: "/avatars/avaturn.glb",
       body: "F",
       avatarMood: "neutral",
@@ -27,8 +29,9 @@ export class AvatarSpeaker {
     });
   }
 
-  // 3. We define 'text' as a string
-  async speak(text: string) {
+
+  // Speak the given text using the avatar's voice and lipsync, using the TTS API to generate speech audioc
+  async speak(text: string, languageCode = "en-US") {
     if (!this.head) {
       throw new Error("AvatarSpeaker has not been initialized.");
     }
@@ -45,6 +48,7 @@ export class AvatarSpeaker {
       },
       body: JSON.stringify({
         text: text,
+        language_code: languageCode,
       }),
     });
 

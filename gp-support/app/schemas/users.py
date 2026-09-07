@@ -1,4 +1,7 @@
+from datetime import date
 from pydantic import BaseModel
+
+from app.db.models import LanguagePreference
 
 
 class UserCreate(BaseModel):
@@ -21,3 +24,7 @@ class Token(BaseModel):
     user_id: int
     role: str
     name: str
+
+class PatientSettingsUpdate(BaseModel):
+    preferred_language: LanguagePreference | None = None
+    date_of_birth: date | None = None

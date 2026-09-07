@@ -6,6 +6,31 @@ from app.config import AWS_REGION, AWS_PROFILE
 class TTSServiceError(Exception):
     pass
 
+VOICE_CONFIGS = {
+        "en-US": {
+            "voice_id": "Aria",
+            "language_code": "en-NZ",
+            "engine": "neural",
+        },
+        "zh-CN": {
+            "voice_id": "Zhiyu",
+            "language_code": "cmn-CN",
+            "engine": "neural",
+        },
+        "ru-RU": {
+            "voice_id": "Tatyana",
+            "language_code": "ru-RU",
+            "engine": "standard",
+        },
+        "es-US": {
+            "voice_id": "Lupe",
+            "language_code": "es-US",
+            "engine": "neural",
+        },
+    }
+
+
+
 #connect to AWS Polly and return the client
 def _get_polly_client():
     session = boto3.Session(
@@ -15,17 +40,26 @@ def _get_polly_client():
     return session.client("polly")
 
 
-def synthesize_speech(text: str):
+def synthesize_speech(
+        text: str,
+        requested_language: str = "en-US",
+):
+
     if not text or not text.strip():
         raise TTSServiceError("Text cannot be empty.")
 
     polly = _get_polly_client()
 
+
     # Set the voice, language, and engine for speech synthesis
-    # You can change these parameters to use different voices, languages, or engines.
-    voice_id = "Aria"
-    language_code = "en-NZ"
-    engine = "neural"
+    voice_config = VOICE_CONFIGS.get(
+        requested_language,
+        VOICE_CONFIGS["en-US"],
+    )
+    voice_id = voice_config["voice_id"]
+    language_code = voice_config["language_code"]
+    engine = voice_config["engine"]
+
 
 
     try:

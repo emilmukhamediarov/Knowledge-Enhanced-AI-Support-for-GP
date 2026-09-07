@@ -12,11 +12,15 @@ router = APIRouter(
 
 class TTSRequest(BaseModel):
     text: str
+    language_code: str = "en-US"
 
 @router.post("/tts")
 def synthesize(data: TTSRequest):
     try:
-        return synthesize_speech(data.text)
+        return synthesize_speech(
+            data.text,
+            data.language_code
+        )
 
     except TTSServiceError as exc:
         raise HTTPException(
