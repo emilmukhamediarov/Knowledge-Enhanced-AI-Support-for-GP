@@ -310,7 +310,7 @@ def chat(
         "zh-CN": "Simplified Chinese (zh-CN)",
         "th-TH": "Thai (th-TH)",
         "ru-RU": "Russian (ru-RU)",
-        "es-US": "Spanish (es-US)",
+        "es-ES": "Spanish (es-ES)",
     }
     target_language = LANGUAGE_MAP.get(user_lang, "English (en-US)")
 

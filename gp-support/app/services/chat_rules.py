@@ -177,7 +177,7 @@ QUESTIONS_BY_LANG = {
         "medications": "Are you currently taking any medications?",
         "allergies": "Do you have any allergies?",
     },
-    "es-US": {
+    "es-ES": {
         "medical_history": "¿Tiene alguna condición médica relevante o antecedentes médicos?",
         "medications": "¿Está tomando algún medicamento actualmente?",
         "allergies": "¿Tiene alguna alergia?",

@@ -17,7 +17,7 @@ class LanguagePreference(str, Enum):
     CHINESE = "zh-CN"
     THAI = "th-TH"
     RUSSIAN = "ru-RU"
-    SPANISH = "es-US"
+    SPANISH = "es-ES"
 
 
 
