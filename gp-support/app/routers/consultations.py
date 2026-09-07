@@ -2,14 +2,7 @@ import asyncio
 import json
 from datetime import datetime, UTC
 
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    Request,
-    WebSocket,
-    WebSocketDisconnect,
-)
+from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, Body
 
 from app.services.transcribe_service import (
     TranscriptionError,
@@ -44,6 +37,30 @@ from app.db import models
 
 router = APIRouter(prefix="/consultations", tags=["consultations"])
 
+
+def _get_doctor_consultation(
+    db: Session,
+    consultation_id: int,
+    current_user: models.User
+):
+    consultation = repository.get_consultation_by_id(
+        db,
+        consultation_id
+    )
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    if consultation.user.doctor_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Patient is not assigned to this doctor"
+        )
+
+    return consultation
 
 @router.post("")
 def create_consultation(
@@ -585,4 +602,250 @@ def get_doctor_consultations(
             }
             for consultation, patient_name in consultations
         ]
+    }
+
+@router.get("/{consultation_id}/subjective")
+def get_subjective(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    return {
+        "subjective": consultation.subjective
+    }
+
+
+@router.patch("/{consultation_id}/subjective")
+def update_subjective(
+    consultation_id: int,
+    subjective: str | None = Body(embed=True),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    consultation.subjective = subjective
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "subjective": consultation.subjective
+    }
+
+@router.get("/{consultation_id}/objective")
+def get_objective(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    return {
+        "objective": consultation.objective
+    }
+
+
+@router.patch("/{consultation_id}/objective")
+def update_objective(
+    consultation_id: int,
+    objective: str | None = Body(embed=True),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    consultation.objective = objective
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "objective": consultation.objective
+    }
+
+@router.get("/{consultation_id}/assessment")
+def get_assessment(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    return {
+        "assessment": consultation.assessment
+    }
+
+
+@router.patch("/{consultation_id}/assessment")
+def update_assessment(
+    consultation_id: int,
+    assessment: str | None = Body(embed=True),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    consultation.assessment = assessment
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "assessment": consultation.assessment
+    }
+
+@router.get("/{consultation_id}/plan")
+def get_plan(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    return {
+        "plan": consultation.plan
+    }
+
+
+@router.patch("/{consultation_id}/plan")
+def update_plan(
+    consultation_id: int,
+    plan: str | None = Body(embed=True),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    consultation.plan = plan
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "plan": consultation.plan
+    }
+
+@router.patch("/{consultation_id}/related-consultation")
+def update_related_consultation(
+    consultation_id: int,
+    related_consultation_id: int | None = Body(embed=True),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.PATIENT])
+    )
+):
+    consultation = repository.get_consultation_by_id(
+        db,
+        consultation_id
+    )
+
+    if consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
+
+    # Patient can only modify their own consultation
+    if consultation.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to modify this consultation"
+        )
+
+    # NULL means remove the relationship
+    if related_consultation_id is None:
+        consultation.related_consultation_id = None
+
+        db.commit()
+        db.refresh(consultation)
+
+        return {
+            "consultation_id": consultation.id,
+            "related_consultation_id": None
+        }
+
+    # Consultation cannot point to itself
+    if related_consultation_id == consultation_id:
+        raise HTTPException(
+            status_code=400,
+            detail="A consultation cannot be related to itself"
+        )
+
+    related_consultation = repository.get_consultation_by_id(
+        db,
+        related_consultation_id
+    )
+
+    if related_consultation is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Related consultation not found"
+        )
+
+    # Related consultation must also belong to this patient
+    if related_consultation.user_id != current_user.id:
+        raise HTTPException(
+            status_code=403,
+            detail="Not allowed to relate to this consultation"
+        )
+
+    consultation.related_consultation_id = related_consultation.id
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "consultation_id": consultation.id,
+        "related_consultation_id": consultation.related_consultation_id
     }
