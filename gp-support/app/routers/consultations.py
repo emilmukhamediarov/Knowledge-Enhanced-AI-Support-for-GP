@@ -384,6 +384,20 @@ def chat(
         # Use existing Bedrock summary extraction to populate the state
         current_state = chat_service.summary_aws(prepared_history, consultation_id)
 
+    # Set consultation title once the reason for visit is known
+    reason_for_visit = current_state.get(
+        "reason_for_visit"
+    )
+
+    if (
+            consultation.title is None
+            and reason_for_visit
+    ):
+        consultation.title = reason_for_visit[:255]
+
+        db.commit()
+        db.refresh(consultation)
+
     # 2. Save the new user message
     repository.save_user_message(db, consultation, data.message)
 
