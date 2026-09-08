@@ -45,31 +45,37 @@ class _TranscriptHandler(TranscriptResultStreamHandler):
 
 
 class TranscribeService:
-    def __init__(self):
+    def _create_client(self):
+
+        # Create a boto3 session with the specified AWS profile and region
         session = boto3.Session(
             profile_name=settings.aws_profile,
             region_name=settings.aws_region,
         )
+
         credentials = session.get_credentials()
         if credentials is None:
-            raise TranscriptionError(
-                "No AWS credentials were found for the configured AWS profile"
-            )
+            raise TranscriptionError("No AWS credentials were found")
 
-        frozen_credentials = credentials.get_frozen_credentials()
-        self.client = TranscribeStreamingClient(
+        current = credentials.get_frozen_credentials()
+
+        return TranscribeStreamingClient(
             region=settings.aws_region,
             credential_resolver=StaticCredentialResolver(
-                frozen_credentials.access_key,
-                frozen_credentials.secret_key,
-                frozen_credentials.token,
+                current.access_key,
+                current.secret_key,
+                current.token,
             ),
         )
 
     async def start_stream(self, on_transcript: TranscriptCallback):
         options = settings.transcribe_language_options
+
+        # Create a TranscribeStreamingClient using the AWS credentials every time we start a new stream, to avoid issues with expired credentials
+        client = self._create_client()
+
         try:
-            stream = await self.client.start_stream_transcription(
+            stream = await client.start_stream_transcription(
                 language_code=None,
                 identify_language=True,
                 language_options=options,
@@ -81,7 +87,10 @@ class TranscribeService:
                 f"Unable to start real-time transcription: {exc}"
             ) from exc
 
-        return stream, _TranscriptHandler(stream.output_stream, on_transcript)
+        return stream, _TranscriptHandler(
+            stream.output_stream,
+            on_transcript,
+        )
 
 
 transcribe_service = TranscribeService()
