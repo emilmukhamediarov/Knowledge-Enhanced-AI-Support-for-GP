@@ -17,6 +17,8 @@ export class AvatarSpeaker {
     this.head = new TalkingHead(this.container, {
       lipsyncModules: ["en"],
       cameraView: "upper",
+      cameraY: 0.3,
+      cameraDistance: -0.2,
     });
 
     await this.head.showAvatar({

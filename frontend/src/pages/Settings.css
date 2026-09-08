@@ -1,0 +1,273 @@
+.settings-page {
+    min-height: 100%;
+    box-sizing: border-box;
+    padding: 48px 32px 64px;
+    color: var(--text);
+}
+
+.settings-container {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.settings-heading {
+    margin-bottom: 32px;
+}
+
+.settings-heading h1 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.settings-heading p {
+    margin: 8px 0 0;
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.settings-section {
+    margin-bottom: 20px;
+    padding: 24px;
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    background: var(--social-bg);
+}
+
+.settings-section-header {
+    margin-bottom: 24px;
+}
+
+.settings-section-header h2 {
+    margin: 0;
+    color: var(--text-h);
+    font-size: 18px;
+    font-weight: 650;
+}
+
+.settings-section-header p {
+    margin: 6px 0 0;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.settings-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-field label {
+    color: var(--text-h);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.settings-field input,
+.settings-field select {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 12px;
+
+    border: 1px solid var(--input-border);
+    border-radius: 8px;
+
+    background: var(--input-bg);
+    color: var(--text-h);
+
+    font-family: inherit;
+    font-size: 14px;
+
+    outline: none;
+
+    transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+}
+
+.settings-field input:focus,
+.settings-field select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.settings-field input::placeholder {
+    color: var(--input-placeholder);
+}
+
+.settings-field select {
+    cursor: pointer;
+}
+
+.settings-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 8px;
+}
+
+.settings-save-button {
+    min-width: 140px;
+    padding: 11px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    background: var(--accent);
+    color: var(--bg);
+
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            transform 0.15s ease,
+            opacity 0.15s ease;
+}
+
+.settings-save-button:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.settings-save-button:active:not(:disabled) {
+    transform: translateY(1px);
+}
+
+.settings-save-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.settings-error {
+    margin: 16px 0 0;
+    padding: 11px 13px;
+
+    border: 1px solid var(--color-danger);
+    border-radius: 8px;
+
+    background: var(--social-bg);
+    color: var(--color-danger);
+
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.settings-success {
+    margin: 16px 0 0;
+    padding: 11px 13px;
+
+    border: 1px solid var(--accent-secondary);
+    border-radius: 8px;
+
+    background: var(--accent-bg);
+    color: var(--accent-secondary);
+
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.settings-loading {
+    color: var(--text);
+    font-size: 15px;
+}
+
+/* First-time setup modal */
+
+.settings-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 24px;
+
+    background: var(--shadow-soft);
+}
+
+.settings-modal {
+    width: 100%;
+    max-width: 480px;
+    box-sizing: border-box;
+
+    padding: 28px;
+
+    border: 1px solid var(--border);
+    border-radius: 14px;
+
+    background: var(--bg);
+    color: var(--text);
+
+    box-shadow: var(--shadow);
+}
+
+.settings-modal-header {
+    margin-bottom: 28px;
+}
+
+.settings-modal-header h2 {
+    margin: 0;
+
+    color: var(--text-h);
+
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.settings-modal-header p {
+    margin: 8px 0 0;
+
+    color: var(--text);
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.settings-modal .settings-save-button {
+    width: 100%;
+    margin-top: 4px;
+}
+
+@media (max-width: 600px) {
+    .settings-page {
+        padding: 32px 16px 48px;
+    }
+
+    .settings-section {
+        padding: 20px;
+    }
+
+    .settings-heading h1 {
+        font-size: 26px;
+    }
+
+    .settings-actions {
+        justify-content: stretch;
+    }
+
+    .settings-actions .settings-save-button {
+        width: 100%;
+    }
+
+    .settings-modal {
+        padding: 22px;
+    }
+}

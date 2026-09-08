@@ -267,9 +267,6 @@ function DoctorConsultation() {
                         </h1>
                     </div>
 
-                    <span className="consultation-status">
-                        Active
-                    </span>
                 </div>
             </div>
 

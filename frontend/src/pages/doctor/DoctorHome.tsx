@@ -15,7 +15,8 @@ interface Consultation {
 function DoctorHome() {
     const today = new Date();
 
-    const [consultations, setConsultations] = useState<Consultation[]>([]);
+    const [consultations, setConsultations] =
+        useState<Consultation[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
@@ -41,7 +42,11 @@ function DoctorHome() {
 
                 setConsultations(response.consultations || []);
             } catch (err) {
-                console.error("Failed to fetch consultations:", err);
+                console.error(
+                    "Failed to fetch consultations:",
+                    err
+                );
+
                 setError("Unable to load consultations.");
             } finally {
                 setLoading(false);
@@ -87,10 +92,9 @@ function DoctorHome() {
     }, [firstDay, daysInMonth]);
 
     const formatDateKey = (day: number) => {
-        const month = String(currentMonth.getMonth() + 1).padStart(
-            2,
-            "0"
-        );
+        const month = String(
+            currentMonth.getMonth() + 1
+        ).padStart(2, "0");
 
         const date = String(day).padStart(2, "0");
 
@@ -114,26 +118,61 @@ function DoctorHome() {
             getDateKey(consultation.created_at) === selectedDate
     );
 
+    /*
+     * Keep status handling consistent with the Consultations page.
+     *
+     * Backend may return:
+     * - active
+     * - in-progress
+     * - pending
+     * - closed
+     *
+     * The frontend displays:
+     * - Active
+     * - Pending
+     * - Closed
+     */
+    const formatStatus = (status: string) => {
+        switch (status.toLowerCase()) {
+            case "closed":
+                return "Closed";
+
+            case "pending":
+                return "Pending";
+
+            case "active":
+            case "in-progress":
+                return "Active";
+
+            default:
+                return "Active";
+        }
+    };
+
     const activeConsultations = consultations.filter(
         (consultation) =>
-            consultation.status.toLowerCase() === "active"
+            formatStatus(consultation.status) === "Active"
     );
 
     const waitingConsultations = consultations.filter(
         (consultation) =>
-            consultation.status.toLowerCase() === "pending"
+            formatStatus(consultation.status) === "Pending"
     );
 
     const closedConsultations = consultations.filter(
         (consultation) =>
-            consultation.status.toLowerCase() === "closed"
+            formatStatus(consultation.status) === "Closed"
     );
 
     const recentlyClosed = [...closedConsultations]
         .sort(
             (a, b) =>
-                new Date(b.closed_at || b.created_at).getTime() -
-                new Date(a.closed_at || a.created_at).getTime()
+                new Date(
+                    b.closed_at || b.created_at
+                ).getTime() -
+                new Date(
+                    a.closed_at || a.created_at
+                ).getTime()
         )
         .slice(0, 5);
 
@@ -336,6 +375,7 @@ function DoctorHome() {
                                         <div className="appointment-info">
                                             <span className="appointment-patient">
                                                 {consultation.patient_name}
+
                                                 <span className="appointment-number">
                                                     #{consultation.consultation_id}
                                                 </span>
@@ -343,9 +383,13 @@ function DoctorHome() {
                                         </div>
 
                                         <span
-                                            className={`appointment-status ${consultation.status.toLowerCase()}`}
+                                            className={`appointment-status ${formatStatus(
+                                                consultation.status
+                                            ).toLowerCase()}`}
                                         >
-                                            {consultation.status}
+                                            {formatStatus(
+                                                consultation.status
+                                            )}
                                         </span>
 
                                         <NavLink
@@ -370,6 +414,7 @@ function DoctorHome() {
 
                 <div className="dashboard-stat waiting">
                     <span>Waiting for response</span>
+
                     <strong>
                         {waitingConsultations.length}
                     </strong>
@@ -377,6 +422,7 @@ function DoctorHome() {
 
                 <div className="dashboard-stat upcoming">
                     <span>Total consultations</span>
+
                     <strong>
                         {consultations.length}
                     </strong>
@@ -384,13 +430,13 @@ function DoctorHome() {
 
                 <div className="dashboard-stat active">
                     <span>Active consultations</span>
+
                     <strong>
                         {activeConsultations.length}
                     </strong>
                 </div>
 
             </section>
-
 
             {/* Recently closed */}
 
