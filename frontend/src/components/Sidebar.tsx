@@ -254,23 +254,24 @@ function Sidebar() {
                 </div>
 
                 <div className="sidebar-bottom">
+                    <div className="settings-container">
+                        <NavLink
+                            to="/settings"
+                            className={({ isActive }) =>
+                                `sidebar-link sidebar-settings-link ${
+                                    isActive ? "active" : ""
+                                }`
+                            }
+                        >
+                            <span className="sidebar-settings-icon">
+                                ⚙
+                            </span>
 
-                    <NavLink
-                        to="/settings"
-                        className={({ isActive }) =>
-                            `sidebar-link sidebar-settings-link ${
-                                isActive ? "active" : ""
-                            }`
-                        }
-                    >
-                        <span className="sidebar-settings-icon">
-                            ⚙
-                        </span>
-
-                        <span>
-                            Settings
-                        </span>
-                    </NavLink>
+                            <span>
+                                Settings
+                            </span>
+                        </NavLink>
+                    </div>
 
                     <div className="theme-container">
 
