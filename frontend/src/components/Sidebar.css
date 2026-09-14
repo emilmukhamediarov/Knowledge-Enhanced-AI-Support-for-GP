@@ -141,7 +141,7 @@
 
 .theme-toggle {
     position: relative;
-    left: auto;
+    justify-content: flex-start;
 
     width: 56px;
     height: 30px;
@@ -230,7 +230,7 @@
     gap: 20px;
     width: 100%;
 
-    transform: translateX(-1rem);
+    transform: translateX(-3.5rem);
 }
 
 .theme-label {
@@ -359,7 +359,6 @@
     min-height: 44px;
     box-sizing: border-box;
 
-    padding: 0 0.9rem;
     margin-bottom: 8px;
 
     border-radius: 8px;
