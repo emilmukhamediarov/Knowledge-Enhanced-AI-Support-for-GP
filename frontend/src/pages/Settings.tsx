@@ -12,32 +12,20 @@ const languages = [
         label: "English (United States)",
     },
     {
-        value: "en-GB",
-        label: "English (United Kingdom)",
-    },
-    {
-        value: "en-NZ",
-        label: "English (New Zealand)",
+        value: "zh-CN",
+        label: "Chinese (Simplified)",
     },
     {
         value: "th-TH",
         label: "Thai",
     },
     {
-        value: "zh-CN",
-        label: "Chinese (Simplified)",
+        value: "ru-RU",
+        label: "Russian",
     },
     {
-        value: "zh-TW",
-        label: "Chinese (Traditional)",
-    },
-    {
-        value: "ja-JP",
-        label: "Japanese",
-    },
-    {
-        value: "ko-KR",
-        label: "Korean",
+        value: "es-US",
+        label: "Spanish",
     },
 ];
 
