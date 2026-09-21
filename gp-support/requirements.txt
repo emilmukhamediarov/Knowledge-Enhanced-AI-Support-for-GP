@@ -26,3 +26,6 @@ llama-index-vector-stores-postgres
 # Real-time audio transcription
 amazon-transcribe
 sentence-transformers
+
+# For email verification
+email-validator

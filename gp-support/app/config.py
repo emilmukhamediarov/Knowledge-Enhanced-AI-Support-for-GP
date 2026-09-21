@@ -35,6 +35,24 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(
     )
 )
 
+SES_FROM_EMAIL = os.getenv("SES_FROM_EMAIL")
+
+EMAIL_VERIFICATION_SECRET = os.getenv(
+    "EMAIL_VERIFICATION_SECRET"
+)
+
+EMAIL_CODE_TTL_MINUTES = int(
+    os.getenv("EMAIL_CODE_TTL_MINUTES", "10")
+)
+
+EMAIL_CODE_RESEND_SECONDS = int(
+    os.getenv("EMAIL_CODE_RESEND_SECONDS", "60")
+)
+
+EMAIL_CODE_MAX_ATTEMPTS = int(
+    os.getenv("EMAIL_CODE_MAX_ATTEMPTS", "5")
+)
+
 class Settings:
     aws_region = AWS_REGION
     aws_profile = AWS_PROFILE
