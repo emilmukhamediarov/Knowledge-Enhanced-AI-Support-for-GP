@@ -3,6 +3,7 @@ from enum import Enum
 
 from sqlalchemy import String, ForeignKey, DateTime, Date, Text, UniqueConstraint, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.dialects.postgresql import JSONB
 
 from .database import Base
 
@@ -245,7 +246,15 @@ class Summary(Base):
         )
     )
 
-    content: Mapped[str] = mapped_column(Text)
+    patient_summary: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True
+    )
+
+    rag_response: Mapped[dict | None] = mapped_column(
+        JSONB,
+        nullable=True
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
