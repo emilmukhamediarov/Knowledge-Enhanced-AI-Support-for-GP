@@ -171,51 +171,18 @@ def get_summary_by_consultation_id(
     )
 
 
-def save_patient_summary(
+def create_summary(
     db: Session,
     consultation: Consultation,
-    patient_summary: dict
-):
-    summary = get_summary_by_consultation_id(
-        db,
-        consultation.id
-    )
-
-    if summary is None:
-        summary = Summary(
-            consultation=consultation,
-            patient_summary=patient_summary
-        )
-        db.add(summary)
-    else:
-        summary.patient_summary = patient_summary
-
-    db.commit()
-    db.refresh(summary)
-
-    return summary
-
-
-def save_rag_response(
-    db: Session,
-    consultation: Consultation,
+    patient_summary: dict,
     rag_response: dict
 ):
-    summary = get_summary_by_consultation_id(
-        db,
-        consultation.id
+    summary = Summary(
+        consultation=consultation,
+        patient_summary=patient_summary,
+        rag_response=rag_response
     )
 
-    if summary is None:
-        summary = Summary(
-            consultation=consultation,
-            rag_response=rag_response
-        )
-        db.add(summary)
-    else:
-        summary.rag_response = rag_response
-
-    db.commit()
-    db.refresh(summary)
+    db.add(summary)
 
     return summary

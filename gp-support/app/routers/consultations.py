@@ -111,6 +111,12 @@ def clear_conversation(
             detail="Not allowed to access this consultation"
         )
 
+    if consultation.status != ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="Consultation is no longer editable"
+        )
+
     repository.clear_conversation(
         db,
         consultation
@@ -149,6 +155,12 @@ def delete_consultation(
             detail="Not allowed to access this consultation"
         )
 
+    if consultation.status != ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="Only an in-progress consultation can be deleted"
+        )
+
     db.delete(consultation)
     db.commit()
 
@@ -159,6 +171,43 @@ def delete_consultation(
 @router.patch("/{consultation_id}/close")
 def close_consultation(
     consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    if consultation.status != ConsultationStatus.READY:
+        raise HTTPException(
+            status_code=409,
+            detail="Only a ready consultation can be closed"
+        )
+
+    consultation.status = ConsultationStatus.CLOSED
+    consultation.closed_at = datetime.now(UTC)
+
+    db.commit()
+    db.refresh(consultation)
+
+    return {
+        "consultation_id": consultation.id,
+        "user_id": consultation.user_id,
+        "related_consultation_id": consultation.related_consultation_id,
+        "title": consultation.title,
+        "status": consultation.status,
+        "created_at": consultation.created_at,
+        "closed_at": consultation.closed_at,
+    }
+
+@router.patch("/{consultation_id}/ready")
+def ready_consultation(
+    consultation_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(
         require_role([models.UserRole.PATIENT])
@@ -181,20 +230,66 @@ def close_consultation(
             detail="Not allowed to access this consultation"
         )
 
-    consultation.status = ConsultationStatus.CLOSED
-    consultation.closed_at = datetime.now(UTC)
+    if consultation.status != ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="Consultation is not in progress"
+        )
+
+    messages = repository.get_messages(
+        db,
+        consultation_id
+    )
+
+    if not messages:
+        raise HTTPException(
+            status_code=400,
+            detail="Cannot mark an empty consultation as ready"
+        )
+
+    prepared_messages = [
+        {
+            "role": message.role,
+            "content": message.content
+        }
+        for message in messages
+    ]
+
+    patient_summary = chat_service.summary_aws(
+        prepared_messages,
+        consultation_id
+    )
+
+    query = build_query_from_consultation_summary(
+        patient_summary
+    )
+
+    rag_response = ask_structured(
+        request.app.state.rag_index,
+        query
+    )
+
+    if rag_response.get("parse_error"):
+        raise HTTPException(
+            status_code=502,
+            detail="Could not generate a valid RAG response"
+        )
+
+    repository.create_summary(
+        db,
+        consultation,
+        patient_summary,
+        rag_response
+    )
+
+    consultation.status = ConsultationStatus.READY
 
     db.commit()
     db.refresh(consultation)
 
     return {
         "consultation_id": consultation.id,
-        "user_id": consultation.user_id,
-        "related_consultation_id": consultation.related_consultation_id,
-        "title": consultation.title,
-        "status": consultation.status,
-        "created_at": consultation.created_at,
-        "closed_at": consultation.closed_at,
+        "status": consultation.status
     }
 
 @router.get("/user/{user_id}")
@@ -375,6 +470,13 @@ def chat(
             status_code=403,
             detail="Not allowed to access this consultation"
         )
+
+    if consultation.status != ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="Consultation is no longer editable"
+        )
+
     # 1. Fetch history BEFORE the new message to calculate current state
     existing_messages = repository.get_messages(db, consultation_id)
 
@@ -480,99 +582,71 @@ def get_summary(
         require_role([models.UserRole.DOCTOR])
     )
 ):
-    consultation = repository.get_consultation_by_id(
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    if consultation.status == ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="Summary is not available until the consultation is ready"
+        )
+
+    summary = repository.get_summary_by_consultation_id(
         db,
         consultation_id
     )
 
-    if consultation is None:
+    if summary is None:
         raise HTTPException(
             status_code=404,
-            detail="Consultation not found"
+            detail="Summary not found"
         )
 
-    if consultation.user.doctor_id != current_user.id:
-        raise HTTPException(
-            status_code=403,
-            detail="Patient is not assigned to this doctor"
-        )
-
-    messages = repository.get_messages(
-        db,
-        consultation_id
-    )
-
-    prepared_messages = [
-        {
-            "role": message.role,
-            "content": message.content
-        }
-        for message in messages
-    ]
-
-    summary = chat_service.summary_aws(
-        prepared_messages,
-        consultation_id
-    )
-
-    return summary
+    return summary.patient_summary
 
 @router.get("/{consultation_id}/rag")
 def get_rag_result(
     consultation_id: int,
-    request: Request,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(
         require_role([models.UserRole.DOCTOR])
     )
 ):
-    consultation = repository.get_consultation_by_id(
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    if consultation.status == ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="RAG result is not available until the consultation is ready"
+        )
+
+    summary = repository.get_summary_by_consultation_id(
         db,
         consultation_id
     )
 
-    if consultation is None:
+    if summary is None:
         raise HTTPException(
             status_code=404,
-            detail="Consultation not found"
+            detail="Summary not found"
         )
 
-    if consultation.user.doctor_id != current_user.id:
+    if summary.rag_response is None:
         raise HTTPException(
-            status_code=403,
-            detail="Patient is not assigned to this doctor"
+            status_code=404,
+            detail="RAG response not found"
         )
-
-    messages = repository.get_messages(
-        db,
-        consultation_id
-    )
-
-    prepared_messages = [
-        {
-            "role": message.role,
-            "content": message.content
-        }
-        for message in messages
-    ]
-
-    summary = chat_service.summary_aws(
-        prepared_messages,
-        consultation_id
-    )
-
-    query = build_query_from_consultation_summary(
-        summary
-    )
-
-    result = ask_structured(
-        request.app.state.rag_index,
-        query
-    )
 
     return {
-        "patient_summary": summary,
-        "rag_response": result
+        "patient_summary": summary.patient_summary,
+        "rag_response": summary.rag_response
     }
 
 
@@ -861,6 +935,12 @@ def update_related_consultation(
         raise HTTPException(
             status_code=403,
             detail="Not allowed to modify this consultation"
+        )
+
+    if consultation.status != ConsultationStatus.IN_PROGRESS:
+        raise HTTPException(
+            status_code=409,
+            detail="Consultation is no longer editable"
         )
 
     # NULL means remove the relationship
