@@ -1,7 +1,7 @@
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from app.db.models import User, Consultation, Message
+from app.db.models import User, Consultation, Message, Summary
 
 
 def get_user_by_id(
@@ -158,3 +158,64 @@ def get_consultations_by_user_id(
         .order_by(Consultation.id.desc())
         .all()
     )
+
+def get_summary_by_consultation_id(
+    db: Session,
+    consultation_id: int
+):
+    return db.scalar(
+        select(Summary)
+        .where(
+            Summary.consultation_id == consultation_id
+        )
+    )
+
+
+def save_patient_summary(
+    db: Session,
+    consultation: Consultation,
+    patient_summary: dict
+):
+    summary = get_summary_by_consultation_id(
+        db,
+        consultation.id
+    )
+
+    if summary is None:
+        summary = Summary(
+            consultation=consultation,
+            patient_summary=patient_summary
+        )
+        db.add(summary)
+    else:
+        summary.patient_summary = patient_summary
+
+    db.commit()
+    db.refresh(summary)
+
+    return summary
+
+
+def save_rag_response(
+    db: Session,
+    consultation: Consultation,
+    rag_response: dict
+):
+    summary = get_summary_by_consultation_id(
+        db,
+        consultation.id
+    )
+
+    if summary is None:
+        summary = Summary(
+            consultation=consultation,
+            rag_response=rag_response
+        )
+        db.add(summary)
+    else:
+        summary.rag_response = rag_response
+
+    db.commit()
+    db.refresh(summary)
+
+    return summary

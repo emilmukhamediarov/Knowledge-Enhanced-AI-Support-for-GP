@@ -35,6 +35,18 @@ class User(Base):
         index=True
     )
 
+    email: Mapped[str] = mapped_column(
+        String(320),
+        unique=True,
+        index=True,
+        nullable=True,
+    )
+
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+    )
+
     hashed_password: Mapped[str] = mapped_column(
         String(255)
     )
@@ -119,6 +131,7 @@ class User(Base):
 
 class ConsultationStatus(str, Enum):
     IN_PROGRESS = "in-progress"
+    READY = "ready"
     CLOSED = "closed"
 
 
@@ -267,6 +280,41 @@ class Summary(Base):
 
     __table_args__ = (
         UniqueConstraint("consultation_id"),
+    )
+
+
+class EmailVerificationCode(Base):
+    __tablename__ = "email_verification"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True
+    )
+
+    email: Mapped[str] = mapped_column(
+        String(320),
+        index=True,
+        nullable=False,
+    )
+
+    code: Mapped[str] = mapped_column(
+        String(64),
+        nullable=False,
+    )
+
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+
+    attempt_count: Mapped[int] = mapped_column(
+        default=0,
+        nullable=False,
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+        nullable=False,
     )
 
 
