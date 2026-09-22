@@ -22,6 +22,7 @@
 
     text-align: center;
     box-shadow: 0 12px 40px var(--shadow-soft);
+    box-sizing: border-box;
 }
 
 .session-modal-icon {
@@ -58,7 +59,7 @@
 
 .session-modal-button {
     width: 100%;
-    padding: 0.65rem 1rem;
+    padding: 0.75rem 1rem;
 
     border: 1px solid var(--accent);
     border-radius: 8px;
@@ -67,13 +68,29 @@
     color: white;
 
     font-family: inherit;
-    font-size: 0.8rem;
+    font-size: 0.88rem;
     font-weight: 600;
 
     cursor: pointer;
+    transition: background-color 0.2s ease;
 }
 
 .session-modal-button:hover {
     background: var(--accent-hover);
     border-color: var(--accent-hover);
+}
+
+@media (max-width: 480px) {
+    .session-modal {
+        padding: 1.25rem 1rem;
+        border-radius: 12px;
+    }
+
+    .session-modal h2 {
+        font-size: 1.05rem;
+    }
+
+    .session-modal p {
+        font-size: 0.8rem;
+    }
 }

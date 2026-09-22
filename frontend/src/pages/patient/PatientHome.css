@@ -1,20 +1,24 @@
-.theme-light .step,
-.theme-light .no-consultations {
-    background: rgba(255, 255, 255, 0.55);
-}
-
-.theme-dark .step,
-.theme-dark .no-consultations {
-    background: var(--social-bg);
-}
+/* =========================================================
+   Patient Home Base Container
+   ========================================================= */
 
 .patient-home {
     width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 60px 50px;
     box-sizing: border-box;
 }
 
+/* Reset wrapper elements if present in JSX */
+.patient-home-wrapper,
+.main-content {
+    width: 100%;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* Welcome section */
 .patient-welcome {
     margin-bottom: 45px;
 }
@@ -23,14 +27,29 @@
     margin: 0 0 10px;
     font-size: 2.4rem;
     font-weight: 600;
+    white-space: nowrap;
+    width: max-content;
+    max-width: 100%;
+}
+
+.patient-welcome-title {
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+    padding-bottom: 5px;
+    animation: typing 0.9s steps(30, end) 0.8s forwards;
+    width: 0;
 }
 
 .patient-welcome p {
     margin: 0;
     font-size: 1.1rem;
-    opacity: 0.7;
+    opacity: 0;
+    animation: fade-in 0.6s ease forwards;
+    animation-delay: 0.8s;
 }
 
+/* Step overview grid */
 .how-it-works {
     margin-bottom: 45px;
 }
@@ -49,15 +68,21 @@
 .step {
     padding: 25px;
     border-radius: 16px;
-    background: var(--social-bg);
     border: 1px solid var(--border);
+    opacity: 0;
+    transform: translateY(20px);
+    box-sizing: border-box;
+}
+
+.step.step-visible {
+    animation: step-enter 0.5s ease forwards;
 }
 
 .step-number {
     margin-bottom: 15px;
     font-size: 0.85rem;
     font-weight: 700;
-    color: #025d9a;
+    color: var(--accent);
 }
 
 .step h3 {
@@ -71,20 +96,14 @@
     opacity: 0.7;
 }
 
+/* Call to action card */
 .try-consultation {
     margin-bottom: 45px;
     padding: 30px;
     text-align: center;
     border: 1px solid var(--border);
     border-radius: 16px;
-}
-
-.theme-light .patient-home .try-consultation {
-    background: rgba(255, 255, 255, 0.55);
-}
-
-.theme-dark .patient-home .try-consultation {
-    background: var(--social-bg);
+    box-sizing: border-box;
 }
 
 .try-consultation h2 {
@@ -108,9 +127,7 @@
     color: white;
     text-decoration: none;
     font-weight: 500;
-    transition:
-            background 0.2s ease,
-            transform 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .try-consultation-button:hover {
@@ -122,9 +139,11 @@
     font-size: 1.1em;
 }
 
+/* Recent Consultations List */
 .recent-consultations {
     margin-bottom: 40px;
     text-align: center;
+    width: 100%;
 }
 
 .section-header {
@@ -146,9 +165,11 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 41%;
+    width: 100%;
+    max-width: 650px;
     margin: 0 auto;
     text-align: left;
+    box-sizing: border-box;
 }
 
 .consultation-row {
@@ -164,17 +185,7 @@
     text-decoration: none;
     background: transparent;
     overflow: hidden;
-    transition:
-            background 0.2s ease,
-            border-color 0.2s ease;
-}
-
-.theme-light .consultation-row {
-    background: rgba(255, 255, 255, 0.7);
-}
-
-.theme-dark .consultation-row {
-    background: rgba(255, 255, 255, 0.035);
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .consultation-row:hover {
@@ -183,6 +194,7 @@
 
 .consultation-row > div {
     min-width: 0;
+    flex: 1;
 }
 
 .consultation-row h3 {
@@ -199,22 +211,32 @@
     opacity: 0.55;
 }
 
+.consultation-title {
+    font-size: inherit;
+    font-weight: inherit;
+}
+
+.consultation-number {
+    font-size: 0.75em;
+    font-weight: 400;
+    opacity: 0.55;
+    vertical-align: middle;
+}
+
 .consultation-arrow {
     display: flex;
     align-items: center;
     justify-content: center;
     align-self: stretch;
     flex-shrink: 0;
-    width: 58px;
-    margin-left: 20px;
+    width: 54px;
+    margin-left: 16px;
     border-left: 1px solid var(--border);
     color: var(--accent);
     font-size: 1.2rem;
     line-height: 1;
     background: transparent;
-    transition:
-            background 0.2s ease,
-            color 0.2s ease;
+    transition: background 0.2s ease, color 0.2s ease;
 }
 
 .consultation-row:hover .consultation-arrow {
@@ -223,7 +245,8 @@
 }
 
 .no-consultations {
-    width: 41%;
+    width: 100%;
+    max-width: 650px;
     margin: 0 auto;
     padding: 22px;
     box-sizing: border-box;
@@ -233,19 +256,35 @@
     text-align: left;
 }
 
-.theme-light .no-consultations {
-    background: rgba(255, 255, 255, 0.7);
-}
-
-.theme-dark .no-consultations {
-    background: rgba(255, 255, 255, 0.035);
-}
-
 .no-consultations p {
     margin: 0;
     opacity: 0.7;
 }
 
+/* Theme overrides */
+.theme-light .step,
+.theme-light .no-consultations,
+.theme-light .patient-home .try-consultation {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.theme-dark .step,
+.theme-dark .no-consultations,
+.theme-dark .patient-home .try-consultation {
+    background: var(--social-bg);
+}
+
+.theme-light .consultation-row,
+.theme-light .no-consultations {
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.theme-dark .consultation-row,
+.theme-dark .no-consultations {
+    background: rgba(255, 255, 255, 0.035);
+}
+
+/* Status indicator */
 .backend-status {
     display: flex;
     align-items: center;
@@ -265,29 +304,7 @@
     background: #35a853;
 }
 
-.patient-welcome-title {
-    display: inline-block;
-    overflow: hidden;
-    vertical-align: bottom;
-    padding-bottom: 5px;
-    animation: typing 0.9s steps(30, end) 0.8s forwards;
-    width: 0;
-}
-
-.patient-welcome h1 {
-    margin: 0 0 10px;
-    font-size: 2.4rem;
-    font-weight: 600;
-    white-space: nowrap;
-    width: max-content;
-}
-
-.patient-welcome p {
-    opacity: 0;
-    animation: fade-in 0.6s ease forwards;
-    animation-delay: 0.8s;
-}
-
+/* Animations */
 .how-it-works,
 .try-consultation,
 .recent-consultations {
@@ -301,23 +318,9 @@
     animation: section-enter 0.6s ease forwards;
 }
 
-.step {
-    opacity: 0;
-    transform: translateY(20px);
-}
-
-.step.step-visible {
-    animation: step-enter 0.5s ease forwards;
-}
-
 @keyframes typing {
-    from {
-        width: 0;
-    }
-
-    to {
-        width: 100%;
-    }
+    from { width: 0; }
+    to { width: 100%; }
 }
 
 @keyframes fade-in {
@@ -325,7 +328,6 @@
         opacity: 0;
         transform: translateY(8px);
     }
-
     to {
         opacity: 0.65;
         transform: translateY(0);
@@ -337,7 +339,6 @@
         opacity: 0;
         transform: translateY(15px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -349,7 +350,6 @@
         opacity: 0;
         transform: translateY(20px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -369,14 +369,38 @@
     }
 }
 
-.consultation-title {
-   font-size: inherit;
-   font-weight: inherit;
-}
+/* =========================================================
+   Patient Home Mobile Overrides (<= 768px)
+   ========================================================= */
 
-.consultation-number {
-    font-size: 0.7em;
-    font-weight: 400;
-    opacity: 0.45;
-    vertical-align: middle;
+@media (max-width: 768px) {
+    .patient-home {
+        padding: 24px 16px;
+    }
+
+    .patient-welcome h1 {
+        font-size: 1.75rem;
+        white-space: normal;
+        width: 100%;
+    }
+
+    .steps {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .consultation-list,
+    .no-consultations {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .consultation-row {
+        padding: 12px 0 12px 14px;
+    }
+
+    .consultation-arrow {
+        width: 44px;
+        margin-left: 10px;
+    }
 }

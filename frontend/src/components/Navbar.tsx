@@ -2,7 +2,11 @@ import { useNavigate, NavLink } from "react-router-dom";
 import "./Navbar.css";
 import bitwiseLogo from "../assets/BitwiseLogo.svg";
 
-function Navbar() {
+interface NavbarProps {
+    onToggleSidebar?: () => void;
+}
+
+function Navbar({ onToggleSidebar }: NavbarProps) {
     const navigate = useNavigate();
     const loggedIn = localStorage.getItem("loggedIn") === "true";
     const role = localStorage.getItem("role");
@@ -14,8 +18,17 @@ function Navbar() {
     };
 
     return (
-        <nav>
+        <nav className="navbar">
             <div className="nav-brand">
+                {loggedIn && onToggleSidebar && (
+                    <button
+                        className="nav-sidebar-toggle"
+                        onClick={onToggleSidebar}
+                        aria-label="Toggle menu"
+                    >
+                        ☰
+                    </button>
+                )}
                 <img src={bitwiseLogo} alt="Bitwise Logo" className="scaled-svg" />
                 {!loggedIn && <span>Bitwise</span>}
             </div>

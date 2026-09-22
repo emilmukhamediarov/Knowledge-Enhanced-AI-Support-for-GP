@@ -9,8 +9,7 @@
     overflow: hidden;
 }
 
-/* Avatar */
-
+/* Avatar side panel */
 .avatar-container {
     position: relative;
     width: 100%;
@@ -21,29 +20,21 @@
     box-sizing: border-box;
 }
 
-/* Right chat area */
-
+/* Messages container */
 .messages {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-
     width: calc(100% - 2rem);
     height: calc(100% - 150px);
-
     margin: 3.5rem 1rem 0;
-
     box-sizing: border-box;
     padding: 1.5rem;
-
     background-color: var(--bg);
-
     border: 1px solid var(--border);
     border-radius: 12px;
-
     box-shadow: var(--shadow);
-
     overflow-y: auto;
 }
 
@@ -63,31 +54,23 @@
     border: none !important;
 }
 
-/* Welcome */
-
+/* Chat welcome state */
 .chat-welcome {
     flex: 1;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     width: 100%;
-
     box-sizing: border-box;
     padding: 2rem;
-
     text-align: center;
-
     animation: welcome-slide-in 0.7s ease-out;
 }
 
 .chat-welcome h1 {
     margin: 0;
-
     color: var(--title);
-
     font-size: 32px;
     font-weight: 600;
     line-height: 1.25;
@@ -96,85 +79,57 @@
 
 .chat-welcome p {
     max-width: 300px;
-
     margin: 12px 0 0;
-
     color: var(--text);
-
     font-size: 15px;
     line-height: 1.5;
     font-style: italic;
 }
 
-/* AI message */
-
+/* AI Message */
 .ai-message {
     align-self: flex-start;
-
     padding: 0.6rem 0;
-
     color: var(--text);
-
     white-space: pre-wrap;
 }
 
-/* User message */
-
+/* User Message */
 .user-message {
     align-self: flex-end;
-
     padding: 0.6rem 0.9rem;
-
     border-radius: 16px;
-
     background-color: var(--accent-bg);
     color: var(--text-h);
-
     white-space: pre-wrap;
 }
 
-/* =========================================================
-   Chat Actions
-   ========================================================= */
-
+/* Header Actions */
 .chat-actions {
     position: absolute;
-
     top: 0.75rem;
     right: 1rem;
-
     display: flex;
     align-items: center;
-
     gap: 0.5rem;
-
     z-index: 10;
 }
-
-/* All action buttons */
 
 .chat-actions .reset-button,
 .chat-actions .delete-button,
 .chat-actions .close-button {
     position: static;
-
     width: auto;
     height: auto;
-
     margin: 0;
     padding: 7px 12px;
-
     box-sizing: border-box;
-
     border-radius: 8px;
-
     font-family: inherit;
     font-size: 13px;
     font-weight: 600;
     line-height: 1.4;
-
     cursor: pointer;
-
     transition:
             background-color 0.15s ease,
             border-color 0.15s ease,
@@ -182,92 +137,63 @@
             box-shadow 0.15s ease;
 }
 
-/* Reset */
-
 .chat-actions .reset-button {
     border: 1px solid var(--border);
-
     background-color: var(--bg);
     color: var(--text);
 }
 
 .chat-actions .reset-button:hover {
     background-color: var(--social-bg-dark);
-
     border-color: var(--accent-secondary);
-
     color: var(--accent-secondary);
-
     box-shadow: 0 2px 6px var(--shadow-soft);
 }
 
-/* Delete */
-
 .chat-actions .delete-button {
-    border: 1px solid #dc2626;
-
+    border: 1px solid var(--color-danger);
     background-color: var(--bg);
-    color: #dc2626;
+    color: var(--color-danger);
 }
 
 .chat-actions .delete-button:hover {
-    background-color: #dc2626;
-
-    border-color: #dc2626;
-
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
     color: #ffffff;
 }
 
-/* Close Consultation */
-
 .chat-actions .close-button {
-    border: 1px solid #025d9a;
-
+    border: 1px solid var(--accent);
     background-color: var(--bg);
-    color: #025d9a;
+    color: var(--accent);
 }
 
 .chat-actions .close-button:hover:not(:disabled) {
-    background-color: #025d9a;
-
-    border-color: #025d9a;
-
+    background-color: var(--accent);
+    border-color: var(--accent);
     color: #ffffff;
 }
-
-/* Disabled Close Consultation */
 
 .chat-actions .close-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* =========================================================
-   Voice indicator
-   ========================================================= */
-
+/* Voice indicator */
 .voice-indicator-container {
     position: absolute;
-
     left: calc(45% + 1rem);
     right: 1rem;
     bottom: 5.5rem;
-
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     box-sizing: border-box;
-
     padding: 8px 14px;
-
     background-color: var(--accent-bg);
-
     border: 1px solid var(--border);
     border-radius: 10px;
-
     z-index: 5;
-
     animation: welcome-slide-in 0.3s ease-out;
 }
 
@@ -280,56 +206,36 @@
 .audio-wave-bars {
     display: flex;
     align-items: center;
-
     gap: 4px;
-
     height: 20px;
 }
 
 .wave-bar {
     width: 4px;
-
     background-color: var(--color-danger);
-
     border-radius: 2px;
-
     transition: height 0.08s ease-out;
 }
 
-/* =========================================================
-   Chat input
-   ========================================================= */
-
+/* Chat Input Bar */
 .chat-input {
     position: absolute;
-
     left: calc(45% + 1rem);
     right: 1rem;
     bottom: 1.25rem;
-
     display: flex;
     align-items: flex-end;
-
     width: auto;
-
     min-height: 52px;
     max-height: 180px;
-
     box-sizing: border-box;
-
     gap: 8px;
-
     padding: 8px 10px 8px 16px;
-
     background-color: var(--bg);
-
     border: 1px solid var(--border);
     border-radius: 14px;
-
     box-shadow: 0 2px 6px var(--shadow-soft);
-
     z-index: 5;
-
     transition:
             border-color 0.15s ease,
             box-shadow 0.15s ease;
@@ -337,33 +243,23 @@
 
 .chat-input:focus-within {
     border-color: var(--accent-secondary);
-
     box-shadow: 0 2px 7px var(--shadow-soft);
 }
 
-/* Text input */
-
 .chat-input textarea {
     flex: 1;
-
     min-width: 0;
     min-height: 34px;
     max-height: 150px;
-
     box-sizing: border-box;
-
     padding: 7px 0;
-
     border: none;
     outline: none;
-
     background: transparent;
     color: var(--text-h);
-
     font-family: var(--sans);
     font-size: 16px;
     line-height: 1.5;
-
     resize: none;
     overflow-y: auto;
 }
@@ -373,15 +269,11 @@
     opacity: 0.7;
 }
 
-/* Input buttons */
-
 .chat-input-actions {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-
     gap: 6px;
-
     flex-shrink: 0;
 }
 
@@ -389,24 +281,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 36px;
     height: 36px;
-
     margin: 0;
     padding: 0;
-
     border: none;
     border-radius: 50%;
-
     background: transparent;
     color: var(--text);
-
     font-family: inherit;
     font-size: 17px;
-
     cursor: pointer;
-
     transition:
             background-color 0.15s ease,
             color 0.15s ease,
@@ -422,27 +307,20 @@
     transform: scale(0.94);
 }
 
-/* Microphone */
-
+/* Recording Button */
 .record-button {
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 38px;
     height: 38px;
     min-width: 38px;
-
     padding: 8px;
-
     border: none;
     border-radius: 50%;
-
     background: transparent;
     color: var(--text);
-
     cursor: pointer;
-
     transition:
             background-color 0.15s ease,
             color 0.15s ease,
@@ -453,7 +331,6 @@
 .record-button img {
     width: 20px;
     height: 20px;
-
     object-fit: contain;
 }
 
@@ -474,8 +351,6 @@
 .chat-input-actions .record-button.recording:hover {
     background-color: var(--color-danger-hover, var(--color-danger));
 }
-
-/* Dark mode microphone */
 
 .theme-dark .record-button {
     background-color: rgba(255, 255, 255, 0.12);
@@ -499,8 +374,7 @@
     filter: brightness(0) invert(1);
 }
 
-/* Send */
-
+/* Send Button */
 .chat-input-actions .send-button {
     background-color: var(--accent-secondary);
     color: var(--bg);
@@ -511,79 +385,55 @@
     color: var(--bg);
 }
 
-/* Disabled */
-
 .chat-input-actions button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
 
-/* Error */
-
+/* Error banner */
 .chat-error {
     position: absolute;
-
     left: calc(45% + 1rem);
     right: 1rem;
     bottom: 5rem;
-
     width: auto;
-
     margin: 0;
-
     color: var(--color-danger);
-
     font-size: 14px;
     line-height: 1.5;
-
     z-index: 5;
 }
 
-/* =========================================================
-   Confirmation
-   ========================================================= */
-
+/* Confirmation Modal */
 .reset-confirmation {
     position: absolute;
     inset: 0;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     background: rgba(0, 0, 0, 0.2);
-
     z-index: 100;
 }
 
 .reset-confirmation-box {
     width: min(400px, calc(100% - 2rem));
-
     padding: 1.5rem;
-
     border-radius: 14px;
-
     background: var(--bg);
-
     border: 1px solid var(--border);
-
     box-shadow: var(--shadow);
-
     box-sizing: border-box;
 }
 
 .reset-confirmation-box h3 {
     margin: 0 0 0.5rem;
-
     font-size: 1.1rem;
     font-weight: 600;
 }
 
 .reset-confirmation-box p {
     margin: 0;
-
     color: var(--text);
-
     font-size: 0.9rem;
     line-height: 1.5;
 }
@@ -591,35 +441,28 @@
 .reset-confirmation-actions {
     display: flex;
     justify-content: flex-end;
-
     gap: 0.75rem;
-
     margin-top: 1.25rem;
 }
 
 .reset-cancel-button,
 .reset-confirm-button {
     padding: 0.55rem 1rem;
-
     border-radius: 8px;
-
     font-family: inherit;
     font-size: 0.85rem;
     font-weight: 500;
-
     cursor: pointer;
 }
 
 .reset-cancel-button {
     border: 1px solid var(--border);
-
     background: transparent;
     color: var(--text);
 }
 
 .reset-confirm-button {
     border: none;
-
     background: var(--accent);
     color: white;
 }
@@ -632,10 +475,7 @@
     opacity: 0.9;
 }
 
-/* =========================================================
-   Focus
-   ========================================================= */
-
+/* Focus outline accessibility */
 .chat-input-actions button:focus-visible,
 .reset-button:focus-visible,
 .delete-button:focus-visible,
@@ -644,24 +484,18 @@
     outline-offset: 3px;
 }
 
-/* Animation */
-
 @keyframes welcome-slide-in {
     from {
         opacity: 0;
         transform: translateY(30px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-/* =========================================================
-   Responsive
-   ========================================================= */
-
+/* Responsive */
 @media (max-width: 900px) {
     .chat-page {
         grid-template-columns: 40% 60%;
@@ -700,9 +534,7 @@
     .messages {
         width: calc(100% - 1rem);
         height: calc(100% - 65px);
-
         margin: 3rem 0.5rem 0;
-
         padding: 1rem;
     }
 
@@ -733,5 +565,22 @@
 
     .chat-error {
         bottom: 4.5rem;
+    }
+}
+
+
+
+@media (max-width: 480px) {
+    .chat-actions {
+        gap: 4px;
+        padding: 4px 6px;
+    }
+
+    .chat-actions .reset-button,
+    .chat-actions .delete-button,
+    .chat-actions .close-button {
+        padding: 5px 6px;
+        font-size: 16px;
+        letter-spacing: -0.2px;
     }
 }
