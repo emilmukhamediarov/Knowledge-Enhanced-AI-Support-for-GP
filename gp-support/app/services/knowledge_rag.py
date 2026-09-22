@@ -143,67 +143,37 @@ def build_index(db):
 
 def build_query_from_consultation_summary(summary: dict) -> str:
     """
-    Convert a ConsultationSummary dict (as produced by chatbot.py's
-    ChatService.summary(), i.e. the JSON returned by the /summary endpoint)
-    into a plain-text question suitable for ask().
-
-    This only reads fields the patient actually stated (chatbot.py's
-    SUMMARY_PROMPT already enforces "no inference, no invented info" on
-    its side) — we're not adding anything here, just reformatting the
-    structured fields into a natural-language question for retrieval.
-
-    Args:
-        summary: dict matching ConsultationSummary's fields, e.g. the
-                 output of chat_service.summary(session_id) or the JSON
-                 body returned by POST /summary.
-
-    Returns:
-        A question string, e.g.:
-        "Patient presents with: cough, sore throat. Duration: 4 weeks.
-         Severity: moderate. Onset: gradual. What should be checked,
-         and are there any red flags?"
+    Builds a focused, clinical-term-dense query to maximize vector match quality
+    and eliminate noise from conversational or generic boilerplate text.
     """
-    parts = []
+    terms = []
 
     if summary.get("reason_for_visit"):
-        parts.append(f"Reason for visit: {summary['reason_for_visit']}.")
+        terms.append(summary['reason_for_visit'])
 
     if summary.get("symptoms"):
-        parts.append(f"Symptoms: {', '.join(summary['symptoms'])}.")
+        # Append symptoms (avoiding redundant duplicates if reason_for_visit matches)
+        for symptom in summary['symptoms']:
+            if symptom.lower() not in [t.lower() for t in terms]:
+                terms.append(symptom)
 
     if summary.get("symptom_location"):
-        parts.append(f"Symptom location: {summary['symptom_location']}.")
+        location = summary['symptom_location']
+        if location.lower() not in [t.lower() for t in terms]:
+            terms.append(location)
 
-    if summary.get("onset"):
-        parts.append(f"Onset: {summary['onset']}.")
-
-    if summary.get("duration"):
-        parts.append(f"Duration: {summary['duration']}.")
-
-    if summary.get("severity"):
-        parts.append(f"Severity: {summary['severity']}.")
-
-    # medical_history / current_medications / allergies are AnswerList-shaped:
-    # {"status": "unknown" | "confirmed_none" | "confirmed", "items": [...]}
-    # Only mention them if the patient actually confirmed something.
-    for field_name, label in [
-        ("medical_history", "Relevant medical history"),
-        ("current_medications", "Current medications"),
-        ("allergies", "Allergies"),
-    ]:
+    # Include confirmed medical history and current medications
+    for field_name in ["medical_history", "current_medications"]:
         field = summary.get(field_name) or {}
         if field.get("status") == "confirmed" and field.get("items"):
-            parts.append(f"{label}: {', '.join(field['items'])}.")
+            terms.extend(field['items'])
 
-    if summary.get("additional_concerns"):
-        parts.append(f"Additional concerns: {summary['additional_concerns']}.")
+    # Fallback if summary dictionary fields are empty
+    if not terms:
+        return "Clinical guidance and management for patient presentation."
 
-    question_text = " ".join(parts)
-    question_text += (
-        " Based on this, what should be checked, and are there any "
-        "red-flag features to be aware of?"
-    )
-    return question_text
+    clinical_presentation = ", ".join(terms)
+    return f"Clinical guidance, red flags, and diagnostic criteria for: {clinical_presentation}."
 
 
 
@@ -222,13 +192,28 @@ def ask(index, question: str, return_sources: bool = False):
     """
     print("Sending query to AWS...", flush=True)
 
-    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.65)
+    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.67)
+    retriever = index.as_retriever(similarity_top_k=2)
 
-    query_engine = index.as_query_engine(
-        text_qa_template=STRICT_QA_PROMPT,
-        node_postprocessors=[similarity_processor]
+    # 1. Retrieve candidates
+    retrieved_nodes = retriever.retrieve(question)
+
+    # 2. Filter using cutoff
+    processed_nodes = similarity_processor.postprocess_nodes(
+        retrieved_nodes, query_str=question
     )
-    response = query_engine.query(question)
+
+    # 3. Short-circuit if nothing passes 0.72
+    if not processed_nodes:
+        no_info_msg = (
+            "The knowledge base does not contain verified clinical "
+            "guidance for this presentation."
+        )
+        return (no_info_msg, []) if return_sources else no_info_msg
+
+    # 4. Synthesize answer using strictly filtered nodes
+    synth = get_response_synthesizer(text_qa_template=STRICT_QA_PROMPT)
+    response = synth.synthesize(query=question, nodes=processed_nodes)
 
     if return_sources:
         sources = [node.node.get_text() for node in response.source_nodes]
@@ -308,7 +293,7 @@ def _confidence_info(min_score: float | None) -> dict:
                 "Treat with caution and verify independently."
             ),
         }
-    if min_score >= 0.65:
+    if min_score >= 0.72:
         return {
             "label": "strong match",
             "message": (
@@ -316,7 +301,7 @@ def _confidence_info(min_score: float | None) -> dict:
                 "for this case."
             ),
         }
-    if min_score >= 0.55:
+    if min_score >= 0.69:
         return {
             "label": "moderate match",
             "message": (
@@ -358,11 +343,17 @@ def ask_structured(index, question: str) -> dict:
     """
     print("Sending structured query to AWS...", flush=True)
 
-    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.65)
+    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.67)
 
     # 1. Retrieve candidates from Supabase pgvector
-    retriever = index.as_retriever(similarity_top_k=5)
+    retriever = index.as_retriever(similarity_top_k=2)
     retrieved_nodes = retriever.retrieve(question)
+
+    # --- ADD THIS PRINT STATEMENT TO DEBUG SCORES ---
+    print("\n--- RAW SCORES ---")
+    for node in retrieved_nodes:
+        print(f"Score: {node.score:.4f} | Source: {node.node.get_text()[:80]}...")
+    print("------------------\n")
 
     # 2. Filter using cutoff (must pass query_str)
     processed_nodes = similarity_processor.postprocess_nodes(
@@ -394,8 +385,8 @@ def ask_structured(index, question: str) -> dict:
         if node.score is not None
     ]
 
-    min_score = min(scores) if scores else None
-    confidence_info = _confidence_info(min_score)
+    top_score = max(scores) if scores else None
+    confidence_info = _confidence_info(top_score)
 
     raw = str(response).strip()
 
@@ -438,46 +429,32 @@ def ask_structured(index, question: str) -> dict:
 if __name__ == "__main__":
     idx = load_index()
 
-    # Test 1: plain question (as before)
-    answer, sources = ask(
-        idx,
-        "A patient has had a joint pain for 3 months, what should I check?",
-        return_sources=True,
-    )
-    print("\nAnswer:\n", answer)
-    print("\nSources used:")
-    for s in sources:
-        print("-", s[:200], "...")
-
-    # Test 2: simulating a ConsultationSummary dict from chatbot.py
-    example_summary = {
-        "session_id": "test-session",
-        "reason_for_visit": "joint pain",
-        "symptoms": ["stiffness"],
-        "symptom_location": None,
-        "onset": "gradual",
-        "duration": "1 day",
+    test_summary_6 = {
+        "reason_for_visit": "ear discomfort and muffling",
+        "symptoms": ["feeling of fullness in right ear", "muffled hearing", "slight itching"],
+        "symptom_location": "right ear",
+        "onset": "5 days ago",
+        "duration": "5 days",
         "severity": "mild",
         "medical_history": {"status": "confirmed_none", "items": []},
-        "current_medications": {"status": "unknown", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
         "allergies": {"status": "confirmed_none", "items": []},
-        "additional_concerns": None,
+        "additional_concerns": "No fever, no severe fluid drainage."
     }
-    query = build_query_from_consultation_summary(example_summary)
-    print("\n\n--- Consultation summary test ---")
-    print("Generated query:\n", query)
-    answer2, sources2 = ask(idx, query, return_sources=True)
-    print("\nAnswer:\n", answer2)
 
-    # Test 3: structured version, showing red-flag detection & confidence metadata
-    print("\n\n--- Structured response test ---")
-    structured = ask_structured(idx, query)
-    print("Answer:", structured["answer"])
-    print("Red flags identified:", structured["red_flags_identified"])
-    print("Requires urgent attention:", structured["requires_urgent_attention"])
-    print("Confidence rating:", structured["confidence"])
-    print("Confidence message:", structured["confidence_message"])
-    print("Parse error:", structured["parse_error"])
+    query_6 = build_query_from_consultation_summary(test_summary_6)
+    print("\n--- TEST 6: Ear Fullness & Muffled Hearing (Borderline Scenario) ---")
+    print("Generated Query:", query_6)
+    res_6 = ask_structured(idx, query_6)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_6["answer"])
+    print("Red Flags:", res_6["red_flags_identified"])
+    print("Requires Urgent Attention:", res_6["requires_urgent_attention"])
+    print("Confidence Rating:", res_6["confidence"])
+    print("Confidence Message:", res_6["confidence_message"])
+    print("Sources Used:", res_6["sources"])
+    print("Parse Error:", res_6["parse_error"])
+
     
 
 
