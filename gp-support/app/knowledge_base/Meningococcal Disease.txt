@@ -1,0 +1,53 @@
+MENINGOCOCCAL DISEASE:
+
+RECOMMENDATIONS:
+1 - Administer antimicrobial prophylaxis to healthcare personnel, regardless of vaccination status, who have an exposure to N. meningitidis.
+2 - Exclude healthcare personnel with invasive N. meningitidis disease from work until 24 hours after the start of effective antimicrobial therapy.
+3 - Work restrictions are not necessary for healthcare personnel who only have nasopharyngeal carriage of N. meningitidis.
+
+
+BACKGROUND:
+Healthcare-associated transmission of Neisseria meningitidis (N. meningitidis) is uncommon. In rare instances, N. meningitidis has been transmitted from patients to healthcare personnel (HCP) through contact with the respiratory secretions of patients with meningococcal disease and handling isolates of N. meningitidis1234.
+
+Prevention of transmission of N. meningitidis in healthcare settings involves:
+
+- in addition to using Standard Precautions, placing patients with known or suspected meningococcal disease in Droplet Precautions;
+- rapidly diagnosing and treating patients with clinical infection;
+- appropriately administering postexposure prophylaxis (PEP) to persons exposed to meningitidis; and
+- excluding potentially infectious HCP from work.
+
+Guidelines for meningococcal vaccination of certain HCP (e.g., persons with known asplenia or persistent complement component deficiencies, personnel who are traveling to countries in which meningococcal disease is hyperendemic or epidemic) are maintained by the Advisory Committee of Immunization Practices (ACIP) and described in Immunization of Health-Care Personnel: Recommendations of the ACIP (https://www.cdc.gov/mmwr/preview/mmwrhtml/rr6007a1.htm). Vaccination is recommended for HCP who are employed as microbiologists who are exposed routinely to isolates of N. meningitidis. Further information about meningococcal vaccines is provided on the CDC Meningococcal: Who Needs to Be Vaccinated website (https://www.cdc.gov/meningococcal/hcp/vaccine-recommendations/index.html).
+
+
+OCCUPATIONAL EXPOSURES:
+N. meningitidis can be transmitted person-to-person through unprotected direct contact with the respiratory secretions or saliva of a person with clinical disease, such as meningitis or bacteremia1112. Exposures in healthcare may include mucous membrane contact with infectious secretions from close, face-to-face contact during activities such as mouth-to-mouth resuscitation, endotracheal tube placement or management, or open airway suctioning while not wearing or correctly using recommended personal protective equipment (PPE).
+
+Brief, non-face-to-face contact, such as standing in the doorway of a patient's room, cleaning a patient's room, delivering a medication or food tray, starting an IV, or performing a routine physical exam, is generally not considered an exposure. Unprotected direct contact with the respiratory secretions or saliva of a person colonized with N. meningitidis, without clinical disease, is not considered an exposure.
+
+Exposures to N. meningitidis in laboratory settings are described in Biosafety in Microbiological and Biomedical Laboratories (BMBL), 5th Edition (https://stacks.cdc.gov/view/cdc/5564).
+
+
+CLINICAL FEATURES:
+Meningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropriate treatment, the infection can progress rapidly and result in death.
+
+Asymptomatic nasopharyngeal carriage of N. meningitidis is common, but few carriers develop invasive disease, and carriers without an exposure do not require treatment or chemoprophylaxis. Persons who have close contact with persons with invasive disease are at substantially increased risk for acquiring carriage and disease.
+
+Patients infected with N. meningitidis may be contagious in the 7 days before symptom onset and are rendered noninfectious by 24 hours of effective antimicrobial therapy. Cases occur in all age groups; however, children less than 2 years old, adolescents 16 through 23 years old, and adults 85 years of age or older have higher rates of disease than other age groups. In addition, people with certain medical conditions, such as functional or anatomic asplenia; persistent complement component deficiencies (e.g., C3, C5-9, properdin, factor H, factor D or are taking eculizumab or ravulizumab); and HIV infection are at increased risk for meningococcal disease.
+
+The incubation period of meningococcal disease is 3 to 4 days, with a range of 1 to 10 days.
+
+
+TESTING AND DIAGNOSIS:
+Diagnosis of meningococcal disease can pose challenges because its initial clinical manifestations are similar to more common, but less serious, illnesses12. Hence, laboratory testing is helpful in confirming the diagnosis. N. meningitidis is confirmed through culture or polymerase chain reaction (PCR) of fluid collected from a normally sterile site, such as blood or cerebrospinal fluid (CSF). Gram stain is still used for identification of N. meningitidis and continues to be a reliable and rapid method for presumptive identification, though it is not a confirmatory test.
+
+Additional information on laboratory testing for N. meningitidis is available on the CDC Laboratory Methods for the Diagnosis of Meningitis website (https://iris.who.int/handle/10665/70765).
+
+
+POSTEXPOSURE PROPHYLAXIS:
+Chemoprophylaxis is administered as soon as possible after exposure, ideally less than 24 hours after identification of an index patient. Chemoprophylaxis administered more than 14 days after onset of illness in an index patient is probably of limited or no value. In the event of an exposure involving a patient with possible meningococcal meningitis without microbiologic confirmation (e.g., culture negative, Gram stain negative, or lumbar puncture (LP) unable to be performed), decisions about use of PEP are made on a case-by-case basis considering the epidemiologic and clinical likelihood of N. meningitidis in the source patient.
+
+Rifampin, ciprofloxacin, and ceftriaxone are 90%-95% effective in reducing nasopharyngeal carriage of N. meningitidis and are all acceptable antimicrobial agents for chemoprophylaxis. Azithromycin is not routinely recommended, nor is it a first-line agent for PEP, but it may be used as chemoprophylaxis in situations such as sustained ciprofloxacin-resistant strains of N. meningitidis in a community. Detailed information regarding dosage and administration of PEP for N. meningitidis is available in the Manual for the Surveillance of Vaccine-Preventable Diseases (https://www.cdc.gov/surv-manual/php/table-of-contents/chapter-8-meningococcal-disease.html) and at Public Health Strategies for Antibiotic-resistant Neisseria meningitidis (https://www.cdc.gov/meningococcal/php/antibiotic-resistant/index.html).
+
+
+OUTBREAKS:
+In the setting of a healthcare facility meningococcal disease outbreak, meningococcal vaccination or use of chemoprophylaxis in a wider group than exposed HCP may be considered in consultation with public health officials. Additional guidance regarding meningococcal disease outbreaks is described in Guidance for the Evaluation and Public Health Management of Suspected Outbreaks of Meningococcal Disease [PDF – 16 Pages] (https://www.cdc.gov/meningococcal/downloads/meningococcal-outbreak-guidance.pdf)
