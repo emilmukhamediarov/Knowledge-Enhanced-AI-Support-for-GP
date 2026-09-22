@@ -467,3 +467,34 @@ if __name__ == "__main__":
     print("Confidence rating:", structured["confidence"])
     print("Confidence message:", structured["confidence_message"])
     print("Parse error:", structured["parse_error"])
+    
+
+
+'''
+## Use this one when rebuilding index, call on terminal:  python -m app.services.knowledge_rag
+if __name__ == "__main__":
+    from app.db.database import SessionLocal
+
+    # 1. Open a database session
+    db = SessionLocal()
+    try:
+        print("Rebuilding vector store index with all knowledge base files...")
+
+        # 2. Re-embed and load all .txt files into PostgreSQL (including new ones)
+        idx = build_index(db)
+
+        print("\nIndex built successfully! Testing retrieval with a sample query...\n")
+
+        # 3. Quick sanity test query
+        test_query = "What are the red flags for meningococcal disease or measles?"
+        structured = ask_structured(idx, test_query)
+
+        print("Answer:", structured["answer"])
+        print("Red flags identified:", structured["red_flags_identified"])
+        print("Requires urgent attention:", structured["requires_urgent_attention"])
+        print("Confidence:", structured["confidence"])
+
+    finally:
+        db.close()
+
+'''
