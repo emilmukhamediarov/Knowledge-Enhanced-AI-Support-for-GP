@@ -1,0 +1,539 @@
+{
+  "mode": "end_to_end",
+  "passed": 2,
+  "failed": 6,
+  "total": 8,
+  "results": [
+    {
+      "name": "persistent_cough_4_weeks",
+      "purpose": "Tests whether a duration threshold from the acute bronchitis guidance can be applied to the patient case.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: persistent cough, cough.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.649072051048279,
+            "file_name": "Chest Cold (Acute Bronchitis).txt",
+            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+          },
+          {
+            "score": 0.6484616221831341,
+            "file_name": "Influenza.txt",
+            "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
+          }
+        ],
+        "filtered_candidates": []
+      },
+      "checks": {
+        "source": {
+          "pass": false,
+          "detail": "expected one of ['Chest Cold (Acute Bronchitis).txt']; retrieved []"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": false,
+          "detail": "expected one of ['more than 3 weeks', '3 weeks']; returned red flags: []"
+        },
+        "urgency": {
+          "pass": true,
+          "detail": "urgency deliberately not asserted"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
+        "red_flags_identified": [],
+        "requires_urgent_attention": false,
+        "confidence": "weak match",
+        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
+        "sources": [],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "cough_with_bloody_mucus_in_additional_concerns",
+      "purpose": "Tests whether additional_concerns reaches RAG reasoning. The current query builder does not include this field.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: persistent cough, cough.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.649072051048279,
+            "file_name": "Chest Cold (Acute Bronchitis).txt",
+            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+          },
+          {
+            "score": 0.6484616221831341,
+            "file_name": "Influenza.txt",
+            "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
+          }
+        ],
+        "filtered_candidates": []
+      },
+      "checks": {
+        "source": {
+          "pass": false,
+          "detail": "expected one of ['Chest Cold (Acute Bronchitis).txt']; retrieved []"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": false,
+          "detail": "expected one of ['bloody mucus', 'blood']; returned red flags: []"
+        },
+        "urgency": {
+          "pass": true,
+          "detail": "urgency deliberately not asserted"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
+        "red_flags_identified": [],
+        "requires_urgent_attention": false,
+        "confidence": "weak match",
+        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
+        "sources": [],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "cold_12_days_without_improvement",
+      "purpose": "Tests whether the common-cold duration criterion is applied using the patient's full case.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: cold symptoms, runny nose, sore throat, cough.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.728444457054138,
+            "file_name": "Cold.txt",
+            "text_preview": "Preventing and Managing the Common Cold\n\nAre you sneezing, or do you have a stuffy and runny nose? You might have a cold. Antibiotics do not work against viruses that cause colds and will not help you feel better.\n\nWhat is Common Cold?\nA common cold is a mild upper respiratory illness caused by a vi"
+          },
+          {
+            "score": 0.707115685091538,
+            "file_name": "Influenza.txt",
+            "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.728444457054138,
+            "file_name": "Cold.txt",
+            "text_preview": "Preventing and Managing the Common Cold\n\nAre you sneezing, or do you have a stuffy and runny nose? You might have a cold. Antibiotics do not work against viruses that cause colds and will not help you feel better.\n\nWhat is Common Cold?\nA common cold is a mild upper respiratory illness caused by a vi"
+          },
+          {
+            "score": 0.707115685091538,
+            "file_name": "Influenza.txt",
+            "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Cold.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": true,
+          "detail": "matched expected red-flag term: more than 10 days"
+        },
+        "urgency": {
+          "pass": true,
+          "detail": "urgency deliberately not asserted"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "Cold symptoms, runny nose, sore throat, and cough are common symptoms of a cold. They usually peak within 2 to 3 days and can last up to 10–14 days. Clear mucus is normal, but if it changes to a white, yellow, or green color after 2–3 days, this is also normal. If symptoms last more than 10 days without improvement, or if they improve but then return or worsen, seek medical care.",
+        "red_flags_identified": [
+          "Symptoms that last more than 10 days without improvement",
+          "Symptoms, such as fever or cough, that improve but then return or worsen"
+        ],
+        "requires_urgent_attention": true,
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "Preventing and Managing the Common Cold\n\nAre you sneezing, or do you have a stuffy and runny nose? You might have a cold. Antibiotics do not work against viruses that cause colds and will not help you feel better.\n\nWhat is Common Cold?\nA common cold is a mild upper respiratory illness caused by a virus that resolves in a short period of time. Colds can have similar symptoms to flu. It can be difficult (or even impossible) to tell the difference between them based on symptoms alone.\n\nSymptoms\nSymptoms of a cold usually peak within 2 to 3 days, though some (especially runny nose and cough) can last up to 10–14 days. Symptoms can include:\n- Sneezing\n- Nasal congestion\n- Sore throat\n- Cough\n- Fever (although most people with colds do not have fever)\n- Mucus\n  * Clear mucus helps wash viruses from the nose and sinuses\n  * Mucus may change to a white, yellow, or green color after 2–3 days, this is normal\n\nCauses\nMore than 200 viruses can cause a cold, but rhinoviruses are the most common type. Viruses that cause colds can spread from person to person through the air and close personal contact.\n\nWhen to Seek Medical Care*\nSee a healthcare professional if you have:\n- Trouble breathing or fast breathing\n- Dehydration\n- Fever that lasts longer than 4 days\n- Symptoms that last more than 10 days without improvement\n- Symptoms, such as fever or cough, that improve but then return or worsen\n- Worsening of chronic medical conditions\n\n*This list is not all-inclusive. Please see a healthcare professional for any symptom that is severe or concerning.\nTalk to a healthcare professional right away if your child is under 3 months old with a fever of 100.4 °F (38 °C) or higher.\n\nTreatment\nThere is no cure for a cold. It will get better on its own—without antibiotics. Antibiotics won’t help you get better if you have a cold.",
+          "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza (Flu) |\n| --- | --- | --- |\n| Symptom onset | Gradual | Abrupt |\n| Fever | Rare | Common; lasts 3-4 days |\n| Aches | Slight | Common; often severe |\n| Chills | Uncommon | Fairly common |\n| Fatigue, weakness | Sometimes | Usual |\n| Sneezing | Common | Sometimes |\n| Chest discomfort, cough | Mild to moderate; hacking cough | Common; can be severe |\n| Stuffy nose | Common | Sometimes |\n| Sore throat | Common | Sometimes |\n| Headache | Rare | Common |\n\nSources\nhttps://www.cdc.gov/flu/signs-symptoms/index.html"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "meningococcal_clinical_features",
+      "purpose": "Tests retrieval and red-flag matching for an explicitly high-concern symptom combination in the knowledge base.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: sudden fever and rash, sudden high fever, neck stiffness, confusion, purpuric rash.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.7164623354811179,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
+          },
+          {
+            "score": 0.715812346810471,
+            "file_name": "Meningococcal Disease.txt",
+            "text_preview": "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropria"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.7164623354811179,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
+          },
+          {
+            "score": 0.715812346810471,
+            "file_name": "Meningococcal Disease.txt",
+            "text_preview": "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropria"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Meningococcal Disease.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": true,
+          "detail": "matched expected red-flag term: neck stiffness"
+        },
+        "urgency": {
+          "pass": true,
+          "detail": "expected urgency=True, actual=True"
+        },
+        "answer_content": {
+          "pass": false,
+          "detail": "forbidden answer wording detected: 'could be indicative of Lyme'"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "Sudden fever and rash could be indicative of Lyme Disease, especially if the rash is an erythema migrans (EM) rash that appears 3 to 30 days after a tick bite. Sudden high fever, neck stiffness, confusion, and purpuric rash are indicative of meningococcal disease. Meningococcal disease is a serious and potentially life-threatening infection that requires prompt medical attention.",
+        "red_flags_identified": [
+          "Sudden high fever",
+          "Neck stiffness",
+          "Confusion",
+          "Purpuric rash"
+        ],
+        "requires_urgent_attention": true,
+        "confidence": "moderate match",
+        "confidence_message": "This answer is only moderately grounded in the knowledge base — use caution and consider verifying key details independently.",
+        "sources": [
+          "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick bite after a delay of 3 to 30 days (average is about 7 days)\n\t* Expands gradually over several days reaching up to 12 inches (30 cm) or more across\n\t* May feel warm to the touch but is rarely itchy or painful\n\t* Sometimes clears as it enlarges, resulting in a target or \"bull's-eye\" appearance\n\t* May appear on any area of the body\n\t* Does not always appear as a \"classic bull's-eye\" rash\n\n\nLATER SIGNS AND SYMPTOMS (days to months after tick bite)\n- Severe headaches and neck stiffness\n- Additional EM rashes on other areas of the body\n- Facial palsy (loss of muscle tone or droop on one or both sides of the face)\n- Arthritis with severe joint pain and swelling, particularly the knees and other large joints.\n- Intermittent pain in tendons, muscles, joints, and bones\n- Heart palpitations or an irregular heartbeat (Lyme carditis)\n- Episodes of dizziness or shortness of breath\n- Inflammation of the brain and spinal cord\n- Nerve pain\n- Shooting pains, numbness, or tingling in the hands or feet",
+          "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropriate treatment, the infection can progress rapidly and result in death.\n\nAsymptomatic nasopharyngeal carriage of N. meningitidis is common, but few carriers develop invasive disease, and carriers without an exposure do not require treatment or chemoprophylaxis. Persons who have close contact with persons with invasive disease are at substantially increased risk for acquiring carriage and disease.\n\nPatients infected with N. meningitidis may be contagious in the 7 days before symptom onset and are rendered noninfectious by 24 hours of effective antimicrobial therapy. Cases occur in all age groups; however, children less than 2 years old, adolescents 16 through 23 years old, and adults 85 years of age or older have higher rates of disease than other age groups. In addition, people with certain medical conditions, such as functional or anatomic asplenia; persistent complement component deficiencies (e.g., C3, C5-9, properdin, factor H, factor D or are taking eculizumab or ravulizumab); and HIV infection are at increased risk for meningococcal disease.\n\nThe incubation period of meningococcal disease is 3 to 4 days, with a range of 1 to 10 days."
+        ],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "asthma_pattern",
+      "purpose": "Tests straightforward asthma retrieval and rejects a false bronchitis duration red flag that the patient does not meet.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: breathing problems, wheezing, chest tightness, cough at night.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.724819140147023,
+            "file_name": "Asthma.txt",
+            "text_preview": "Asthma\n\nKEY POINTS\n- Asthma is a disease that affects your lungs.\n- It is one of the most common long-term diseases of children, but adults can have asthma, too.\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning.\n\nSYMPTOMS\n- Asthma causes wheezi"
+          },
+          {
+            "score": 0.6839340517560231,
+            "file_name": "Chest Cold (Acute Bronchitis).txt",
+            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.724819140147023,
+            "file_name": "Asthma.txt",
+            "text_preview": "Asthma\n\nKEY POINTS\n- Asthma is a disease that affects your lungs.\n- It is one of the most common long-term diseases of children, but adults can have asthma, too.\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning.\n\nSYMPTOMS\n- Asthma causes wheezi"
+          },
+          {
+            "score": 0.6839340517560231,
+            "file_name": "Chest Cold (Acute Bronchitis).txt",
+            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Asthma.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": false,
+          "detail": "expected no red flags; returned: ['Symptoms that last more than 3 weeks']"
+        },
+        "urgency": {
+          "pass": false,
+          "detail": "expected urgency=False, actual=True"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "Breathing problems, wheezing, chest tightness, and cough at night can be symptoms of asthma or acute bronchitis. For asthma, these symptoms can be managed by avoiding triggers and following a doctor's advice. For acute bronchitis, these symptoms are common and usually resolve within 3 weeks. If symptoms persist beyond 3 weeks, it is advisable to seek medical care.",
+        "red_flags_identified": [
+          "Symptoms that last more than 3 weeks"
+        ],
+        "requires_urgent_attention": true,
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "Asthma\n\nKEY POINTS\n- Asthma is a disease that affects your lungs.\n- It is one of the most common long-term diseases of children, but adults can have asthma, too.\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning.\n\nSYMPTOMS\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning. \n- If you have asthma, you have it all the time, but you will have asthma attacks only when something bothers your lungs.\n- An asthma attack may include coughing, chest tightness, wheezing, and trouble breathing. \n- The attack happens in your body's airways, which are the paths that carry air to your lungs. As the air moves through your lungs, the airways become smaller, like the branches of a tree are smaller than the tree trunk. During an asthma attack, the sides of the airways in your lungs swell and the airways shrink. Less air gets in and out of your lungs, and mucous that your body makes clogs up the airways.\n- You can control your asthma by knowing the warning signs of an asthma attack, staying away from things that cause an attack, and following your doctor's advice.\n\nDIAGNOSIS\n- It can be hard to tell if someone has asthma, especially in children under age 5. A doctor can help you find out if you have asthma.\n- During a checkup, a doctor may ask if you cough a lot, especially at night. \n- The doctor may also ask whether your breathing problems are worse after physical activity or at certain times of year. \n- The doctor may ask about chest tightness, wheezing, and colds lasting more than 10 days. \n- The docotr may ask whether anyone in your family has or has had asthma, allergies, or other breathing problems. \n- The doctor may ask about your home and whether you have missed school or work or have trouble doing certain things.\n- The doctor may also do a breathing test, called spirometry, to find out how well your lungs are working. Spirometry tests how much air you breathe out after taking a very deep breath before and after you use asthma medicine.",
+          "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usually cause chest colds.\n- Antibiotics will not help you feel better if you have a chest cold.\n\nOverview\nAcute bronchitis (often called a “chest cold”) occurs when the airways of the lungs swell and produce mucus (a thick, sticky fluid).\n\nSymptoms\nSymptoms of acute bronchitis last less than 3 weeks and can include:\n- Coughing with or without mucus\n- Feeling tired\n- Swelling of airways in the lungs produce mucus in the lungs and makes you cough.\n- Congestion\n- Sore throat\n- Mild body aches\n\nCauses\nA virus usually causes a chest cold. Bacteria can sometimes cause a chest cold, but even in these cases, antibiotics are NOT recommended and will not help you feel better.\n\nPrevention\nCDC recommends that all people use core prevention strategies. These are important steps you can take to protect yourself and others from respiratory viruses, including those that cause acute bronchitis:\n- Stay up to date with recommended vaccines and boosters, such as the flu vaccine.\n- Practice good hygiene (practices that improve cleanliness).\n  * Cover your coughs and sneezes\n  * Wash or sanitize your hands often\n  * Clean frequently touched surfaces\n- Take steps for cleaner air.\n  * Bring in fresh outside air\n  * Purify indoor air\n  * Gather outdoors\n\nWhen to seek medical care\nSee a healthcare professional if you have any of the following:\n- Fever that lasts longer than 5 days or fever of 104°F or higher\n- Cough with bloody mucus\n- Shortness of breath or trouble breathing\n- Symptoms that last more than 3 weeks\n- Repeated episodes of bronchitis\n\nThis list is not all-inclusive. Please see a healthcare professional for any symptom that is severe or concerning."
+        ],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "strep_throat_pattern",
+      "purpose": "Tests straightforward strep-throat retrieval and verifies that ordinary listed symptoms are not relabelled as red flags.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: sore throat, fever, pain when swallowing, red swollen tonsils.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.7483953237533569,
+            "file_name": "Strep Throat.txt",
+            "text_preview": "About Strep Throat\n\nKEY POINTS\n- Strep throat is a bacterial infection in the throat and tonsils.\n- Healthcare providers can do a quick test to see if a sore throat is strep throat.\n- Antibiotics can help people with strep throat feel better faster.\n- Speak with a healthcare provider if you have con"
+          },
+          {
+            "score": 0.68709933757782,
+            "file_name": "Ear Infection.txt",
+            "text_preview": "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but man"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.7483953237533569,
+            "file_name": "Strep Throat.txt",
+            "text_preview": "About Strep Throat\n\nKEY POINTS\n- Strep throat is a bacterial infection in the throat and tonsils.\n- Healthcare providers can do a quick test to see if a sore throat is strep throat.\n- Antibiotics can help people with strep throat feel better faster.\n- Speak with a healthcare provider if you have con"
+          },
+          {
+            "score": 0.68709933757782,
+            "file_name": "Ear Infection.txt",
+            "text_preview": "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but man"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Strep Throat.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": false,
+          "detail": "expected no red flags; returned: ['Sore throat that started very quickly and may look red', 'Swollen lymph nodes in the front of the neck', 'White patches or streaks of pus on the tonsils', 'Fever', 'Pain when swallowing', 'Red and swollen tonsils']"
+        },
+        "urgency": {
+          "pass": false,
+          "detail": "expected urgency=False, actual=True"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "Sore throat, fever, pain when swallowing, and red swollen tonsils are common symptoms of strep throat. A healthcare provider can do a quick test to see if a sore throat is strep throat. Antibiotics can help people with strep throat feel better faster.",
+        "red_flags_identified": [
+          "Sore throat that started very quickly and may look red",
+          "Swollen lymph nodes in the front of the neck",
+          "White patches or streaks of pus on the tonsils",
+          "Fever",
+          "Pain when swallowing",
+          "Red and swollen tonsils"
+        ],
+        "requires_urgent_attention": true,
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "About Strep Throat\n\nKEY POINTS\n- Strep throat is a bacterial infection in the throat and tonsils.\n- Healthcare providers can do a quick test to see if a sore throat is strep throat.\n- Antibiotics can help people with strep throat feel better faster.\n- Speak with a healthcare provider if you have concerns about strep throat.\n\nWhat it is\nStrep throat is a bacterial infection in the throat and tonsils.\n\nWorried your sore throat may be strep throat?\nViruses cause most sore throats. Only around 1 in 10 adults and 3 in 10 children with a sore throat have strep throat.\n\nSymptoms\nIt usually takes 2 to 5 days after exposure to become ill with strep throat.\n\nCommon symptoms may include:\n- Fever\n- Pain when swallowing\n- Red and swollen tonsils\n- Sore throat that started very quickly and may look red\n- Swollen lymph nodes in the front of the neck\n- Tiny, red spots on the roof of the mouth, called petechiae\n- White patches or streaks of pus on the tonsils\n- Swelling, redness, and white patches are common symptoms of strep throat.\n\nLess common symptoms, especially for children, may include:\n- Headache\n- Nausea or vomiting\n- Rash (scarlet fever)\n- Stomach pain\n\nComplications\nComplications can occur after a strep throat infection if the bacteria spread to other parts of the body.\nComplications can include:\n- Abscesses (pockets of pus) around the tonsils or in the neck\n- Ear infections\n- Post-streptococcal glomerulonephritis (a kidney disease)\n- Rheumatic fever (a disease affecting the heart, joints, brain, skin)\n- Sinus infections\n\nRisk factors\nAnyone can get strep throat, but some factors increase the risk of getting it.\n\nAge\nStrep throat is more common in children than adults.\n- Most common: Children 5 through 15 years old\n- Rare: Children younger than 3 years old\n\nClose contact\nClose contact with another person with strep throat is the most common risk factor for illness. For example, if someone has strep throat, the bacteria often spread to other people in their household.",
+          "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but many can get better on their own without antibiotics.\n\nWhat is an ear infection?\nThere are different types of ear infections. Middle ear infection (acute otitis media) is an infection in the middle ear. \nAnother condition that affects the middle ear is called otitis media with effusion. It occurs when fluid builds up in the middle ear without being infected and without causing fever, ear pain, or pus buildup in the middle ear.\nWhen the outer ear canal is infected, the condition is called “swimmer’s ear,” which is different from a middle ear infection. \n\nCauses \nMiddle ear infections can be caused by: \n- Bacteria, like Streptococcus pneumoniae and Haemophilus influenzae (nontypeable)—the two most common bacterial causes.\n- Viruses, like those that cause colds or flu.\n\nSymptoms\nCommon symptoms of middle ear infection in children can include:\n- Ear pain.\n- Fever.\n- Fussiness or irritability.\n- Rubbing or tugging at an ear.\n- Difficulty sleeping.\n\nWhen to Seek Medical Care\nSee a doctor if your child has:\n- A fever of 102.2°F (39°C) or higher.\n- Pus, discharge, or fluid coming from the ear.\n- Worsening symptoms.\n- Symptoms of a middle ear infection that last for more than 2–3 days.\n- Hearing loss.\n\nPediatric Warning:\nSee a doctor right away if your child is younger than 3 months old and has a fever greater than 100.4 °F (38 °C). \n\nTreatment\nA doctor will determine what type of illness your child has by asking about symptoms and doing a physical examination. Your doctor can make the diagnosis of a middle ear infection by looking inside your child’s ear to examine the eardrum and see if there is pus in the middle ear. \nAntibiotics are often not needed for middle ear infections because the body’s immune system can fight off the infection on its own."
+        ],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "pink_eye_pattern",
+      "purpose": "Tests conjunctivitis retrieval and verifies that conditional contact-lens guidance is not applied when contact-lens use was never stated by the patient.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: red eye, purulent eye discharge, eyelids matted together, decreased vision, left eye.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.7279176278163431,
+            "file_name": "Pink Eye.txt",
+            "text_preview": "Bacterial Conjunctivitis Features:\nSigns and symptoms of bacterial conjunctivitis overlap with other causes of conjunctivitis, including viral and allergic conjunctivitis, which can make diagnosis difficult.\nTypical signs and symptoms include:\n- Red eye\n- Purulent discharge that causes eyelids to be"
+          },
+          {
+            "score": 0.660936792520785,
+            "file_name": "Pink Eye.txt",
+            "text_preview": "These include from:\n- Hand-to-eye contact\n- Contact of eye with contaminated objects\n- Sexual encounters with eye to genital contact, or vertically from mother to baby\n- Large respiratory tract droplets\nAlternatively, changes in the usual bacteria that live on the conjunctiva can also cause conjunct"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.7279176278163431,
+            "file_name": "Pink Eye.txt",
+            "text_preview": "Bacterial Conjunctivitis Features:\nSigns and symptoms of bacterial conjunctivitis overlap with other causes of conjunctivitis, including viral and allergic conjunctivitis, which can make diagnosis difficult.\nTypical signs and symptoms include:\n- Red eye\n- Purulent discharge that causes eyelids to be"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Pink Eye.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": false,
+          "detail": "expected no red flags; returned: ['Contact lens wearers with bacterial conjunctivitis are at higher risk of bacterial keratitis.']"
+        },
+        "urgency": {
+          "pass": false,
+          "detail": "expected urgency=False, actual=True"
+        },
+        "answer_content": {
+          "pass": false,
+          "detail": "forbidden answer wording detected: 'contact lens wearers with these symptoms should'"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "The symptoms of red eye, purulent eye discharge, eyelids matted together, and decreased vision in the left eye are consistent with bacterial conjunctivitis. Contact lens wearers with these symptoms should be asked to remove their contact lenses, treated with topical antibiotics, and promptly evaluated by an ophthalmologist due to the higher risk of bacterial keratitis. Patients should be advised to remain home if they have systemic signs of illness and should return to work or school only after receiving clinician approval and implementing any indicated therapy. Patients with viral conjunctivitis should be counseled to prevent transmission by washing hands frequently, using separate towels, and avoiding close contact with others.",
+        "red_flags_identified": [
+          "Contact lens wearers with bacterial conjunctivitis are at higher risk of bacterial keratitis."
+        ],
+        "requires_urgent_attention": true,
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "Bacterial Conjunctivitis Features:\nSigns and symptoms of bacterial conjunctivitis overlap with other causes of conjunctivitis, including viral and allergic conjunctivitis, which can make diagnosis difficult.\nTypical signs and symptoms include:\n- Red eye\n- Purulent discharge that causes eyelids to be matted together\n- Chemosis\n- Decreased vision\n- Eyelid swelling and pain\n\nTreatment and recovery\nMost cases of acute, infectious conjunctivitis in adults are viral and self-limited; these cases do not require antimicrobial treatment. Antiviral medication may be used to treat more serious forms of conjunctivitis. This can include conjunctivitis caused by herpes simplex virus or varicella-zoster virus.\n\nContact lens wearers with bacterial conjunctivitis are at higher risk of bacterial keratitis. They should be asked to remove their contact lenses; treated with topical antibiotics; and promptly evaluated by an ophthalmologist.\n\nPatient counseling\n- Advise patients to remain home if they have viral or bacterial conjunctivitis with systemic signs of illness, especially if they cannot avoid close contact with others. Patients may return to work or school if they receive clinician approval and after any indicated therapy is implemented.\n- Counsel patients with viral conjunctivitis to prevent transmission by washing hands frequently, using separate towels, and avoiding close contact with others.\n\nSources\nhttps://www.cdc.gov/conjunctivitis/hcp/clinical-overview/index.html"
+        ],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "unsupported_urinary_presentation",
+      "purpose": "Negative-control case: the supplied knowledge base contains no urinary-condition document, so retrieval should reject the presentation rather than force an unrelated match.",
+      "query": "Clinical guidance, red flags, and diagnostic criteria for: burning when urinating, burning urination, urinary frequency.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.587349772453312,
+            "file_name": "Meningococcal Disease.txt",
+            "text_preview": "TESTING AND DIAGNOSIS:\nDiagnosis of meningococcal disease can pose challenges because its initial clinical manifestations are similar to more common, but less serious, illnesses12. Hence, laboratory testing is helpful in confirming the diagnosis. N. meningitidis is confirmed through culture or polym"
+          },
+          {
+            "score": 0.578301991325499,
+            "file_name": "Asthma.txt",
+            "text_preview": "- The doctor may also do a breathing test, called spirometry, to find out how well your lungs are working. Spirometry tests how much air you breathe out after taking a very deep breath before and after you use asthma medicine.\n\nSYMPTOM MANAGEMENT\n\n- Take your medicine exactly as your doctor tells yo"
+          }
+        ],
+        "filtered_candidates": []
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "no filtered source retrieved"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "red_flags": {
+          "pass": true,
+          "detail": "red-flag behaviour matched expectations"
+        },
+        "urgency": {
+          "pass": true,
+          "detail": "expected urgency=False, actual=False"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "RAG correctly returned no grounded source/red flag"
+        }
+      },
+      "rag_result": {
+        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
+        "red_flags_identified": [],
+        "requires_urgent_attention": false,
+        "confidence": "weak match",
+        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
+        "sources": [],
+        "parse_error": false
+      },
+      "pass": true
+    }
+  ]
+}
