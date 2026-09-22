@@ -1,0 +1,49 @@
+MEASLES
+
+RECOMMENDATIONS:
+1 - For asymptomatic healthcare personnel with presumptive evidence of immunity to measles who have an exposure to measles:
+ * Postexposure prophylaxis is not necessary.
+ * Work restrictions are not necessary.
+ * Implement daily monitoring for signs and symptoms of measles from the 5th day after their first exposure through the 21st day after their last exposure.
+
+2 - For asymptomatic healthcare personnel without presumptive evidence of immunity to measles who have an exposure to measles:
+ * Administer postexposure prophylaxis in accordance with CDC and ACIP recommendations.
+ * Exclude from work from the 5th day after their first exposure through the 21st day after their last exposure, regardless of receipt of postexposure prophylaxis.
+ * Work restrictions are not necessary for healthcare personnel who received the first dose of MMR vaccine prior to exposure:
+­  ** They should receive their second dose of MMR vaccine as soon as possible (at least 28 days after their first dose).
+  ** Implement daily monitoring for signs and symptoms of measles from the 5th day after their first exposure through the 21st day after their last exposure.
+
+3 - For healthcare personnel with known or suspected measles, exclude from work for 4 days after the rash appears.
+
+4 - For immunocompromised healthcare personnel with known or suspected measles, exclude from work for the duration of their illness.
+
+5 - During a measles outbreak, administer measles vaccine to healthcare personnel in accordance with CDC and ACIP recommendations 
+
+
+BACKGROUND:
+Measles was declared eliminated in the US in 2000; however, community-acquired measles cases have persisted as a result of importation.34 Outbreaks of measles in healthcare settings remain well described, and transmission to and from healthcare personnel (HCP) continues to be reported.5678 HCP are considered to be at higher risk for measles acquisition than the general population, as patients with measles often seek medical care due to the severity of their symptoms56789; further, measles is highly contagious and potentially under-recognized, with delays in patient isolation and diagnosis.7
+
+Prevention of transmission of measles in healthcare settings involves (a) ensuring HCP have presumptive evidence of immunity; (b) using infection prevention and control practices as recommended by CDC (https://www.cdc.gov/infection-control/hcp/isolation-precautions/appendix-a-type-duration.html#M);10 and (c) excluding potentially infectious HCP from work.911 The criteria for presumptive evidence of immunity to measles and recommendations for measles vaccination of HCP are maintained by CDC and ACIP (https://www.cdc.gov/acip-recs/hcp/vaccine-specific/mmr.html).2
+
+
+OCCUPATIONAL EXPOSURES:
+Measles is a highly contagious viral illness spread primarily via small particles that remain suspended in air. HCP exposures to measles in a healthcare setting are defined as spending any amount of time while unprotected (i.e., not wearing recommended respiratory protection):
+
+- In a shared air space with an infectious measles patient at the same time, or
+- In a shared air space vacated by an infectious measles patient for up to 2 hours.
+
+Measles virus is thought to be contagious to others in the air for up to 2 hours.1213 In general, the time that the air in a room occupied by a measles patient is thought to remain infectious to others depends on several factors including the room’s air changes per hour, up to a maximum of 2 hours.141516 Humidity and air flow dynamics between rooms may impact the efficiency of measles transmission, and distances farther from the source patient may pose decreased risk of transmission to others. An example of an exposure to measles includes HCP providing in-room care to an unmasked patient while not wearing recommended respiratory protection. Information on room air changes per hour and times for estimating 99.9% airborne contaminant removal from the air is provided on the CDC website, in Table B.1., “Air changes/hour (ACH) and time required for airborne contaminant removal by efficiency" (https://www.cdc.gov/infection-control/hcp/environmental-control/appendix-b-air.html#cdc_generic_section_1-airborne-contaminant-removal).17
+
+
+CLINICAL FEATURES:
+Measles is characterized by a prodrome of fever, malaise, cough, coryza, conjunctivitis, and Koplik spots (clustered white lesions on the buccal mucosa), followed by onset of a maculopapular rash.18 Because measles is uncommon in the US, providers may have a low index of suspicion for measles and ultimately delay the correct diagnosis.18 The incubation period of measles from exposure to prodrome averages 11 - 12 days. The time from exposure to rash onset averages 14 days, with a range of 7 - 21 days.19 Persons with measles are usually considered infectious from four days before until four days after onset of rash (with rash onset considered as day 0), and immunocompromised persons with measles may shed virus for extended periods.19
+
+
+TESTING AND DIAGNOSIS:
+Laboratory testing is used to confirm measles infection, and both detection of measles-specific IgM antibody and measles RNA by real-time polymerase chain reaction tests are recommended to confirm measles infection.20 Information on measles testing is available on the CDC website (https://www.cdc.gov/measles/php/laboratories/index.html).21
+
+
+POSTEXPOSURE PROPHYLAXIS:
+Exposed HCP without presumptive evidence of immunity should receive postexposure vaccination as soon as possible in accordance with CDC and ACIP recommendations. In some circumstances, immune globulin may be appropriate to offer these HCP, but this should be done in accordance with CDC and ACIP recommendations (https://www.cdc.gov/acip-recs/hcp/vaccine-specific/mmr.html)
+
+Some HCP with documented presumptive evidence of immunity to measles will require administration of vaccine during a measles outbreak.2 Guidance regarding postexposure and outbreak use of vaccine is available on the CDC website
