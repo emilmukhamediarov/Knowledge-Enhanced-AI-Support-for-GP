@@ -357,16 +357,41 @@ def ask_structured(index, question: str) -> dict:
 
     similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.65)
 
-    query_engine = index.as_query_engine(
-        text_qa_template=STRUCTURED_QA_PROMPT,
-        node_postprocessors=[similarity_processor]
+    # 1. Retrieve candidates from Supabase pgvector
+    retriever = index.as_retriever(similarity_top_k=5)
+    retrieved_nodes = retriever.retrieve(question)
+
+    # 2. Filter using cutoff (must pass query_str)
+    processed_nodes = similarity_processor.postprocess_nodes(
+        retrieved_nodes,
+        query_str=question
     )
-    response = query_engine.query(question)
+
+    # 3. Short-circuit if nothing cleared the cutoff
+    if not processed_nodes:
+        return {
+            "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
+            "red_flags_identified": [],
+            "requires_urgent_attention": False,
+            "confidence": "weak match",
+            "confidence_message": "No relevant clinical guidelines matched the search criteria.",
+            "sources": [],
+            "parse_error": False,
+        }
+
+    # 4. Pass pre-filtered nodes directly into AWS Bedrock synthesis
+    synth = index.as_query_engine(
+        text_qa_template=STRUCTURED_QA_PROMPT
+    ).response_synthesizer
+
+    response = synth.synthesize(
+        query=question,
+        nodes=processed_nodes
+    )
+
     sources = [node.node.get_text() for node in response.source_nodes]
 
-    # Collect similarity scores from retrieved nodes, then use the
-    # WEAKEST one for a conservative confidence label — see
-    # _confidence_label()'s docstring for why weakest, not best/average.
+    # Collect similarity scores from processed nodes
     scores = [
         node.score for node in response.source_nodes
         if node.score is not None
@@ -376,8 +401,8 @@ def ask_structured(index, question: str) -> dict:
     confidence_info = _confidence_info(min_score)
 
     raw = str(response).strip()
-    # Models sometimes wrap JSON in markdown fences despite instructions
-    # not to — strip those defensively rather than failing on them.
+
+    # Strip markdown code blocks defensively
     if raw.startswith("```"):
         raw = raw.strip("`")
         if raw.startswith("json"):
@@ -389,13 +414,6 @@ def ask_structured(index, question: str) -> dict:
         return {
             "answer": parsed.get("answer", ""),
             "red_flags_identified": parsed.get("red_flags_identified", []),
-            # Deterministic, not model-judged: if the model identified
-            # ANY red flag from the context, treat it as urgent. Testing
-            # showed both Groq and Bedrock models could correctly extract
-            # a matching red flag yet still separately report
-            # requires_urgent_attention=false — an unreliable, unsafe
-            # inconsistency. Deriving this boolean directly from the
-            # extracted list removes that failure mode entirely.
             "requires_urgent_attention": bool(
                 parsed.get("red_flags_identified", [])
             ),
@@ -405,10 +423,6 @@ def ask_structured(index, question: str) -> dict:
             "parse_error": False,
         }
     except json.JSONDecodeError:
-        # IMPORTANT: do not silently treat a parse failure as "no red
-        # flags" — that would be unsafe. Surface it as an error instead,
-        # so the caller (main.py) can decide how to handle it (e.g. show
-        # the raw text, retry, or flag for manual review).
         return {
             "answer": raw,
             "red_flags_identified": [],
