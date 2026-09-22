@@ -1,14 +1,16 @@
 """
-rag.py — Retrieval-augmented generation module for the GP Support System.
+
+knowledge_rag.py — Retrieval-augmented generation module for the GP Support System.
 
 Exposes:
-- build_index(): sets up the knowledge base index (call once, at app startup)
-- ask(question): queries the index and returns an answer
+- build_index(db): sets up the knowledge base index and persists chunks to Supabase pgvector
+- load_index(): loads existing vector store from Supabase without rebuilding
+- ask(index, question): queries the index and returns prose
+- ask_structured(index, question): queries index and returns grounded JSON dict
+
 
 Other modules (e.g. chatbot.py, main.py) should import and use this like:
-
     from rag import build_index, ask
-
     index = build_index()
     answer = ask(index, "What are red flags for a persistent cough?")
 """
@@ -24,6 +26,7 @@ from llama_index.vector_stores.postgres import PGVectorStore
 from llama_index.core import StorageContext
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.postprocessor import SimilarityPostprocessor
+from llama_index.core import get_response_synthesizer
 from sqlalchemy.engine import make_url
 from app.config import DATABASE_URL
 from app.repositories import repository
@@ -380,14 +383,8 @@ def ask_structured(index, question: str) -> dict:
         }
 
     # 4. Pass pre-filtered nodes directly into AWS Bedrock synthesis
-    synth = index.as_query_engine(
-        text_qa_template=STRUCTURED_QA_PROMPT
-    ).response_synthesizer
-
-    response = synth.synthesize(
-        query=question,
-        nodes=processed_nodes
-    )
+    synth = get_response_synthesizer(text_qa_template=STRUCTURED_QA_PROMPT)
+    response = synth.synthesize(query=question, nodes=processed_nodes)
 
     sources = [node.node.get_text() for node in response.source_nodes]
 
