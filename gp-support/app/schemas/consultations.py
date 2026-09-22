@@ -1,8 +1,10 @@
 from typing import Literal
+from typing import Optional
 from pydantic import BaseModel, Field,  field_validator, model_validator
 
 class ConsultationCreate(BaseModel):
     user_id: int
+    previous_consultation_id: Optional[int] = None
 
 class AnswerList(BaseModel):
     status: Literal["unknown", "confirmed_none", "confirmed"] = "unknown"

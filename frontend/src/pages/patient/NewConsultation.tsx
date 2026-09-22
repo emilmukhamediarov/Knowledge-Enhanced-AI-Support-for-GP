@@ -5,6 +5,7 @@ import "./NewConsultation.css";
 
 interface Consultation {
     consultation_id: number;
+    title?: string | null;
     created_at: string;
 }
 
@@ -26,7 +27,6 @@ function NewConsultation() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
-    // Temporary until authentication is properly connected
     const storedUserId = localStorage.getItem("userId");
     const userId = storedUserId
         ? Number(storedUserId)
@@ -52,7 +52,7 @@ function NewConsultation() {
                     `/consultations/user/${userId}`
                 );
 
-                setConsultations(data.consultations);
+                setConsultations(data.consultations || []);
             } catch (error) {
                 console.error(
                     "Failed to load consultations:",
@@ -108,9 +108,7 @@ function NewConsultation() {
                         user_id: userId,
                         previous_consultation_id:
                             relatedToPrevious
-                                ? Number(
-                                    selectedConsultation
-                                )
+                                ? Number(selectedConsultation)
                                 : null,
                     }),
                 }
@@ -251,14 +249,7 @@ function NewConsultation() {
                                                     consultation.consultation_id
                                                 )}
                                             >
-                                                Consultation #
-                                                {
-                                                    consultation.consultation_id
-                                                }{" "}
-                                                —{" "}
-                                                {new Date(
-                                                    consultation.created_at
-                                                ).toLocaleDateString()}
+                                                Consultation #{consultation.consultation_id} — {consultation.title || "Untitled Visit"}
                                             </option>
                                         )
                                     )}
