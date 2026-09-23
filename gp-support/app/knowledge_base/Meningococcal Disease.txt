@@ -51,3 +51,6 @@ Rifampin, ciprofloxacin, and ceftriaxone are 90%-95% effective in reducing nasop
 
 OUTBREAKS:
 In the setting of a healthcare facility meningococcal disease outbreak, meningococcal vaccination or use of chemoprophylaxis in a wider group than exposed HCP may be considered in consultation with public health officials. Additional guidance regarding meningococcal disease outbreaks is described in Guidance for the Evaluation and Public Health Management of Suspected Outbreaks of Meningococcal Disease [PDF – 16 Pages] (https://www.cdc.gov/meningococcal/downloads/meningococcal-outbreak-guidance.pdf)
+
+SOURCES:
+https://www.cdc.gov/infection-control/hcp/healthcare-personnel-epidemiology-control/meningococcal-disease.html

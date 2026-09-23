@@ -18,6 +18,7 @@ Other modules (e.g. chatbot.py, main.py) should import and use this like:
 
 import json
 import os
+import re
 from pathlib import Path
 from sqlalchemy import text
 from llama_index.core.schema import MetadataMode
@@ -386,6 +387,43 @@ def _confidence_info(min_score: float | None) -> dict:
     }
 
 
+def _source_links(source_nodes) -> list[str]:
+    """Read unique footer URLs from the local documents grounding this answer.
+
+    Resolve by file name rather than stored absolute path so an existing index
+    also works when the repository moves between machines. Only SOURCES footer
+    URLs are returned; links elsewhere in the clinical text are not citations.
+    """
+    folder = Path(KNOWLEDGE_BASE_DIR).resolve()
+    visited = set()
+    links = []
+    for source in source_nodes:
+        metadata = source.node.metadata
+        name = metadata.get("file_name")
+        if not name:
+            name = str(metadata.get("file_path", "")).replace("\\", "/").rsplit("/", 1)[-1]
+        if not isinstance(name, str) or not name or "/" in name or "\\" in name:
+            continue
+        path = (folder / name).resolve()
+        if not path.is_relative_to(folder) or path in visited or path.suffix.lower() != ".txt":
+            continue
+        visited.add(path)
+        try:
+            content = path.read_text(encoding="utf-8")
+        except (OSError, UnicodeError):
+            # Missing local source files must not prevent returning the answer.
+            continue
+        headings = list(re.finditer(r"(?im)^[ \t]*sources?[ \t]*:?[ \t]*$", content))
+        if not headings:
+            continue
+        footer = content[headings[-1].end():]
+        for url in re.findall(r"https?://[^\s<>\"']+", footer):
+            url = url.rstrip(".,;)]}")
+            if url not in links:
+                links.append(url)
+    return links
+
+
 def ask_structured(index, question: str) -> dict:
     """
     Like ask(), but returns a structured dict instead of prose, including
@@ -401,6 +439,7 @@ def ask_structured(index, question: str) -> dict:
         "red_flags_identified": list[str],
         "requires_urgent_attention": bool,
         "sources": list[str],
+        "link": list[str],  # unique source URLs from the retrieved documents
         "parse_error": bool  # True if the model's output couldn't be
                               # parsed as JSON — caller should treat this
                               # as "answer unavailable", not "no red flags"
@@ -435,6 +474,7 @@ def ask_structured(index, question: str) -> dict:
             "confidence": "weak match",
             "confidence_message": "No relevant clinical guidelines matched the search criteria.",
             "sources": [],
+            "link": [],
             "parse_error": False,
         }
 
@@ -443,6 +483,7 @@ def ask_structured(index, question: str) -> dict:
     response = synth.synthesize(query=question, nodes=processed_nodes)
 
     sources = [node.node.get_text() for node in response.source_nodes]
+    links = _source_links(response.source_nodes)
 
     # Collect similarity scores from processed nodes
     scores = [
@@ -473,6 +514,7 @@ def ask_structured(index, question: str) -> dict:
             "confidence": confidence_info["label"],
             "confidence_message": confidence_info["message"],
             "sources": sources,
+            "link": links,
             "parse_error": False,
         }
     except json.JSONDecodeError:
@@ -483,6 +525,7 @@ def ask_structured(index, question: str) -> dict:
             "confidence": confidence_info["label"],
             "confidence_message": confidence_info["message"],
             "sources": sources,
+            "link": links,
             "parse_error": True,
         }
 

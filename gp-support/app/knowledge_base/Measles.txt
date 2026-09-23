@@ -47,3 +47,6 @@ POSTEXPOSURE PROPHYLAXIS:
 Exposed HCP without presumptive evidence of immunity should receive postexposure vaccination as soon as possible in accordance with CDC and ACIP recommendations. In some circumstances, immune globulin may be appropriate to offer these HCP, but this should be done in accordance with CDC and ACIP recommendations (https://www.cdc.gov/acip-recs/hcp/vaccine-specific/mmr.html)
 
 Some HCP with documented presumptive evidence of immunity to measles will require administration of vaccine during a measles outbreak.2 Guidance regarding postexposure and outbreak use of vaccine is available on the CDC website
+
+SOURCES:
+https://www.cdc.gov/infection-control/hcp/healthcare-personnel-epidemiology-control/measles.html
