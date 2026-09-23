@@ -198,3 +198,26 @@ uvicorn main:app --reload
 ```
 
 See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the current backend design and request flows.
+
+## Add documents to the RAG index
+
+Place new files in `gp-support/app/knowledge_base`, then from `gp-support` run:
+
+```bash
+python -m app.services.knowledge_rag --update
+```
+
+This indexes new top-level files one at a time and keeps existing embeddings.
+It also works with an empty index. Already indexed file names are read from
+PostgreSQL, so repeated runs and application restarts do not duplicate files,
+including files indexed by the previous full build. Hidden files are ignored.
+Each file's chunks are saved in one transaction; if a file fails, fix it and
+rerun the command. Files successfully added earlier remain indexed.
+
+From Python, use `update_index(db)` with a dedicated `SessionLocal` session.
+The function returns an index that can be passed to `ask` or `ask_structured`.
+Keep `BUILD_RAG_INDEX = False` for normal application startup; `True` still
+requests the existing destructive full rebuild. Run updates separately from
+full rebuilds. Updates are manual, not a folder watcher. Existing file names
+are skipped even if their contents change; edits, renames, or removals require
+an explicit full rebuild with `build_index(db)` to replace stale chunks.
