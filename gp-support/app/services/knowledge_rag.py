@@ -429,6 +429,162 @@ def ask_structured(index, question: str) -> dict:
 if __name__ == "__main__":
     idx = load_index()
 
+    # ==============================================================================
+    # TEST 1: Acute Asthma Presentation (High Confidence & In-Scope)
+    # Expected: Strong Match (>= 0.72)
+    # ==============================================================================
+    test_summary_1 = {
+        "reason_for_visit": "shortness of breath and wheezing",
+        "symptoms": ["wheezing", "coughing", "tight chest", "difficulty speaking full sentences"],
+        "symptom_location": "chest",
+        "onset": "2 hours ago",
+        "duration": "2 hours",
+        "severity": "severe",
+        "medical_history": {"status": "confirmed", "items": ["asthma"]},
+        "current_medications": {"status": "confirmed", "items": ["Salbutamol inhaler"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Inhaler isn't giving usual relief."
+    }
+
+    query_1 = build_query_from_consultation_summary(test_summary_1)
+    print("\n--- TEST 1: Acute Asthma (High Confidence) ---")
+    print("Generated Query:", query_1)
+    res_1 = ask_structured(idx, query_1)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_1["answer"])
+    print("Red Flags:", res_1["red_flags_identified"])
+    print("Requires Urgent Attention:", res_1["requires_urgent_attention"])
+    print("Confidence Rating:", res_1["confidence"])
+    print("Confidence Message:", res_1["confidence_message"])
+    print("Sources Used:", res_1["sources"])
+    print("Parse Error:", res_1["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 2: Severe Acute Ear Infection with High Fever (Pediatric / Red Flag)
+    # Expected: Strong Match (>= 0.72)
+    # ==============================================================================
+    test_summary_2 = {
+        "reason_for_visit": "severe ear pain and high fever in young child",
+        "symptoms": ["intense right ear pain", "fever of 39.2°C (102.5°F)", "fluid discharge from ear", "extreme irritability"],
+        "symptom_location": "right ear",
+        "onset": "1 day ago",
+        "duration": "24 hours",
+        "severity": "severe",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Children's Paracetamol"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Child is crying continuously and tugging at right ear."
+    }
+
+    query_2 = build_query_from_consultation_summary(test_summary_2)
+    print("\n--- TEST 2: Severe Otitis Media with Fever & Discharge (High Confidence) ---")
+    print("Generated Query:", query_2)
+    res_2 = ask_structured(idx, query_2)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_2["answer"])
+    print("Red Flags:", res_2["red_flags_identified"])
+    print("Requires Urgent Attention:", res_2["requires_urgent_attention"])
+    print("Confidence Rating:", res_2["confidence"])
+    print("Confidence Message:", res_2["confidence_message"])
+    print("Sources Used:", res_2["sources"])
+    print("Parse Error:", res_2["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 3: Out-of-Scope Technical Query (Weak Match Short-Circuit)
+    # Expected: Weak Match (< 0.67 Cutoff Fallback)
+    # ==============================================================================
+    test_summary_3 = {
+        "reason_for_visit": "querying database vector search configuration",
+        "symptoms": ["no physical symptoms"],
+        "symptom_location": "none",
+        "onset": "not applicable",
+        "duration": "0 days",
+        "severity": "none",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "How do I configure PGVector similarity threshold in Supabase?"
+    }
+
+    query_3 = build_query_from_consultation_summary(test_summary_3)
+    print("\n--- TEST 3: Out-of-Scope Non-Clinical Query (Weak Match Fallback) ---")
+    print("Generated Query:", query_3)
+    res_3 = ask_structured(idx, query_3)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_3["answer"])
+    print("Red Flags:", res_3["red_flags_identified"])
+    print("Requires Urgent Attention:", res_3["requires_urgent_attention"])
+    print("Confidence Rating:", res_3["confidence"])
+    print("Confidence Message:", res_3["confidence_message"])
+    print("Sources Used:", res_3["sources"])
+    print("Parse Error:", res_3["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 4: Persistent Productive Cough & Sore Throat (Acute Bronchitis)
+    # Expected: Strong Match (>= 0.72)
+    # ==============================================================================
+    test_summary_4 = {
+        "reason_for_visit": "persistent cough and throat pain",
+        "symptoms": ["coughing up clear mucus", "sore throat", "mild body aches", "low fatigue"],
+        "symptom_location": "throat and chest",
+        "onset": "4 days ago",
+        "duration": "4 days",
+        "severity": "moderate",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Honey and Lemon tea"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Wants to know if antibiotics are needed."
+    }
+
+    query_4 = build_query_from_consultation_summary(test_summary_4)
+    print("\n--- TEST 4: Acute Bronchitis / Cough Guidance (High Confidence) ---")
+    print("Generated Query:", query_4)
+    res_4 = ask_structured(idx, query_4)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_4["answer"])
+    print("Red Flags:", res_4["red_flags_identified"])
+    print("Requires Urgent Attention:", res_4["requires_urgent_attention"])
+    print("Confidence Rating:", res_4["confidence"])
+    print("Confidence Message:", res_4["confidence_message"])
+    print("Sources Used:", res_4["sources"])
+    print("Parse Error:", res_4["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 5: Vague Systemic Symptoms (Ambiguous Query / Low Density)
+    # Expected: Weak Match (< 0.67 Cutoff Fallback)
+    # ==============================================================================
+    test_summary_5 = {
+        "reason_for_visit": "feeling unwell",
+        "symptoms": ["mild fatigue", "feeling slightly off", "occasional general discomfort"],
+        "symptom_location": "body",
+        "onset": "a few days ago",
+        "duration": "3 days",
+        "severity": "mild",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Not sure what is wrong."
+    }
+
+    query_5 = build_query_from_consultation_summary(test_summary_5)
+    print("\n--- TEST 5: Vague Systemic Symptoms (Ambiguous Fallback) ---")
+    print("Generated Query:", query_5)
+    res_5 = ask_structured(idx, query_5)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_5["answer"])
+    print("Red Flags:", res_5["red_flags_identified"])
+    print("Requires Urgent Attention:", res_5["requires_urgent_attention"])
+    print("Confidence Rating:", res_5["confidence"])
+    print("Confidence Message:", res_5["confidence_message"])
+    print("Sources Used:", res_5["sources"])
+    print("Parse Error:", res_5["parse_error"])
+    # ==============================================================================
+    # TEST 6: Ear Fullness & Muffled Hearing (Borderline Scenario) ---
+    # ==============================================================================
     test_summary_6 = {
         "reason_for_visit": "ear discomfort and muffling",
         "symptoms": ["feeling of fullness in right ear", "muffled hearing", "slight itching"],
@@ -455,7 +611,442 @@ if __name__ == "__main__":
     print("Sources Used:", res_6["sources"])
     print("Parse Error:", res_6["parse_error"])
 
-    
+    # ==============================================================================
+    # TEST 7: Acute High Fever & Severe Sore Throat (Strep Throat / Tonsillitis)
+    # Expected: Strong Match (>= 0.72)
+    # ==============================================================================
+    test_summary_7 = {
+        "reason_for_visit": "severe sore throat and difficulty swallowing",
+        "symptoms": ["intense throat pain", "high fever", "swollen tonsils with white spots", "painful swallowing"],
+        "symptom_location": "throat",
+        "onset": "2 days ago",
+        "duration": "2 days",
+        "severity": "severe",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Paracetamol 500mg"]},
+        "allergies": {"status": "confirmed", "items": ["Penicillin"]},
+        "additional_concerns": "Unable to swallow solid food, concerned about bacterial infection."
+    }
+
+    query_7 = build_query_from_consultation_summary(test_summary_7)
+    print("\n--- TEST 7: Severe Sore Throat & High Fever (High Confidence) ---")
+    print("Generated Query:", query_7)
+    res_7 = ask_structured(idx, query_7)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_7["answer"])
+    print("Red Flags:", res_7["red_flags_identified"])
+    print("Requires Urgent Attention:", res_7["requires_urgent_attention"])
+    print("Confidence Rating:", res_7["confidence"])
+    print("Confidence Message:", res_7["confidence_message"])
+    print("Sources Used:", res_7["sources"])
+    print("Parse Error:", res_7["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 8: Sudden Onset Chest Pain & Shortness of Breath (Red Flag Scenario)
+    # Expected: Strong Match (>= 0.72) with Urgent Attention Triggered
+    # ==============================================================================
+    test_summary_8 = {
+        "reason_for_visit": "chest tightness and radiating arm pain",
+        "symptoms": ["crushing chest pressure", "shortness of breath", "cold sweats", "pain radiating to left arm"],
+        "symptom_location": "chest and left arm",
+        "onset": "30 minutes ago",
+        "duration": "30 minutes",
+        "severity": "severe",
+        "medical_history": {"status": "confirmed", "items": ["hypertension", "type 2 diabetes"]},
+        "current_medications": {"status": "confirmed", "items": ["Metformin", "Amlodipine"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Feels like an elephant is sitting on the chest."
+    }
+
+    query_8 = build_query_from_consultation_summary(test_summary_8)
+    print("\n--- TEST 8: Acute Chest Pain & Radiating Pain (Urgent Red Flag) ---")
+    print("Generated Query:", query_8)
+    res_8 = ask_structured(idx, query_8)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_8["answer"])
+    print("Red Flags:", res_8["red_flags_identified"])
+    print("Requires Urgent Attention:", res_8["requires_urgent_attention"])
+    print("Confidence Rating:", res_8["confidence"])
+    print("Confidence Message:", res_8["confidence_message"])
+    print("Sources Used:", res_8["sources"])
+    print("Parse Error:", res_8["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 9: Mild Seasonal Allergies & Sneezing (Moderate Match)
+    # Expected: Moderate Match (0.69 - 0.719)
+    # ==============================================================================
+    test_summary_9 = {
+        "reason_for_visit": "itchy eyes and frequent sneezing",
+        "symptoms": ["watery itchy eyes", "clear runny nose", "frequent sneezing", "mild nasal congestion"],
+        "symptom_location": "eyes and nose",
+        "onset": "2 weeks ago",
+        "duration": "14 days",
+        "severity": "mild",
+        "medical_history": {"status": "confirmed", "items": ["allergic rhinitis"]},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed", "items": ["Pollen"]},
+        "additional_concerns": "Symptoms get worse when spending time outdoors."
+    }
+
+    query_9 = build_query_from_consultation_summary(test_summary_9)
+    print("\n--- TEST 9: Seasonal Allergies & Rhinitis (Moderate Match) ---")
+    print("Generated Query:", query_9)
+    res_9 = ask_structured(idx, query_9)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_9["answer"])
+    print("Red Flags:", res_9["red_flags_identified"])
+    print("Requires Urgent Attention:", res_9["requires_urgent_attention"])
+    print("Confidence Rating:", res_9["confidence"])
+    print("Confidence Message:", res_9["confidence_message"])
+    print("Sources Used:", res_9["sources"])
+    print("Parse Error:", res_9["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 10: Chronic Lower Back Pain Without Neurological Deficit (Borderline)
+    # Expected: Borderline Match (0.67 - 0.689)
+    # ==============================================================================
+    test_summary_10 = {
+        "reason_for_visit": "dull lower back ache",
+        "symptoms": ["stiffness in lower back", "dull ache after sitting", "no numbness or tingling"],
+        "symptom_location": "lumbar spine",
+        "onset": "3 weeks ago",
+        "duration": "21 days",
+        "severity": "mild",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Ibuprofen 200mg as needed"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "No bowel or bladder dysfunction, no leg weakness."
+    }
+
+    query_10 = build_query_from_consultation_summary(test_summary_10)
+    print("\n--- TEST 10: Chronic Lower Back Pain (Borderline Scenario) ---")
+    print("Generated Query:", query_10)
+    res_10 = ask_structured(idx, query_10)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_10["answer"])
+    print("Red Flags:", res_10["red_flags_identified"])
+    print("Requires Urgent Attention:", res_10["requires_urgent_attention"])
+    print("Confidence Rating:", res_10["confidence"])
+    print("Confidence Message:", res_10["confidence_message"])
+    print("Sources Used:", res_10["sources"])
+    print("Parse Error:", res_10["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 11: Non-Clinical Administrative / Prescription Request Query
+    # Expected: Weak Match (< 0.67 Cutoff Short-Circuit)
+    # ==============================================================================
+    test_summary_11 = {
+        "reason_for_visit": "repeat prescription request",
+        "symptoms": ["no active symptoms"],
+        "symptom_location": "none",
+        "onset": "not applicable",
+        "duration": "0 days",
+        "severity": "none",
+        "medical_history": {"status": "confirmed", "items": ["hypothyroidism"]},
+        "current_medications": {"status": "confirmed", "items": ["Levothyroxine 50mcg"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Needs a medical certificate for work exemption and refill."
+    }
+
+    query_11 = build_query_from_consultation_summary(test_summary_11)
+    print("\n--- TEST 11: Prescription Refill & Admin Request (Weak Match Fallback) ---")
+    print("Generated Query:", query_11)
+    res_11 = ask_structured(idx, query_11)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_11["answer"])
+    print("Red Flags:", res_11["red_flags_identified"])
+    print("Requires Urgent Attention:", res_11["requires_urgent_attention"])
+    print("Confidence Rating:", res_11["confidence"])
+    print("Confidence Message:", res_11["confidence_message"])
+    print("Sources Used:", res_11["sources"])
+    print("Parse Error:", res_11["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 12: Acute Gastroenteritis / Vomiting & Diarrhea
+    # Expected: Strong Match (>= 0.72)
+    # ==============================================================================
+    test_summary_12 = {
+        "reason_for_visit": "nausea, vomiting, and watery diarrhea",
+        "symptoms": ["frequent watery stool", "stomach cramping", "low-grade fever", "mild dizziness when standing"],
+        "symptom_location": "abdomen",
+        "onset": "24 hours ago",
+        "duration": "1 day",
+        "severity": "moderate",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Oral Rehydration Salts"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "No blood in stool, keeping small sips of water down."
+    }
+
+    query_12 = build_query_from_consultation_summary(test_summary_12)
+    print("\n--- TEST 12: Acute Gastroenteritis (Moderate / High Confidence) ---")
+    print("Generated Query:", query_12)
+    res_12 = ask_structured(idx, query_12)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_12["answer"])
+    print("Red Flags:", res_12["red_flags_identified"])
+    print("Requires Urgent Attention:", res_12["requires_urgent_attention"])
+    print("Confidence Rating:", res_12["confidence"])
+    print("Confidence Message:", res_12["confidence_message"])
+    print("Sources Used:", res_12["sources"])
+    print("Parse Error:", res_12["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 13: Unilateral Calf Swelling & Pain (Deep Vein Thrombosis Red Flag)
+    # Expected: Strong Match (>= 0.72) with Red Flag Extraction
+    # ==============================================================================
+    test_summary_13 = {
+        "reason_for_visit": "swollen and painful right calf",
+        "symptoms": ["unilateral calf swelling", "warmth over right leg", "tenderness when walking"],
+        "symptom_location": "right lower leg",
+        "onset": "1 day ago",
+        "duration": "1 day",
+        "severity": "moderate",
+        "medical_history": {"status": "confirmed", "items": ["recent long-haul flight 3 days ago"]},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Leg feels significantly larger and warmer than the left leg."
+    }
+
+    query_13 = build_query_from_consultation_summary(test_summary_13)
+    print("\n--- TEST 13: Unilateral Calf Swelling & Warmth (DVT Red Flag) ---")
+    print("Generated Query:", query_13)
+    res_13 = ask_structured(idx, query_13)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_13["answer"])
+    print("Red Flags:", res_13["red_flags_identified"])
+    print("Requires Urgent Attention:", res_13["requires_urgent_attention"])
+    print("Confidence Rating:", res_13["confidence"])
+    print("Confidence Message:", res_13["confidence_message"])
+    print("Sources Used:", res_13["sources"])
+    print("Parse Error:", res_13["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 14: Non-Specific Headaches & Eyestrain (Out-of-Scope / Weak Match)
+    # Expected: Weak Match (< 0.67 Cutoff Short-Circuit)
+    # ==============================================================================
+    test_summary_14 = {
+        "reason_for_visit": "occasional mild tension headache",
+        "symptoms": ["tight band around head", "eyestrain after screen work", "no visual aura", "no vomiting"],
+        "symptom_location": "forehead and temples",
+        "onset": "1 week ago",
+        "duration": "7 days",
+        "severity": "mild",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Works 10 hours a day in front of a computer monitor."
+    }
+
+    query_14 = build_query_from_consultation_summary(test_summary_14)
+    print("\n--- TEST 14: Tension Headache / Screen Eyestrain (Weak Match Fallback) ---")
+    print("Generated Query:", query_14)
+    res_14 = ask_structured(idx, query_14)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_14["answer"])
+    print("Red Flags:", res_14["red_flags_identified"])
+    print("Requires Urgent Attention:", res_14["requires_urgent_attention"])
+    print("Confidence Rating:", res_14["confidence"])
+    print("Confidence Message:", res_14["confidence_message"])
+    print("Sources Used:", res_14["sources"])
+    print("Parse Error:", res_14["parse_error"])
+
+    # ==============================================================================
+    # TEST 15: Acute Dysuria & Frequency (Uncomplicated Urinary Tract Infection)
+    # Expected: Strong / Moderate Match
+    # ==============================================================================
+    test_summary_15 = {
+        "reason_for_visit": "painful urination and urinary frequency",
+        "symptoms": ["burning sensation during urination", "frequent urge to urinate", "cloudy urine", "lower abdominal discomfort"],
+        "symptom_location": "suprapubic / urinary tract",
+        "onset": "2 days ago",
+        "duration": "2 days",
+        "severity": "moderate",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "No flank pain, no fever, no vaginal discharge."
+    }
+
+    query_15 = build_query_from_consultation_summary(test_summary_15)
+    print("\n--- TEST 15: Dysuria & Urinary Frequency (UTI Presentation) ---")
+    print("Generated Query:", query_15)
+    res_15 = ask_structured(idx, query_15)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_15["answer"])
+    print("Red Flags:", res_15["red_flags_identified"])
+    print("Requires Urgent Attention:", res_15["requires_urgent_attention"])
+    print("Confidence Rating:", res_15["confidence"])
+    print("Confidence Message:", res_15["confidence_message"])
+    print("Sources Used:", res_15["sources"])
+    print("Parse Error:", res_15["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 16: High Pediatric Fever with Lethargy (Red Flag / Urgent Care)
+    # Expected: Strong Match (>= 0.72) with Urgent Attention Triggered
+    # ==============================================================================
+    test_summary_16 = {
+        "reason_for_visit": "high fever and extreme sleepiness in 18-month-old child",
+        "symptoms": ["fever of 39.8°C (103.6°F)", "extreme lethargy", "poor fluid intake", "dry diapers for 10 hours"],
+        "symptom_location": "systemic",
+        "onset": "12 hours ago",
+        "duration": "12 hours",
+        "severity": "severe",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Infant Paracetamol"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Child is unusually difficult to wake up and refusing liquids."
+    }
+
+    query_16 = build_query_from_consultation_summary(test_summary_16)
+    print("\n--- TEST 16: Pediatric High Fever & Lethargy (Urgent Red Flag) ---")
+    print("Generated Query:", query_16)
+    res_16 = ask_structured(idx, query_16)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_16["answer"])
+    print("Red Flags:", res_16["red_flags_identified"])
+    print("Requires Urgent Attention:", res_16["requires_urgent_attention"])
+    print("Confidence Rating:", res_16["confidence"])
+    print("Confidence Message:", res_16["confidence_message"])
+    print("Sources Used:", res_16["sources"])
+    print("Parse Error:", res_16["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 17: Acute Spreading Skin Rash & Itching (Contact Dermatitis / Urticaria)
+    # Expected: Moderate Match (0.69 - 0.719)
+    # ==============================================================================
+    test_summary_17 = {
+        "reason_for_visit": "itchy red rash on forearms",
+        "symptoms": ["red raised bumps", "intense itching", "mild localized swelling"],
+        "symptom_location": "both forearms",
+        "onset": "1 day ago",
+        "duration": "24 hours",
+        "severity": "mild",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Appeared after gardening outdoors. No facial swelling or airway tightness."
+    }
+
+    query_17 = build_query_from_consultation_summary(test_summary_17)
+    print("\n--- TEST 17: Localized Itchy Skin Rash (Moderate Match) ---")
+    print("Generated Query:", query_17)
+    res_17 = ask_structured(idx, query_17)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_17["answer"])
+    print("Red Flags:", res_17["red_flags_identified"])
+    print("Requires Urgent Attention:", res_17["requires_urgent_attention"])
+    print("Confidence Rating:", res_17["confidence"])
+    print("Confidence Message:", res_17["confidence_message"])
+    print("Sources Used:", res_17["sources"])
+    print("Parse Error:", res_17["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 18: Acute Influenza-Like Illness with Sudden Onset
+    # Expected: Strong Match (>= 0.72)
+    # ==============================================================================
+    test_summary_18 = {
+        "reason_for_visit": "sudden onset high fever, severe muscle aches, and chills",
+        "symptoms": ["fever 38.9°C", "severe body aches", "dry cough", "extreme exhaustion", "headache"],
+        "symptom_location": "systemic and upper respiratory",
+        "onset": "1 day ago",
+        "duration": "1 day",
+        "severity": "severe",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed", "items": ["Ibuprofen 400mg"]},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Hit all at once yesterday afternoon. Work colleagues recently had flu."
+    }
+
+    query_18 = build_query_from_consultation_summary(test_summary_18)
+    print("\n--- TEST 18: Sudden Onset Influenza-Like Illness (High Confidence) ---")
+    print("Generated Query:", query_18)
+    res_18 = ask_structured(idx, query_18)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_18["answer"])
+    print("Red Flags:", res_18["red_flags_identified"])
+    print("Requires Urgent Attention:", res_18["requires_urgent_attention"])
+    print("Confidence Rating:", res_18["confidence"])
+    print("Confidence Message:", res_18["confidence_message"])
+    print("Sources Used:", res_18["sources"])
+    print("Parse Error:", res_18["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 19: Panic Attack / Acute Anxiety Presentation
+    # Expected: Borderline or Weak Match (Depending on KB Mental Health Coverage)
+    # ==============================================================================
+    test_summary_19 = {
+        "reason_for_visit": "sudden episode of racing heart and hyperventilation",
+        "symptoms": ["rapid heartbeat", "shortness of breath", "tingling fingers", "feeling of impending doom"],
+        "symptom_location": "chest and head",
+        "onset": "2 hours ago",
+        "duration": "20 minutes",
+        "severity": "moderate",
+        "medical_history": {"status": "confirmed", "items": ["generalized anxiety disorder"]},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "ECG performed last month was normal. Episode resolved after resting."
+    }
+
+    query_19 = build_query_from_consultation_summary(test_summary_19)
+    print("\n--- TEST 19: Palpitations & Hyperventilation (Anxiety / Borderline) ---")
+    print("Generated Query:", query_19)
+    res_19 = ask_structured(idx, query_19)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_19["answer"])
+    print("Red Flags:", res_19["red_flags_identified"])
+    print("Requires Urgent Attention:", res_19["requires_urgent_attention"])
+    print("Confidence Rating:", res_19["confidence"])
+    print("Confidence Message:", res_19["confidence_message"])
+    print("Sources Used:", res_19["sources"])
+    print("Parse Error:", res_19["parse_error"])
+
+
+    # ==============================================================================
+    # TEST 20: General Lifestyle & Vitamin Supplement Advice (Out-of-Scope)
+    # Expected: Weak Match (< 0.67 Cutoff Short-Circuit)
+    # ==============================================================================
+    test_summary_20 = {
+        "reason_for_visit": "general dietary advice and vitamin recommendations",
+        "symptoms": ["no physical complaints or symptoms"],
+        "symptom_location": "none",
+        "onset": "not applicable",
+        "duration": "0 days",
+        "severity": "none",
+        "medical_history": {"status": "confirmed_none", "items": []},
+        "current_medications": {"status": "confirmed_none", "items": []},
+        "allergies": {"status": "confirmed_none", "items": []},
+        "additional_concerns": "Wants to know if daily Vitamin C and Zinc will prevent winter illness."
+    }
+
+    query_20 = build_query_from_consultation_summary(test_summary_20)
+    print("\n--- TEST 20: General Wellness & Vitamin Advice (Weak Match Fallback) ---")
+    print("Generated Query:", query_20)
+    res_20 = ask_structured(idx, query_20)
+    print("\n--- OUTPUT ---")
+    print("Answer:", res_20["answer"])
+    print("Red Flags:", res_20["red_flags_identified"])
+    print("Requires Urgent Attention:", res_20["requires_urgent_attention"])
+    print("Confidence Rating:", res_20["confidence"])
+    print("Confidence Message:", res_20["confidence_message"])
+    print("Sources Used:", res_20["sources"])
+    print("Parse Error:", res_20["parse_error"])
+
+
+
+
+
 
 
 '''
