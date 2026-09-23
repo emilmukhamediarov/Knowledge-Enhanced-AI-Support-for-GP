@@ -4,6 +4,7 @@ knowledge_rag.py — Retrieval-augmented generation module for the GP Support Sy
 
 Exposes:
 - build_index(db): sets up the knowledge base index and persists chunks to Supabase pgvector
+- update_index(db): appends new knowledge base files without rebuilding existing chunks
 - load_index(): loads existing vector store from Supabase without rebuilding
 - ask(index, question): queries the index and returns prose
 - ask_structured(index, question): queries index and returns grounded JSON dict
@@ -17,6 +18,9 @@ Other modules (e.g. chatbot.py, main.py) should import and use this like:
 
 import json
 import os
+from pathlib import Path
+from sqlalchemy import text
+from llama_index.core.schema import MetadataMode
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
 from llama_index.core import PromptTemplate
 #from llama_index.llms.groq import Groq
@@ -138,6 +142,67 @@ def build_index(db):
         storage_context=storage_context,
     )
     print("Index built.", flush=True)
+    return index
+
+
+def update_index(db):
+    """Append new top-level knowledge_base files and return a queryable index.
+
+    File names already stored in PostgreSQL are skipped, including files from
+    older build_index runs. Editing or deleting an existing file does not change
+    its stored chunks; use build_index explicitly for a full replacement.
+    Run with a dedicated session, e.g. ``with SessionLocal() as db``.
+    """
+    folder = Path(KNOWLEDGE_BASE_DIR).resolve()
+    if not folder.is_dir():
+        raise ValueError(f"Knowledge base directory does not exist: {folder}")
+    files = sorted(p for p in folder.iterdir() if p.is_file() and not p.name.startswith("."))
+
+    _configure_models()
+    vector_store = _get_vector_store()
+    index = VectorStoreIndex.from_vector_store(vector_store)
+
+    # Serialize incremental updaters across processes. A separate transaction
+    # keeps the lock alive while PGVectorStore commits each file independently.
+    with db.get_bind().begin() as connection:
+        connection.execute(text("SELECT pg_advisory_xact_lock(724193801)"))
+        exists = connection.execute(
+            text("SELECT to_regclass('public.data_rag_chunks')")
+        ).scalar()
+        indexed = set()
+        if exists:
+            rows = connection.execute(text(
+                "SELECT DISTINCT metadata_->>'file_name' FROM public.data_rag_chunks"
+            ))
+            indexed = {row[0] for row in rows if row[0]}
+
+        added = 0
+        for path in files:
+            if path.name in indexed:
+                continue
+            documents = SimpleDirectoryReader(
+                input_files=[str(path)], raise_on_error=True
+            ).load_data()
+            nodes = Settings.text_splitter.get_nodes_from_documents(documents)
+            if not nodes:
+                print(f"Skipping empty document: {path.name}", flush=True)
+                continue
+            # Keep source identity in every chunk for subsequent update runs.
+            for node in nodes:
+                node.metadata["file_name"] = path.name
+            embeddings = Settings.embed_model.get_text_embedding_batch(
+                [node.get_content(metadata_mode=MetadataMode.EMBED) for node in nodes]
+            )
+            for node, embedding in zip(nodes, embeddings):
+                node.embedding = embedding
+            # PGVectorStore.add commits ALL chunks for this file in one transaction.
+            # Failed parsing/embedding/insertion leaves this file retryable.
+            vector_store.add(nodes)
+            indexed.add(path.name)
+            added += 1
+            print(f"Indexed {path.name} ({len(nodes)} chunks)", flush=True)
+
+    print(f"Index updated: {added} new file(s).", flush=True)
     return index
 
 
@@ -427,6 +492,16 @@ def ask_structured(index, question: str) -> dict:
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Manage the knowledge base index")
+    parser.add_argument("--update", action="store_true", help="Index only new knowledge base files")
+    args = parser.parse_args()
+    if args.update:
+        with SessionLocal() as db:
+            update_index(db)
+        raise SystemExit(0)
+
     idx = load_index()
 
     # ==============================================================================
@@ -459,7 +534,7 @@ if __name__ == "__main__":
     print("Sources Used:", res_1["sources"])
     print("Parse Error:", res_1["parse_error"])
 
-
+'''
     # ==============================================================================
     # TEST 2: Severe Acute Ear Infection with High Fever (Pediatric / Red Flag)
     # Expected: Strong Match (>= 0.72)
@@ -1047,7 +1122,7 @@ if __name__ == "__main__":
 
 
 
-
+'''
 
 '''
 ## Use this one when rebuilding index, call on terminal:  python -m app.services.knowledge_rag
