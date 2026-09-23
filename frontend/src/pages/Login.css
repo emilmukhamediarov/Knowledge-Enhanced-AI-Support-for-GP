@@ -31,7 +31,7 @@
     border: 1px solid var(--border);
     border-radius: 8px;
     font-family: var(--sans);
-    font-size: 16px;
+    font-size: 16px; /* 16px stops iOS auto-zoom on input focus */
     margin-bottom: 1rem;
 }
 
@@ -45,6 +45,7 @@
     font-size: 16px;
     cursor: pointer;
     margin-top: 1rem;
+    transition: opacity 0.2s ease;
 }
 
 .login-form button:hover {
@@ -69,11 +70,12 @@
     gap: 6px;
 
     font-size: 16px;
+    flex-wrap: wrap;
 }
 
 .register-link {
     padding: 0 !important;
-    margin: 0 !important;
+    margin: -3px 0 0 0 !important;
     background: transparent !important;
     border: none !important;
     border-radius: 0 !important;
@@ -83,7 +85,6 @@
     font-weight: 600 !important;
     cursor: pointer !important;
     box-shadow: none !important;
-    margin: -3px 0 0 0 !important;
 }
 
 .register-link:hover {
@@ -300,4 +301,27 @@
 .verification-cancel:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    .login-page {
+        padding: 1rem;
+        align-items: center;
+    }
+
+    .login-form {
+        padding: 1.5rem 1.25rem;
+        margin-bottom: 0;
+        border-radius: 12px;
+    }
+
+    .login-form button {
+        width: 100%;
+        padding: 14px 28px;
+    }
+
+    .login-theme-toggle {
+        right: 1rem;
+        bottom: 1rem;
+    }
 }

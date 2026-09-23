@@ -78,160 +78,162 @@ function Home() {
     }, []);
 
     return (
-        <main className="patient-home">
-            <section className="patient-welcome">
-                <div className="patient-welcome-title">
-                    <h1>Hello, {userName} </h1>
-                </div>
-
-                <p>
-                    Here's how your consultations work.
-                </p>
-            </section>
-
-            <section
-                className={`how-it-works ${
-                    showHowItWorks ? "section-visible" : ""
-                }`}
-            >
-                <h2>How it works</h2>
-
-                <div className="steps">
-                    <div
-                        className={`step ${
-                            showStep1 ? "step-visible" : ""
-                        }`}
-                    >
-                        <div className="step-number">01</div>
-                        <h3>Start a consultation</h3>
-                        <p>
-                            Tell us what's bothering you and what you'd
-                            like help with.
-                        </p>
+        <main>
+            <div className="patient-home">
+                <section className="patient-welcome">
+                    <div className="patient-welcome-title">
+                        <h1>Hello, {userName} </h1>
                     </div>
 
-                    <div
-                        className={`step ${
-                            showStep2 ? "step-visible" : ""
-                        }`}
-                    >
-                        <div className="step-number">02</div>
-                        <h3>Answer questions</h3>
-                        <p>
-                            Answer a few questions to help us understand
-                            your situation.
-                        </p>
-                    </div>
+                    <p>
+                        Here's how your consultations work.
+                    </p>
+                </section>
 
-                    <div
-                        className={`step ${
-                            showStep3 ? "step-visible" : ""
-                        }`}
-                    >
-                        <div className="step-number">03</div>
-                        <h3>GP review</h3>
-                        <p>
-                            Your consultation is passed to a GP who can
-                            review the information provided.
-                        </p>
-                    </div>
-                </div>
-            </section>
-
-            <section
-                className={`try-consultation ${
-                    showTryConsultation ? "section-visible" : ""
-                }`}
-            >
-                <h2>Ready to get started?</h2>
-
-                <p>
-                    Start a new consultation and tell us what's bothering you.
-                </p>
-
-                <NavLink
-                    to="/new-consultation"
-                    className="try-consultation-button"
+                <section
+                    className={`how-it-works ${
+                        showHowItWorks ? "section-visible" : ""
+                    }`}
                 >
-                    Try it out
-                    <span>→</span>
-                </NavLink>
-            </section>
+                    <h2>How it works</h2>
 
-            <section
-                className={`recent-consultations ${
-                    showRecent ? "section-visible" : ""
-                }`}
-            >
-                <div className="section-header">
-                    <h2>Recent consultations</h2>
-                </div>
+                    <div className="steps">
+                        <div
+                            className={`step ${
+                                showStep1 ? "step-visible" : ""
+                            }`}
+                        >
+                            <div className="step-number">01</div>
+                            <h3>Start a consultation</h3>
+                            <p>
+                                Tell us what's bothering you and what you'd
+                                like help with.
+                            </p>
+                        </div>
 
-                {recentConsultations.length === 0 ? (
-                    <div className="no-consultations">
-                        <p>
-                            You don't have any previous consultations yet.
-                        </p>
+                        <div
+                            className={`step ${
+                                showStep2 ? "step-visible" : ""
+                            }`}
+                        >
+                            <div className="step-number">02</div>
+                            <h3>Answer questions</h3>
+                            <p>
+                                Answer a few questions to help us understand
+                                your situation.
+                            </p>
+                        </div>
+
+                        <div
+                            className={`step ${
+                                showStep3 ? "step-visible" : ""
+                            }`}
+                        >
+                            <div className="step-number">03</div>
+                            <h3>GP review</h3>
+                            <p>
+                                Your consultation is passed to a GP who can
+                                review the information provided.
+                            </p>
+                        </div>
                     </div>
-                ) : (
-                    <div className="consultation-list">
-                        {recentConsultations.map((consultation) => (
-                            <NavLink
-                                key={consultation.consultation_id}
-                                to={`/chat/${consultation.consultation_id}`}
-                                className="consultation-row"
-                            >
-                                <div>
-                                    <h3>
-                                        {consultation.title ? (
-                                            <>
-                                                <span className="consultation-title">
-                                                    {consultation.title}
-                                                </span>
+                </section>
 
-                                                <span className="consultation-number">
-                                                    (#
+                <section
+                    className={`try-consultation ${
+                        showTryConsultation ? "section-visible" : ""
+                    }`}
+                >
+                    <h2>Ready to get started?</h2>
+
+                    <p>
+                        Start a new consultation and tell us what's bothering you.
+                    </p>
+
+                    <NavLink
+                        to="/new-consultation"
+                        className="try-consultation-button"
+                    >
+                        Try it out
+                        <span>→</span>
+                    </NavLink>
+                </section>
+
+                <section
+                    className={`recent-consultations ${
+                        showRecent ? "section-visible" : ""
+                    }`}
+                >
+                    <div className="section-header">
+                        <h2>Recent consultations</h2>
+                    </div>
+
+                    {recentConsultations.length === 0 ? (
+                        <div className="no-consultations">
+                            <p>
+                                You don't have any previous consultations yet.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="consultation-list">
+                            {recentConsultations.map((consultation) => (
+                                <NavLink
+                                    key={consultation.consultation_id}
+                                    to={`/chat/${consultation.consultation_id}`}
+                                    className="consultation-row"
+                                >
+                                    <div>
+                                        <h3>
+                                            {consultation.title ? (
+                                                <>
+                                                    <span className="consultation-title">
+                                                        {consultation.title}
+                                                    </span>
+
+                                                    <span className="consultation-number">
+                                                        (#
+                                                        {
+                                                            consultation.consultation_id
+                                                        }
+                                                        )
+                                                    </span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    Consultation{" "}
                                                     {
                                                         consultation.consultation_id
                                                     }
-                                                    )
-                                                </span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                Consultation{" "}
-                                                {
-                                                    consultation.consultation_id
-                                                }
-                                            </>
-                                        )}
-                                    </h3>
+                                                </>
+                                            )}
+                                        </h3>
 
-                                    <p>
-                                        View consultation
-                                    </p>
-                                </div>
+                                        <p>
+                                            View consultation
+                                        </p>
+                                    </div>
 
-                                <span className="consultation-arrow">
-                                    →
-                                </span>
-                            </NavLink>
-                        ))}
-                    </div>
-                )}
-            </section>
+                                    <span className="consultation-arrow">
+                                        →
+                                    </span>
+                                </NavLink>
+                            ))}
+                        </div>
+                    )}
+                </section>
 
-            <div className="backend-status">
-                <span
-                    className={
-                        backendConnected
-                            ? "status-dot connected"
-                            : "status-dot"
-                    }
-                />
-                {backendConnected
-                    ? "Connected"
-                    : "Backend unavailable"}
+                <div className="backend-status">
+                    <span
+                        className={
+                            backendConnected
+                                ? "status-dot connected"
+                                : "status-dot"
+                        }
+                    />
+                    {backendConnected
+                        ? "Connected"
+                        : "Backend unavailable"}
+                </div>
             </div>
         </main>
     );

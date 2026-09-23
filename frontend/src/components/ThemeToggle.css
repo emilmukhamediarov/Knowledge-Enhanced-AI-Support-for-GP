@@ -1,20 +1,32 @@
-/* Theme toggle */
+.theme-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 0.75rem;
+    box-sizing: border-box;
+}
+
+.theme-label {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    color: var(--text);
+    order: 1; /* Places label on the left matching Settings text */
+}
 
 .theme-toggle {
     position: relative;
-
-    width: 56px;
-    height: 30px;
-
+    width: 50px;
+    height: 26px;
     flex-shrink: 0;
-
     padding: 0;
+    order: 2; /* Pushes toggle switch to the far right */
 
     border: 1px solid var(--border);
     border-radius: 999px;
 
     background: var(--social-bg);
-
     cursor: pointer;
 
     transition:
@@ -29,17 +41,14 @@
 
 .theme-toggle-thumb {
     position: absolute;
+    top: 2px;
+    left: 2px;
 
-    top: 3px;
-    left: 3px;
-
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
 
     border-radius: 50%;
-
     background: var(--bg);
-
     box-shadow: var(--shadow);
 
     z-index: 2;
@@ -50,30 +59,28 @@
 }
 
 .theme-toggle.dark .theme-toggle-thumb {
-    transform: translateX(26px);
+    transform: translateX(24px);
 }
 
 .theme-toggle-icon {
     position: absolute;
-
     top: 50%;
-
     transform: translateY(-50%);
 
     z-index: 1;
 
-    font-size: 13px;
+    font-size: 11px;
     line-height: 1;
 
     pointer-events: none;
 }
 
 .theme-toggle-icon.sun {
-    left: 7px;
+    left: 6px;
 }
 
 .theme-toggle-icon.moon {
-    right: 7px;
+    right: 6px;
     color: #9ca3af;
 }
 
@@ -83,16 +90,4 @@
 
 .theme-toggle.dark .moon {
     color: #f3f4f6;
-}
-
-.theme-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    justify-content: flex-start;
-}
-
-.theme-label {
-    white-space: nowrap;
-    font-size: 0.85rem;
 }

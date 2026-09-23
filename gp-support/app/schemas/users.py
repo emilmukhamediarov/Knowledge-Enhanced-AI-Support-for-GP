@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, model_validator
 
 from app.db.models import LanguagePreference
 
@@ -45,3 +45,16 @@ class VerifyEmailCodeRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    code: str = Field(pattern=r"^\d{6}$")
+    
+    new_password: str
+    confirm_password: str
+
+    @model_validator(mode="after")
+    def check_passwords(self):
+        if self.new_password != self.confirm_password:
+            raise ValueError("Passwords do not match")
+        return self

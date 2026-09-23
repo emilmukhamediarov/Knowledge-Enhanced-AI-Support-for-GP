@@ -20,6 +20,7 @@ from app.services.chat_rules import (
     get_missing_background_field,
 )
 
+from app.schemas.consultations import  ConsultationCreate
 from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
@@ -66,6 +67,7 @@ def _get_doctor_consultation(
 
 @router.post("")
 def create_consultation(
+    payload: ConsultationCreate,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(
         require_role([models.UserRole.PATIENT])
@@ -75,6 +77,13 @@ def create_consultation(
         db,
         current_user.id
     )
+
+    if payload.previous_consultation_id:
+        related = repository.get_consultation_by_id(db, payload.previous_consultation_id)
+        if related and related.user_id == current_user.id:
+            consultation.related_consultation_id = related.id
+            db.commit()
+            db.refresh(consultation)
 
     return {
         "consultation_id": consultation.id,
@@ -487,34 +496,57 @@ def chat(
             {"role": m.role, "content": m.content}
             for m in existing_messages
         ]
-        # Use existing Bedrock summary extraction to populate the state
         current_state = chat_service.summary_aws(prepared_history, consultation_id)
 
-    # Set consultation title once the reason for visit is known
-    reason_for_visit = current_state.get(
-        "reason_for_visit"
-    )
+    reason_for_visit = current_state.get("reason_for_visit")
 
-    if (
-            consultation.title is None
-            and reason_for_visit
-    ):
+    if consultation.title is None and reason_for_visit:
         consultation.title = reason_for_visit[:255]
-
         db.commit()
         db.refresh(consultation)
+
+    # Fetch previous consultation summary if related
+    previous_summary_text = None
+    if consultation.related_consultation_id:
+        past_summary_obj = repository.get_summary_by_consultation_id(
+            db, consultation.related_consultation_id
+        )
+        if past_summary_obj and past_summary_obj.patient_summary:
+            ps = past_summary_obj.patient_summary
+            if isinstance(ps, dict):
+                reason = ps.get("reason_for_visit") or ""
+                symptoms = ", ".join(ps.get("symptoms") or [])
+                summary_val = ps.get("summary") or ""
+                previous_summary_text = f"Reason: {reason}\nSymptoms: {symptoms}\nSummary: {summary_val}"
+            else:
+                previous_summary_text = str(ps)
+
+        if not previous_summary_text:
+            past_consultation = repository.get_consultation_by_id(db, consultation.related_consultation_id)
+            if past_consultation and past_consultation.title:
+                previous_summary_text = f"Title/Reason: {past_consultation.title}"
+            elif past_consultation:
+                # Fallback: gather previous user messages if no summary or title exists yet
+                past_msgs = repository.get_messages(db, past_consultation.id)
+                user_snippets = [m.content for m in past_msgs if m.role == "user"]
+                if user_snippets:
+                    previous_summary_text = "Previous consultation notes: " + " | ".join(user_snippets[:3])
 
     # 2. Save the new user message
     repository.save_user_message(db, consultation, data.message)
 
-    # 3. Fetch the updated history (including the message we just saved)
+    # 3. Fetch the updated history
     all_messages = repository.get_messages(db, consultation_id)
 
-    # 4. Inject the state into the system prompt
+    # 4. Inject state and previous summary into system prompt
     prepared_messages = [
         {
             "role": "system",
-            "content": build_system_prompt(target_language, current_state)
+            "content": build_system_prompt(
+                target_language,
+                current_state,
+                previous_summary=previous_summary_text
+            )
         }
     ]
 

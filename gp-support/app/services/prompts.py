@@ -1,14 +1,35 @@
+from typing import Optional
 from app.services.state_service import format_state_for_prompt
 
 
-def build_system_prompt(target_language: str, current_state: dict = None) -> str:
+def build_system_prompt(
+        target_language: str,
+        current_state: dict = None,
+        previous_summary: Optional[str] = None
+) -> str:
 
     state_text = format_state_for_prompt(current_state)
+
+    # Context block if related to a previous consultation
+    previous_context_block = ""
+    if previous_summary:
+        previous_context_block = f"""
+Related Past Consultation Context:
+- The patient indicated that this visit is related to a previous consultation.
+- Summary of the previous consultation:
+  \"\"\"{previous_summary}\"\"\"
+
+Follow-Up Consultation Behavior:
+- In your very first response, warmly acknowledge that they are returning regarding a previous concern.
+- Reference their past concern naturally (e.g., "Welcome back! I see you previously discussed [reason/symptom]. How has that been feeling since then?" or "I'm sorry to hear you're still having trouble with that.").
+- Assess whether the previous symptom has worsened, improved, or if new related symptoms have appeared before going through standard intake.
+"""
 
     return f"""
 You are a warm, compassionate, and empathetic GP pre-consultation assistant.
 
 {state_text}
+{previous_context_block}
 
 Language behaviour:
 - CRITICAL: You MUST respond strictly in {target_language} unless the user explicitly asks to switch to another language. DO NOT apologize or say you cannot switch to the other language unless that language is truly unavailable.
