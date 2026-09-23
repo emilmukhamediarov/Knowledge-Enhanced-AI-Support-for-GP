@@ -1,5 +1,5 @@
 from app.db.models import User, UserRole
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -110,4 +110,54 @@ def update_my_settings(
         "medical_history": current_user.medical_history,
         "allergies": current_user.allergies,
         "medications": current_user.medications,
+    }
+
+@router.get("/doctors")
+def list_doctors(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_role([UserRole.PATIENT])
+    ),
+):
+    doctors = (
+        db.query(User)
+        .filter(User.role == UserRole.DOCTOR)
+        .order_by(User.name)
+        .all()
+    )
+
+    return {
+        "doctors": [
+            {
+                "id": doctor.id,
+                "name": doctor.name,
+                "username": doctor.username,
+            }
+            for doctor in doctors
+        ]
+    }
+
+@router.put("/me/doctor")
+def assign_my_doctor(
+    doctor_id: int = Body(embed=True),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_role([UserRole.PATIENT])
+    ),
+):
+    doctor = db.get(User, doctor_id)
+
+    if doctor is None or doctor.role != UserRole.DOCTOR:
+        raise HTTPException(
+            status_code=404,
+            detail="GP not found",
+        )
+
+    current_user.doctor_id = doctor.id
+    db.commit()
+    db.refresh(current_user)
+
+    return {
+        "patient_id": current_user.id,
+        "doctor_id": current_user.doctor_id,
     }

@@ -37,7 +37,7 @@ def send_verification_email(
         f"Your MidBit verification code is: "
         f"{verification_code}\n\n"
         "This code will expire in 10 minutes. "
-        "If you did not request this code, you can ignore this email."
+        "If you did not request this code, you can ignore this email. "
         "Due to tight funds, we will charge 10USD to each user who requests a verification code."
     )
 
