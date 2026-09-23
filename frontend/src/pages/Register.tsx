@@ -59,22 +59,12 @@ function Register() {
         setLoading(true);
 
         try {
-            // Create the account first.
-            await apiFetch("/auth/register", {
-                method: "POST",
-                body: JSON.stringify({
-                    name: name.trim(),
-                    email: email.trim(),
-                    username: username.trim(),
-                    password,
-                }),
-            });
-
             // Send the verification code.
             await apiFetch("/auth/send-code", {
                 method: "POST",
                 body: JSON.stringify({
                     email: email.trim(),
+                    username: username.trim(),
                 }),
             });
 
@@ -97,16 +87,6 @@ function Register() {
         }
     };
 
-    const handleOpenExistingVerification = () => {
-        setError("");
-        setSuccess("");
-
-        setVerificationEmail("");
-        setVerificationCode("");
-        setCodeSent(false);
-
-        setShowVerification(true);
-    };
 
     const handleSendVerificationCode = async () => {
         setError("");
@@ -165,21 +145,24 @@ function Register() {
         setVerificationLoading(true);
 
         try {
-            await apiFetch("/auth/verify-code", {
+            // Call the register endpoint with the verification code to complete registration
+            await apiFetch("/auth/register", {
                 method: "POST",
                 body: JSON.stringify({
+                    name: name.trim(),
                     email: emailToVerify,
-                    code,
+                    username: username.trim(),
+                    password,
+                    validation_code: code,
                 }),
             });
-
             setShowVerification(false);
             setCodeSent(false);
             setVerificationCode("");
             setVerificationEmail("");
 
             setSuccess(
-                "Email verified successfully! You can now log in."
+                "Account created successfully! You can now log in."
             );
 
         } catch (error) {
@@ -302,14 +285,7 @@ function Register() {
                     Already have an account? Login
                 </button>
 
-                <button
-                    type="button"
-                    onClick={handleOpenExistingVerification}
-                    className="verify-existing-button"
-                    disabled={loading}
-                >
-                    Resend verification code?
-                </button>
+
 
             </div>
 

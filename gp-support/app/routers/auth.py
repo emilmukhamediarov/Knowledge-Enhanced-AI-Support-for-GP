@@ -51,12 +51,19 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
     if (db.query(models.User).filter(func.lower(models.User.email) == email).first()):
         raise HTTPException(status_code=400,detail="Email already registered",)
 
+    try:
+        verify_email_code(db=db,email=email,code=user_data.validation_code,)
+        
+    except InvalidVerificationCodeError as exc:
+       raise HTTPException(status_code=400,detail=str(exc),) from exc
+    
+    
     new_user = models.User(
         username=user_data.username,
         name=user_data.name,
         hashed_password=get_password_hash(user_data.password),
         email=email,
-        email_verified_at=None,  # Email is not verified upon registration
+        email_verified_at=datetime.now(UTC), #Email is verified since the user provided a valid code
     )
     db.add(new_user)
     db.commit()
@@ -97,20 +104,29 @@ def send_code(
     data: SendEmailCodeRequest,
     db: Session = Depends(get_db),
 ):
+    
+    if data.username:
+        username = data.username.strip()
+        existing_username = (
+            db.query(models.User)
+            .filter(models.User.username == username)
+            .first()
+        )
+    if existing_username is not None:
+        raise HTTPException(status_code=400,detail="Username already registered",)
+    
     email = normalize_email(str(data.email))
-    user = (db.query(models.User).filter(func.lower(models.User.email) == email).first())
+    existing_user = (
+        db.query(models.User)
+        .filter(func.lower(models.User.email) == email)
+        .first()
+    )
 
-    if user is None:
-        raise HTTPException(status_code=404,detail="User not found",)
-
-    if user.email_verified_at is not None:
-        raise HTTPException(status_code=400,detail="You have already verified your email, go to reset password or login",)
+    if existing_user is not None:
+        raise HTTPException(status_code=400,detail="Email already registered",)
 
     try:
-        issue_verification_code(
-            db=db,
-            email=email,
-        )
+        issue_verification_code(db=db,email=email,)
 
     except VerificationTooSoonError as exc:
         raise HTTPException(status_code=429,detail=str(exc),) from exc

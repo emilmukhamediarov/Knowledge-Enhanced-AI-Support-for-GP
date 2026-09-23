@@ -9,6 +9,11 @@ class UserCreate(BaseModel):
     password: str
     username: str
     email: EmailStr
+    validation_code: str = Field(
+        min_length=6,
+        max_length=6,
+        pattern=r"^\d{6}$",
+    )
 
 class UserResponse(BaseModel):
     id: int
@@ -34,6 +39,7 @@ class PatientSettingsUpdate(BaseModel):
 
 class SendEmailCodeRequest(BaseModel):
     email: EmailStr
+    username: str | None = None
 
 class VerifyEmailCodeRequest(BaseModel):
     email: EmailStr

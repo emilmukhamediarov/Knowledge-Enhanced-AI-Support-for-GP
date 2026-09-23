@@ -84,15 +84,20 @@ def verify_email_code(
     db: Session,
     email: str,
     code: str,
-) -> None:
+) -> models.EmailVerificationCode:
+    
     email = normalize_email(email)
     now = datetime.now(UTC)
 
     # Get the latest code for this email
     record = (
         db.query(models.EmailVerificationCode)
-        .filter(models.EmailVerificationCode.email == email)
+        .filter(
+            models.EmailVerificationCode.email == email,
+            ~models.EmailVerificationCode.code.like("r:%"),
+        )
         .order_by(models.EmailVerificationCode.created_at.desc())
+        .with_for_update()
         .first()
     )
 
@@ -120,19 +125,5 @@ def verify_email_code(
         raise InvalidVerificationCodeError(
             "Invalid verification code"
         )
-
-    # Find the user
-    user = (
-        db.query(models.User)
-        .filter(models.User.email == email)
-        .first()
-    )
-
-    if user is None:
-        raise VerificationError(
-            "User not found"
-        )
-
-    # Email successfully verified
-    user.email_verified_at = now
-    db.commit()
+        
+    return record
