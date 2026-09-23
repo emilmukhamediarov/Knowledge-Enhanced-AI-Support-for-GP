@@ -14,12 +14,15 @@
     width: 100%;
     min-width: 0;
 }
+
 .dashboard-card {
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 14px;
     box-sizing: border-box;
 }
+
+/* Calendar */
 
 .calendar-card {
     padding: 1.25rem;
@@ -143,6 +146,8 @@
     background: white;
 }
 
+/* Appointments */
+
 .appointments-card {
     padding: 1.25rem;
     min-width: 0;
@@ -171,6 +176,7 @@
 .appointment-count {
     width: 28px;
     height: 28px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -266,6 +272,21 @@
     white-space: nowrap;
 }
 
+.appointment-status.in-progress {
+    background: rgba(250, 204, 21, 0.18);
+    color: #a16207;
+}
+
+.appointment-status.ready {
+    background: rgba(34, 197, 94, 0.18);
+    color: #15803d;
+}
+
+.appointment-status.closed {
+    background: var(--hover-bg);
+    color: var(--text);
+}
+
 .appointment-open {
     display: flex;
     align-items: center;
@@ -292,53 +313,81 @@
     font-size: 0.85rem;
 }
 
+/* Dashboard statistics */
+
 .dashboard-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1.25rem;
     margin-top: 1.25rem;
+    width: 100%;
+    min-width: 0;
 }
 
 .dashboard-stat {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1.25rem 1.5rem;
-    gap: 1rem;
+    min-width: 0;
+    padding: 1.25rem 1.25rem;
+    gap: 0.75rem;
     border: 1px solid var(--border);
     border-radius: 14px;
     background: var(--bg);
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .dashboard-stat span {
+    min-width: 0;
     color: var(--text);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    line-height: 1.3;
 }
 
 .dashboard-stat strong {
+    flex-shrink: 0;
+    min-width: 0;
     color: var(--text-h);
-    font-size: 1.6rem;
+    font-size: 1.5rem;
+    line-height: 1;
 }
 
-.dashboard-stat.waiting {
-    background: rgba(245, 158, 11, 0.22);
-    border-color: rgba(245, 158, 11, 0.35);
+/* In-progress */
+
+.dashboard-stat.in-progress {
+    background: rgba(250, 204, 21, 0.18);
+    border-color: rgba(250, 204, 21, 0.35);
 }
 
-.dashboard-stat.upcoming {
-    background: rgba(2, 93, 154, 0.22);
+/* Ready */
+
+.dashboard-stat.ready {
+    background: rgba(34, 197, 94, 0.18);
+    border-color: rgba(34, 197, 94, 0.35);
+}
+
+/* Closed */
+
+.dashboard-stat.closed {
+    background: var(--hover-bg);
+    border-color: var(--border);
+}
+
+/* Total */
+
+.dashboard-stat.total {
+    background: rgba(2, 93, 154, 0.18);
     border-color: rgba(2, 93, 154, 0.35);
 }
 
-.dashboard-stat.active {
-    background: rgba(34, 197, 94, 0.22);
-    border-color: rgba(34, 197, 94, 0.35);
-}
+/* Recently closed */
 
 .recently-closed {
     margin-top: 1.25rem;
     padding: 1.5rem;
     width: 70%;
+    box-sizing: border-box;
 }
 
 .recently-closed-header {
@@ -372,7 +421,7 @@
 
 .closed-item {
     display: grid;
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 1.5rem;
     min-height: 60px;
@@ -417,6 +466,34 @@
     text-decoration: underline;
 }
 
+/* Medium screens / split-screen */
+
+@media (max-width: 1050px) {
+    .doctor-dashboard {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+    }
+
+    .dashboard-stats {
+        gap: 0.75rem;
+    }
+
+    .dashboard-stat {
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+
+    .dashboard-stat span {
+        font-size: 0.78rem;
+    }
+
+    .dashboard-stat strong {
+        font-size: 1.35rem;
+    }
+}
+
+/* Narrow layout */
+
 @media (max-width: 900px) {
     .doctor-dashboard-main {
         grid-template-columns: 1fr;
@@ -427,13 +504,16 @@
     }
 
     .dashboard-stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
     }
 
     .recently-closed {
         width: 100%;
     }
 }
+
+/* Mobile */
 
 @media (max-width: 650px) {
     .doctor-dashboard {
@@ -446,6 +526,10 @@
         flex-direction: column;
     }
 
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+
     .appointment-item {
         grid-template-columns: 50px minmax(0, 1fr) 52px;
         gap: 0.5rem;
@@ -456,13 +540,15 @@
     }
 
     .closed-item {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
     }
 
     .closed-date {
         display: none;
     }
 }
+
+/* Animations */
 
 @keyframes slideUpFade {
     from {

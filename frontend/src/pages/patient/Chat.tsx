@@ -31,10 +31,10 @@ function Chat() {
     const [showDeleteConfirmation, setShowDeleteConfirmation] =
         useState(false);
 
-    const [showCloseConfirmation, setShowCloseConfirmation] =
+    const [showReadyConfirmation, setShowReadyConfirmation] =
         useState(false);
 
-    const [closing, setClosing] = useState(false);
+    const [readying, setReadying] = useState(false);
 
     // Audio recording state
     const [isRecording, setIsRecording] = useState(false);
@@ -613,33 +613,42 @@ function Chat() {
         }
     };
 
-    // Close consultation
-    const closeConsultation = async () => {
+    // Mark consultation as ready for the doctor
+    const readyConsultation = async () => {
         if (!consultationId) {
-            setError("Unable to identify the consultation.");
+            setError(
+                "Unable to identify the consultation."
+            );
+
             return;
         }
 
         try {
-            setClosing(true);
+            setReadying(true);
             setError("");
 
             await apiFetch(
-                `/consultations/${consultationId}/close`,
+                `/consultations/${consultationId}/ready`,
                 {
                     method: "PATCH",
                 }
             );
 
-            setShowCloseConfirmation(false);
+            setShowReadyConfirmation(false);
 
-            // Return to Home after successfully closing
+            // Return to Home after successfully marking as ready
             navigate("/patienthome");
         } catch (error) {
-            console.error("Close consultation error:", error);
+            console.error(
+                "Submit consultation error:",
+                error
+            );
 
-            setError("Failed to close consultation.");
-            setClosing(false);
+            setError(
+                "Failed to mark consultation as ready."
+            );
+
+            setReadying(false);
         }
     };
 
@@ -732,24 +741,25 @@ function Chat() {
                 </div>
             )}
 
-            {/* Close consultation confirmation */}
-            {showCloseConfirmation && (
+            {/* Ready consultation confirmation */}
+            {showReadyConfirmation && (
                 <div className="confirmation-overlay">
                     <div className="confirmation-popup">
                         <div className="confirmation-icon">
                             !
                         </div>
 
-                        <h2>Close consultation?</h2>
+                        <h2>
+                            Submit consultation?
+                        </h2>
 
                         <p>
-                            Are you sure you want
-                            to close this
-                            consultation? Once
-                            closed, you will no
-                            longer be able to
-                            continue this
-                            conversation.
+                            Are you sure you are
+                            ready to send this
+                            consultation to your
+                            doctor? Once submitted, your doctor will be
+                            able to review your
+                            chat.
                         </p>
 
                         <div className="confirmation-actions">
@@ -757,11 +767,11 @@ function Chat() {
                                 type="button"
                                 className="confirmation-cancel"
                                 onClick={() =>
-                                    setShowCloseConfirmation(
+                                    setShowReadyConfirmation(
                                         false
                                     )
                                 }
-                                disabled={closing}
+                                disabled={readying}
                             >
                                 Cancel
                             </button>
@@ -770,13 +780,13 @@ function Chat() {
                                 type="button"
                                 className="confirmation-confirm"
                                 onClick={() =>
-                                    void closeConsultation()
+                                    void readyConsultation()
                                 }
-                                disabled={closing}
+                                disabled={readying}
                             >
-                                {closing
-                                    ? "Closing..."
-                                    : "Close Consultation"}
+                                {readying
+                                    ? "Sending..."
+                                    : "Submit"}
                             </button>
                         </div>
                     </div>
@@ -808,12 +818,12 @@ function Chat() {
                 <button
                     type="button"
                     onClick={() =>
-                        setShowCloseConfirmation(true)
+                        setShowReadyConfirmation(true)
                     }
-                    className="close-button"
-                    disabled={closing}
+                    className="ready-button"
+                    disabled={readying}
                 >
-                    Close Consultation
+                    Submit
                 </button>
             </div>
 
@@ -822,15 +832,11 @@ function Chat() {
                 {messages.length === 0 && (
                     <div className="chat-welcome">
                         <h1>
-                            How can we help you
-                            today?
+                            How can I help you today?
                         </h1>
 
                         <p>
-                            Tell us what’s
-                            bothering you, and
-                            we’ll help you work
-                            out what to do next.
+                            Tell me what’s bothering you, and I’ll help you work out what to do next.
                         </p>
                     </div>
                 )}

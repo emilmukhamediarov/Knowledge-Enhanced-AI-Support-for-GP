@@ -28,7 +28,7 @@ export async function apiFetch(
             try {
                 const errorData = await response.json();
 
-                if (errorData.detail) {
+                if (typeof errorData.detail === "string") {
                     message = errorData.detail;
                 }
             } catch {
@@ -56,8 +56,18 @@ export async function apiFetch(
         try {
             const errorData = await response.json();
 
-            if (errorData.detail) {
+            if (typeof errorData.detail === "string") {
                 message = errorData.detail;
+            } else if (Array.isArray(errorData.detail)) {
+                message = errorData.detail
+                    .map((error: any) => {
+                        const field = error.loc
+                            ? error.loc[error.loc.length - 1]
+                            : "field";
+
+                        return `${field}: ${error.msg}`;
+                    })
+                    .join(", ");
             }
         } catch {
             // Ignore JSON parsing errors

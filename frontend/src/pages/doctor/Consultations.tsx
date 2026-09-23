@@ -3,7 +3,10 @@ import { NavLink } from "react-router-dom";
 import "./Consultations.css";
 import { apiFetch } from "../../api/client";
 
-type ConsultationStatus = "Pending" | "Active" | "Closed";
+type ConsultationStatus =
+    | "in-progress"
+    | "ready"
+    | "closed";
 
 interface Consultation {
     id: number;
@@ -28,6 +31,8 @@ interface ConsultationResponse {
 function Consultations() {
     const [filter, setFilter] =
         useState<"All" | ConsultationStatus>("All");
+
+    const [search, setSearch] = useState("");
 
     const [consultations, setConsultations] =
         useState<Consultation[]>([]);
@@ -59,17 +64,9 @@ function Consultations() {
                         date: formatDate(
                             consultation.created_at
                         ),
-                        status: formatStatus(
-                            consultation.status
-                        ),
+                        status:
+                            consultation.status as ConsultationStatus,
                     }));
-
-                // Newest first
-                formattedConsultations.sort(
-                    (a, b) =>
-                        new Date(b.createdAt).getTime() -
-                        new Date(a.createdAt).getTime()
-                );
 
                 setConsultations(formattedConsultations);
             } catch (err) {
@@ -89,18 +86,58 @@ function Consultations() {
         fetchConsultations();
     }, []);
 
-    // Filter consultations
+    // Filter by status and search
     const filteredConsultations =
-        filter === "All"
-            ? consultations
-            : consultations.filter(
-                (consultation) =>
-                    consultation.status === filter
-            );
+        consultations.filter((consultation) => {
+            const matchesFilter =
+                filter === "All" ||
+                consultation.status === filter;
+
+            const searchTerm =
+                search.trim().toLowerCase();
+
+            const matchesSearch =
+                searchTerm === "" ||
+                consultation.patientName
+                    .toLowerCase()
+                    .includes(searchTerm) ||
+                consultation.id
+                    .toString()
+                    .includes(searchTerm);
+
+            return matchesFilter && matchesSearch;
+        });
+
+    const sortedConsultations =
+        [...filteredConsultations].sort(
+            (a, b) => {
+                const statusPriority: Record<
+                    ConsultationStatus,
+                    number
+                > = {
+                    ready: 1,
+                    "in-progress": 2,
+                    closed: 3,
+                };
+
+                const statusDifference =
+                    statusPriority[a.status] -
+                    statusPriority[b.status];
+
+                if (statusDifference !== 0) {
+                    return statusDifference;
+                }
+
+                return (
+                    new Date(b.createdAt).getTime() -
+                    new Date(a.createdAt).getTime()
+                );
+            }
+        );
 
     // Pagination
     const totalPages = Math.ceil(
-        filteredConsultations.length /
+        sortedConsultations.length /
         consultationsPerPage
     );
 
@@ -109,7 +146,7 @@ function Consultations() {
         consultationsPerPage;
 
     const paginatedConsultations =
-        filteredConsultations.slice(
+        sortedConsultations.slice(
             startIndex,
             startIndex + consultationsPerPage
         );
@@ -118,6 +155,13 @@ function Consultations() {
         newFilter: "All" | ConsultationStatus
     ) => {
         setFilter(newFilter);
+        setCurrentPage(1);
+    };
+
+    const handleSearchChange = (
+        value: string
+    ) => {
+        setSearch(value);
         setCurrentPage(1);
     };
 
@@ -133,41 +177,78 @@ function Consultations() {
         );
     };
 
+    const getStatusLabel = (
+        status: ConsultationStatus
+    ) => {
+        switch (status) {
+            case "in-progress":
+                return "In-progress";
+
+            case "ready":
+                return "Ready";
+
+            case "closed":
+                return "Closed";
+
+            default:
+                return status;
+        }
+    };
+
     return (
         <main className="doctor-page">
             <div className="doctor-page-header">
                 <div>
                     <h1>Consultations</h1>
+
                     <p>
                         Review and manage patient consultations.
                     </p>
                 </div>
             </div>
 
-            <div className="consultation-filters">
-                {(
-                    [
-                        "All",
-                        "Pending",
-                        "Active",
-                        "Closed",
-                    ] as const
-                ).map((status) => (
-                    <button
-                        key={status}
-                        type="button"
-                        className={
-                            filter === status
-                                ? "active"
-                                : ""
+            <div className="consultation-toolbar">
+                <div className="consultation-filters">
+                    {(
+                        [
+                            "All",
+                            "in-progress",
+                            "ready",
+                            "closed",
+                        ] as const
+                    ).map((status) => (
+                        <button
+                            key={status}
+                            type="button"
+                            className={
+                                filter === status
+                                    ? "active"
+                                    : ""
+                            }
+                            onClick={() =>
+                                handleFilterChange(status)
+                            }
+                        >
+                            {status === "All"
+                                ? "All"
+                                : getStatusLabel(status)}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="consultation-search">
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(event) =>
+                            handleSearchChange(
+                                event.target.value
+                            )
                         }
-                        onClick={() =>
-                            handleFilterChange(status)
-                        }
-                    >
-                        {status}
-                    </button>
-                ))}
+                        placeholder="Search by patient or consultation #"
+                        aria-label="Search consultations"
+                    />
+                </div>
             </div>
 
             {error && (
@@ -192,12 +273,12 @@ function Consultations() {
                 ) : paginatedConsultations.length > 0 ? (
                     paginatedConsultations.map(
                         (consultation, index) => (
-                            <div
+                            <NavLink
+                                to={`/doctor/consultations/${consultation.id}`}
                                 className="consultation-row"
                                 key={consultation.id}
                                 style={{
-                                    animationDelay:
-                                        `${index * 0.06}s`,
+                                    animationDelay: `${index * 0.06}s`,
                                 }}
                             >
                                 <span className="consultation-patient">
@@ -213,25 +294,26 @@ function Consultations() {
                                 </span>
 
                                 <span
-                                    className={`consultation-status ${consultation.status.toLowerCase()}`}
+                                    className={`consultation-status ${consultation.status}`}
                                 >
-                                    {consultation.status}
+                                    {getStatusLabel(consultation.status)}
                                 </span>
 
-                                <NavLink
-                                    to={`/doctor/consultations/${consultation.id}`}
-                                    className="consultation-view"
-                                >
+                                <span className="consultation-view">
                                     View
-                                </NavLink>
-                            </div>
+                                </span>
+                            </NavLink>
                         )
                     )
                 ) : (
                     <div className="consultations-empty">
-                        {filter === "All"
-                            ? "No consultations yet."
-                            : `No ${filter.toLowerCase()} consultations.`}
+                        {search.trim()
+                            ? `No consultations found for "${search}".`
+                            : filter === "All"
+                                ? "No consultations yet."
+                                : `No ${getStatusLabel(
+                                    filter
+                                ).toLowerCase()} consultations.`}
                     </div>
                 )}
             </div>
@@ -267,26 +349,9 @@ function Consultations() {
     );
 }
 
-function formatStatus(
-    status: string
-): ConsultationStatus {
-    switch (status.toLowerCase()) {
-        case "closed":
-            return "Closed";
-
-        case "pending":
-            return "Pending";
-
-        case "active":
-        case "in-progress":
-            return "Active";
-
-        default:
-            return "Active";
-    }
-}
-
-function formatDate(dateString: string): string {
+function formatDate(
+    dateString: string
+): string {
     return new Date(dateString).toLocaleDateString(
         "en-NZ",
         {

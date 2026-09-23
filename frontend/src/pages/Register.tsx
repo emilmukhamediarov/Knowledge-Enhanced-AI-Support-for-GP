@@ -6,13 +6,22 @@ import ThemeToggle from "../components/ThemeToggle";
 
 function Register() {
     const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
 
+    const [verificationEmail, setVerificationEmail] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
+
+    const [showVerification, setShowVerification] = useState(false);
+    const [codeSent, setCodeSent] = useState(false);
+
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
     const [loading, setLoading] = useState(false);
+    const [verificationLoading, setVerificationLoading] = useState(false);
 
     const navigate = useNavigate();
 
@@ -24,6 +33,11 @@ function Register() {
 
         if (!name.trim()) {
             setError("Please enter your name.");
+            return;
+        }
+
+        if (!email.trim()) {
+            setError("Please enter your email address.");
             return;
         }
 
@@ -44,45 +58,167 @@ function Register() {
 
         setLoading(true);
 
-        //TEMPORARILY HARDCODED TO 2, BUT SHOULD BE UPDATED TO BE INCREMENTED IN DB AUTOMATICALLY, NOT SENT IN JSON
         try {
+            // Create the account first.
             await apiFetch("/auth/register", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
                 body: JSON.stringify({
-                    id: 2,
-                    name,
-                    username,
+                    name: name.trim(),
+                    email: email.trim(),
+                    username: username.trim(),
                     password,
                 }),
             });
 
-            setSuccess("Account created successfully!");
+            // Send the verification code.
+            await apiFetch("/auth/send-code", {
+                method: "POST",
+                body: JSON.stringify({
+                    email: email.trim(),
+                }),
+            });
 
-            setTimeout(() => {
-                navigate("/login");
-            }, 2000);
+            // Open the verification popup directly.
+            setVerificationEmail(email.trim());
+            setVerificationCode("");
+            setCodeSent(true);
+            setShowVerification(true);
 
         } catch (error) {
             console.error("Registration error:", error);
-            setError("Unable to create account.");
+
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Unable to create account.");
+            }
         } finally {
             setLoading(false);
         }
     };
 
+    const handleOpenExistingVerification = () => {
+        setError("");
+        setSuccess("");
+
+        setVerificationEmail("");
+        setVerificationCode("");
+        setCodeSent(false);
+
+        setShowVerification(true);
+    };
+
+    const handleSendVerificationCode = async () => {
+        setError("");
+        setSuccess("");
+
+        const emailToVerify = verificationEmail.trim();
+
+        if (!emailToVerify) {
+            setError("Please enter your email address.");
+            return;
+        }
+
+        setVerificationLoading(true);
+
+        try {
+            await apiFetch("/auth/send-code", {
+                method: "POST",
+                body: JSON.stringify({
+                    email: emailToVerify,
+                }),
+            });
+
+            setVerificationCode("");
+            setCodeSent(true);
+
+        } catch (error) {
+            console.error("Send verification code error:", error);
+
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Unable to send verification code.");
+            }
+        } finally {
+            setVerificationLoading(false);
+        }
+    };
+
+    const handleVerifyCode = async () => {
+        setError("");
+        setSuccess("");
+
+        const emailToVerify = verificationEmail.trim();
+        const code = verificationCode.trim();
+
+        if (!emailToVerify) {
+            setError("Please enter your email address.");
+            return;
+        }
+
+        if (code.length !== 6) {
+            setError("Please enter the 6-digit verification code.");
+            return;
+        }
+
+        setVerificationLoading(true);
+
+        try {
+            await apiFetch("/auth/verify-code", {
+                method: "POST",
+                body: JSON.stringify({
+                    email: emailToVerify,
+                    code,
+                }),
+            });
+
+            setShowVerification(false);
+            setCodeSent(false);
+            setVerificationCode("");
+            setVerificationEmail("");
+
+            setSuccess(
+                "Email verified successfully! You can now log in."
+            );
+
+        } catch (error) {
+            console.error("Email verification error:", error);
+
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("Unable to verify email.");
+            }
+        } finally {
+            setVerificationLoading(false);
+        }
+    };
+
+    const handleCloseVerification = () => {
+        if (verificationLoading) {
+            return;
+        }
+
+        setShowVerification(false);
+        setVerificationCode("");
+        setVerificationEmail("");
+        setCodeSent(false);
+        setError("");
+    };
+
     return (
         <div className="register-page">
+
             <div className="register-form">
 
                 <h1>Register</h1>
 
                 <form onSubmit={handleRegister}>
 
-                    <label>Name</label>
+                    <label htmlFor="name">Name</label>
                     <input
+                        id="name"
                         type="text"
                         placeholder="Name"
                         value={name}
@@ -90,8 +226,19 @@ function Register() {
                         disabled={loading}
                     />
 
-                    <label>Username</label>
+                    <label htmlFor="email">Email</label>
                     <input
+                        id="email"
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        disabled={loading}
+                    />
+
+                    <label htmlFor="username">Username</label>
+                    <input
+                        id="username"
                         type="text"
                         placeholder="Username"
                         value={username}
@@ -99,8 +246,9 @@ function Register() {
                         disabled={loading}
                     />
 
-                    <label>Password</label>
+                    <label htmlFor="password">Password</label>
                     <input
+                        id="password"
                         type="password"
                         placeholder="Password"
                         value={password}
@@ -108,8 +256,12 @@ function Register() {
                         disabled={loading}
                     />
 
-                    <label>Confirm Password</label>
+                    <label htmlFor="confirm-password">
+                        Confirm Password
+                    </label>
+
                     <input
+                        id="confirm-password"
                         type="password"
                         placeholder="Confirm password"
                         value={confirmPassword}
@@ -124,7 +276,7 @@ function Register() {
                         className="register-button"
                         disabled={loading}
                     >
-                        {loading ? "Registering..." : "Register"}
+                        {loading ? "Creating account..." : "Register"}
                     </button>
 
                     {error && (
@@ -145,14 +297,169 @@ function Register() {
                     type="button"
                     onClick={() => navigate("/login")}
                     className="back-to-login"
+                    disabled={loading}
                 >
                     Already have an account? Login
                 </button>
 
+                <button
+                    type="button"
+                    onClick={handleOpenExistingVerification}
+                    className="verify-existing-button"
+                    disabled={loading}
+                >
+                    Resend verification code?
+                </button>
+
             </div>
+
             <div className="login-theme-toggle">
                 <ThemeToggle />
             </div>
+
+
+            {/* Email verification popup */}
+            {showVerification && (
+                <div className="verification-overlay">
+
+                    <div className="verification-modal">
+
+                        {!codeSent ? (
+                            <>
+                                <h2>Verify your email</h2>
+
+                                <p className="verification-description">
+                                    Enter the email address you registered
+                                    with and we'll send you a verification
+                                    code.
+                                </p>
+
+                                <label htmlFor="verification-email">
+                                    Email
+                                </label>
+
+                                <input
+                                    id="verification-email"
+                                    type="email"
+                                    placeholder="Email"
+                                    value={verificationEmail}
+                                    onChange={(e) =>
+                                        setVerificationEmail(
+                                            e.target.value
+                                        )
+                                    }
+                                    disabled={verificationLoading}
+                                    autoFocus
+                                />
+
+                                {error && (
+                                    <p className="register-error">
+                                        {error}
+                                    </p>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="register-button verification-button"
+                                    onClick={handleSendVerificationCode}
+                                    disabled={verificationLoading}
+                                >
+                                    {verificationLoading
+                                        ? "Sending..."
+                                        : "Send Verification Code"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="back-to-login verification-cancel"
+                                    onClick={handleCloseVerification}
+                                    disabled={verificationLoading}
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h2>Verify your email</h2>
+
+                                <p className="verification-description">
+                                    We've sent a 6-digit verification code
+                                    to:
+                                </p>
+
+                                <p className="verification-email">
+                                    {verificationEmail}
+                                </p>
+
+                                <label htmlFor="verification-code">
+                                    Verification Code
+                                </label>
+
+                                <input
+                                    id="verification-code"
+                                    className="verification-input"
+                                    type="text"
+                                    inputMode="numeric"
+                                    autoComplete="one-time-code"
+                                    maxLength={6}
+                                    placeholder="000000"
+                                    value={verificationCode}
+                                    onChange={(e) =>
+                                        setVerificationCode(
+                                            e.target.value
+                                                .replace(/\D/g, "")
+                                                .slice(0, 6)
+                                        )
+                                    }
+                                    disabled={verificationLoading}
+                                    autoFocus
+                                />
+
+                                {error && (
+                                    <p className="register-error">
+                                        {error}
+                                    </p>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="register-button verification-button"
+                                    onClick={handleVerifyCode}
+                                    disabled={
+                                        verificationLoading ||
+                                        verificationCode.length !== 6
+                                    }
+                                >
+                                    {verificationLoading
+                                        ? "Verifying..."
+                                        : "Verify Email"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="resend-code-button"
+                                    onClick={handleSendVerificationCode}
+                                    disabled={verificationLoading}
+                                >
+                                    Resend Code
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="back-to-login verification-cancel"
+                                    onClick={handleCloseVerification}
+                                    disabled={verificationLoading}
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        )}
+
+                    </div>
+
+                </div>
+            )}
+
         </div>
     );
 }

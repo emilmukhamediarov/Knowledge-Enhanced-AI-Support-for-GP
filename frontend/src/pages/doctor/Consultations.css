@@ -119,18 +119,18 @@
     font-weight: 500;
 }
 
-.consultation-status.pending {
-    background: rgba(245, 158, 11, 0.18);
-    color: #b45309;
+.consultation-status.in-progress {
+    background: rgba(250, 204, 21, 0.18) !important;
+    color: #a16207;
 }
 
-.consultation-status.active {
+.consultation-status.ready {
     background: rgba(34, 197, 94, 0.18);
     color: #15803d;
 }
 
 .consultation-status.closed {
-    background: rgba(100, 116, 139, 0.15);
+    background: var(--hover-bg);
     color: var(--text);
 }
 
@@ -191,6 +191,42 @@
     color: var(--text);
     font-size: 0.85rem;
     font-weight: 500;
+}
+
+.consultation-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+.consultation-search {
+    margin-left: auto;
+}
+
+.consultation-search input {
+    width: 280px;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    outline: none;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.consultation-search input::placeholder {
+    color: var(--text);
+    opacity: 0.6;
+}
+
+.consultation-search input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 /* animation */

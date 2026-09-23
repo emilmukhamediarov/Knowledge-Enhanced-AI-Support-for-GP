@@ -5,7 +5,6 @@ from app.db.models import LanguagePreference
 
 
 class UserCreate(BaseModel):
-    id: int
     name: str
     password: str
     username: str

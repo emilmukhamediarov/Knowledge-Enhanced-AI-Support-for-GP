@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import { apiFetch } from "../../api/client";
 import "./DoctorConsultation.css";
 
@@ -62,13 +62,13 @@ interface PlanResponse {
 
 function DoctorConsultation() {
     const { consultationId } = useParams();
+    const navigate = useNavigate();
 
     const [data, setData] = useState<RagData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-    const [summaryOpen, setSummaryOpen] = useState(false);
-    const [ragOpen, setRagOpen] = useState(false);
+    const [detailsOpen, setDetailsOpen] = useState(false);
 
     const [subjective, setSubjective] = useState("");
     const [objective, setObjective] = useState("");
@@ -77,6 +77,11 @@ function DoctorConsultation() {
 
     const [saving, setSaving] = useState(false);
     const [saveMessage, setSaveMessage] = useState("");
+
+    const [showCloseConfirmation, setShowCloseConfirmation] =
+        useState(false);
+    const [closing, setClosing] = useState(false);
+    const [closeError, setCloseError] = useState("");
 
     useEffect(() => {
         const fetchConsultation = async () => {
@@ -119,21 +124,10 @@ function DoctorConsultation() {
                     ) as Promise<PlanResponse>,
                 ]);
 
-                setSubjective(
-                    subjectiveResponse.subjective || ""
-                );
-
-                setObjective(
-                    objectiveResponse.objective || ""
-                );
-
-                setAssessment(
-                    assessmentResponse.assessment || ""
-                );
-
-                setPlan(
-                    planResponse.plan || ""
-                );
+                setSubjective(subjectiveResponse.subjective || "");
+                setObjective(objectiveResponse.objective || "");
+                setAssessment(assessmentResponse.assessment || "");
+                setPlan(planResponse.plan || "");
             } catch (err) {
                 console.error(
                     "Failed to fetch consultation:",
@@ -227,6 +221,41 @@ function DoctorConsultation() {
         }
     };
 
+    const closeConsultation = async () => {
+        if (!consultationId) {
+            return;
+        }
+
+        try {
+            setClosing(true);
+            setCloseError("");
+
+            await apiFetch(
+                `/consultations/${consultationId}/close`,
+                {
+                    method: "PATCH",
+                }
+            );
+
+            setShowCloseConfirmation(false);
+
+            navigate("/doctor/consultations");
+        } catch (err) {
+            console.error(
+                "Failed to close consultation:",
+                err
+            );
+
+            setCloseError(
+                err instanceof Error
+                    ? err.message
+                    : "Failed to close consultation. Please try again."
+            );
+        } finally {
+            setClosing(false);
+        }
+    };
+
     if (loading) {
         return (
             <main className="doctor-consultation-page">
@@ -267,6 +296,19 @@ function DoctorConsultation() {
                         </h1>
                     </div>
 
+                    <div className="consultation-header-actions">
+                        <button
+                            type="button"
+                            className="close-button"
+                            onClick={() => {
+                                setCloseError("");
+                                setShowCloseConfirmation(true);
+                            }}
+                            disabled={closing}
+                        >
+                            Close consultation
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -276,47 +318,60 @@ function DoctorConsultation() {
                         type="button"
                         className="reference-button"
                         onClick={() =>
-                            setSummaryOpen((open) => !open)
+                            setDetailsOpen((open) => !open)
                         }
-                        aria-expanded={summaryOpen}
+                        aria-expanded={detailsOpen}
                     >
                         <div>
                             <span className="reference-label">
-                                CHAT SUMMARY
+                                CLINICAL INSIGHTS
                             </span>
 
                             <h2>
-                                {summary.reason_for_visit ||
-                                    "Patient summary"}
+                                Clinical Insights / Details
                             </h2>
 
-                            {!summaryOpen && (
+                            {!detailsOpen && (
                                 <p className="reference-preview">
-                                    {summary.summary ||
-                                        "No summary available."}
+                                    {rag.answer ||
+                                        summary.summary ||
+                                        "No clinical insights available."}
                                 </p>
                             )}
                         </div>
 
-                        <span className="reference-arrow">
-                            {summaryOpen ? "" : ""}
-                        </span>
+                        <div className="reference-right">
+                            <span className="reference-arrow">
+                                {detailsOpen ? "" : ""}
+                            </span>
+                        </div>
                     </button>
 
-                    {summaryOpen && (
+                    {detailsOpen && (
                         <div className="reference-content">
                             <div className="summary-main">
                                 <span className="field-label">
-                                    Summary
+                                    Clinical insights
                                 </span>
 
                                 <p>
-                                    {summary.summary ||
-                                        "No summary available."}
+                                    {rag.answer ||
+                                        "No clinical insights available."}
                                 </p>
                             </div>
 
                             <div className="summary-grid">
+                                <div className="summary-item">
+                                    <span className="field-label">
+                                        Reason for visit
+                                    </span>
+
+                                    <p>
+                                        {summary.reason_for_visit ||
+                                            "Not provided"}
+                                    </p>
+                                </div>
+
                                 <div className="summary-item">
                                     <span className="field-label">
                                         Symptoms
@@ -468,143 +523,24 @@ function DoctorConsultation() {
                                         </p>
                                     )}
                                 </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Missing information
-                                    </span>
-
-                                    {summary.missing_information.length >
-                                    0 ? (
-                                        <ul>
-                                            {summary.missing_information.map(
-                                                (item, index) => (
-                                                    <li key={index}>
-                                                        {item}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p>
-                                            No missing information
-                                        </p>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </section>
-
-                <section className="reference-card">
-                    <button
-                        type="button"
-                        className="reference-button"
-                        onClick={() =>
-                            setRagOpen((open) => !open)
-                        }
-                        aria-expanded={ragOpen}
-                    >
-                        <div>
-                            <span className="reference-label">
-                                RAG
-                            </span>
-
-                            <h2>
-                                Clinical Insights
-                            </h2>
-
-                            {!ragOpen && (
-                                <p className="reference-preview">
-                                    {rag.answer ||
-                                        "No RAG output available."}
-                                </p>
-                            )}
-                        </div>
-
-                        <div className="reference-right">
-                            <span className="reference-arrow">
-                                {ragOpen ? "" : ""}
-                            </span>
-                        </div>
-                    </button>
-
-                    {ragOpen && (
-                        <div className="reference-content">
-                            <div className="rag-answer">
-                                <span className="field-label">
-                                    Clinical summary
-                                </span>
-
-                                <p>
-                                    {rag.answer ||
-                                        "No clinical summary available."}
-                                </p>
                             </div>
 
-                            <div className="rag-grid">
-                                <div className="rag-item">
+                            {rag.red_flags_identified.length > 0 && (
+                                <div className="rag-answer">
                                     <span className="field-label">
-                                        Symptoms identified
+                                        Red flags
                                     </span>
 
-                                    {rag.red_flags_identified.length >
-                                    0 ? (
-                                        <ul className="red-flags">
-                                            {rag.red_flags_identified.map(
-                                                (flag, index) => (
-                                                    <li key={index}>
-                                                        {flag}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p>
-                                            None identified
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="rag-item">
-                                    <span className="field-label">
-                                        Confidence
-                                    </span>
-
-                                    <p>
-                                        {rag.confidence}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {rag.confidence_message && (
-                                <div className="rag-confidence">
-                                    <span className="field-label">
-                                        Confidence explanation
-                                    </span>
-
-                                    <p>
-                                        {rag.confidence_message}
-                                    </p>
-                                </div>
-                            )}
-
-                            {rag.sources.length > 0 && (
-                                <details className="rag-sources">
-                                    <summary>
-                                        Sources
-                                    </summary>
-
-                                    <div>
-                                        {rag.sources.map(
-                                            (source, index) => (
-                                                <pre key={index}>
-                                                    {source}
-                                                </pre>
+                                    <ul className="red-flags">
+                                        {rag.red_flags_identified.map(
+                                            (flag, index) => (
+                                                <li key={index}>
+                                                    {flag}
+                                                </li>
                                             )
                                         )}
-                                    </div>
-                                </details>
+                                    </ul>
+                                </div>
                             )}
                         </div>
                     )}
@@ -732,6 +668,62 @@ function DoctorConsultation() {
                     {saving ? "Saving..." : "Save notes"}
                 </button>
             </div>
+
+            {showCloseConfirmation && (
+                <div className="confirmation-overlay">
+                    <div
+                        className="confirmation-popup"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="close-consultation-title"
+                    >
+                        <div className="confirmation-icon">
+                            !
+                        </div>
+
+                        <h2 id="close-consultation-title">
+                            Close consultation?
+                        </h2>
+
+                        <p>
+                            Are you sure you want to close this
+                            consultation? Once closed, it will be
+                            marked as completed.
+                        </p>
+
+                        {closeError && (
+                            <p className="consultation-message error">
+                                {closeError}
+                            </p>
+                        )}
+
+                        <div className="confirmation-actions">
+                            <button
+                                type="button"
+                                className="confirmation-cancel"
+                                onClick={() => {
+                                    setShowCloseConfirmation(false);
+                                    setCloseError("");
+                                }}
+                                disabled={closing}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                type="button"
+                                className="confirmation-confirm"
+                                onClick={closeConsultation}
+                                disabled={closing}
+                            >
+                                {closing
+                                    ? "Closing..."
+                                    : "Close consultation"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

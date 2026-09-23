@@ -52,13 +52,15 @@
 
 .reference-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
     align-items: start;
     gap: 1rem;
     margin-bottom: 1.5rem;
 }
 
 .reference-card {
+    width: 100%;
     min-width: 0;
     align-self: start;
     background: var(--social-bg);
@@ -568,7 +570,6 @@
         padding: 1.25rem 1.5rem 2rem;
     }
 
-    .reference-grid,
     .soap-grid {
         grid-template-columns: 1fr;
     }

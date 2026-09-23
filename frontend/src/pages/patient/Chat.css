@@ -155,7 +155,7 @@
 
 .chat-actions .reset-button,
 .chat-actions .delete-button,
-.chat-actions .close-button {
+.chat-actions .ready-button {
     position: static;
 
     width: auto;
@@ -220,14 +220,14 @@
 
 /* Close Consultation */
 
-.chat-actions .close-button {
+.chat-actions .ready-button {
     border: 1px solid #025d9a;
 
     background-color: var(--bg);
     color: #025d9a;
 }
 
-.chat-actions .close-button:hover:not(:disabled) {
+.chat-actions .ready-button:hover:not(:disabled) {
     background-color: #025d9a;
 
     border-color: #025d9a;
@@ -235,9 +235,9 @@
     color: #ffffff;
 }
 
-/* Disabled Close Consultation */
+/* Disabled Ready Consultation */
 
-.chat-actions .close-button:disabled {
+.chat-actions .ready-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
@@ -639,7 +639,7 @@
 .chat-input-actions button:focus-visible,
 .reset-button:focus-visible,
 .delete-button:focus-visible,
-.close-button:focus-visible {
+.ready-button:focus-visible {
     outline: 2px solid var(--accent-secondary);
     outline-offset: 3px;
 }

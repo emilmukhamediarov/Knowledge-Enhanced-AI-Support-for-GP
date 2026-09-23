@@ -102,3 +102,202 @@
     right: 1.5rem;
     bottom: 1.5rem;
 }
+
+.verification-overlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 1rem;
+    box-sizing: border-box;
+
+    background-color: rgba(0, 0, 0, 0.45);
+
+    z-index: 1000;
+}
+
+.verification-modal {
+    width: 400px;
+    max-width: 100%;
+
+    padding: 2rem;
+
+    background-color: var(--bg);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    border-radius: 12px;
+
+    box-sizing: border-box;
+}
+
+.verification-modal h2 {
+    margin: 0 0 1rem;
+
+    color: var(--text-h);
+    font-size: 26px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.verification-description {
+    margin: 0 0 1.5rem;
+
+    color: var(--text);
+    font-size: 15px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.verification-modal label {
+    display: block;
+
+    margin-bottom: 0.4rem;
+
+    color: var(--text-h);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.verification-modal input {
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 11px 12px;
+    margin-bottom: 1rem;
+
+    background-color: var(--bg);
+    color: var(--text);
+
+    border: 1px solid var(--border);
+    border-radius: 8px;
+
+    font-family: var(--sans);
+    font-size: 16px;
+}
+
+.verification-modal input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.verification-email {
+    margin: -0.75rem 0 1.5rem;
+
+    color: var(--text-h);
+    font-size: 15px;
+    font-weight: 600;
+    text-align: center;
+
+    overflow-wrap: anywhere;
+}
+
+.verification-input {
+    font-size: 22px !important;
+    font-weight: 600;
+    letter-spacing: 6px;
+    text-align: center;
+}
+
+.verification-button {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 0.75rem;
+    padding: 12px 20px;
+
+    background-color: var(--accent);
+    color: #ffffff;
+
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+
+    font-family: var(--sans);
+    font-size: 16px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+            background-color 0.15s ease,
+            opacity 0.15s ease;
+}
+
+.verification-button:hover:not(:disabled) {
+    background-color: var(--accent-hover);
+}
+
+.verification-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.login-verification-error {
+    margin: 1rem 0 0;
+
+    color: #c0392b;
+    font-size: 14px;
+    text-align: center;
+}
+
+.resend-code-button {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 0.85rem;
+
+    padding: 8px;
+
+    background: none;
+    border: none;
+
+    color: var(--accent);
+
+    font-family: var(--sans);
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+}
+
+.resend-code-button:hover:not(:disabled) {
+    text-decoration: underline;
+}
+
+.resend-code-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.verification-cancel {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 0.5rem;
+    padding: 8px;
+
+    background: none;
+    border: none;
+
+    color: var(--text);
+
+    font-family: var(--sans);
+    font-size: 14px;
+
+    cursor: pointer;
+}
+
+.verification-cancel:hover:not(:disabled) {
+    color: var(--text-h);
+    text-decoration: underline;
+}
+
+.verification-cancel:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

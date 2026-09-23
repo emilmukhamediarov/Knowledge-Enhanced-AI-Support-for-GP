@@ -118,45 +118,32 @@ function DoctorHome() {
             getDateKey(consultation.created_at) === selectedDate
     );
 
-    /*
-     * Keep status handling consistent with the Consultations page.
-     *
-     * Backend may return:
-     * - active
-     * - in-progress
-     * - pending
-     * - closed
-     *
-     * The frontend displays:
-     * - Active
-     * - Pending
-     * - Closed
-     */
     const formatStatus = (status: string) => {
         switch (status.toLowerCase()) {
+            case "in-progress":
+            case "active":
+                return "In-progress";
+
+            case "ready":
+            case "pending":
+                return "Ready";
+
             case "closed":
                 return "Closed";
 
-            case "pending":
-                return "Pending";
-
-            case "active":
-            case "in-progress":
-                return "Active";
-
             default:
-                return "Active";
+                return status;
         }
     };
 
-    const activeConsultations = consultations.filter(
+    const inProgressConsultations = consultations.filter(
         (consultation) =>
-            formatStatus(consultation.status) === "Active"
+            formatStatus(consultation.status) === "In-progress"
     );
 
-    const waitingConsultations = consultations.filter(
+    const readyConsultations = consultations.filter(
         (consultation) =>
-            formatStatus(consultation.status) === "Pending"
+            formatStatus(consultation.status) === "Ready"
     );
 
     const closedConsultations = consultations.filter(
@@ -385,7 +372,12 @@ function DoctorHome() {
                                         <span
                                             className={`appointment-status ${formatStatus(
                                                 consultation.status
-                                            ).toLowerCase()}`}
+                                            )
+                                                .toLowerCase()
+                                                .replace(
+                                                    " ",
+                                                    "-"
+                                                )}`}
                                         >
                                             {formatStatus(
                                                 consultation.status
@@ -412,27 +404,35 @@ function DoctorHome() {
 
             <section className="dashboard-stats">
 
-                <div className="dashboard-stat waiting">
-                    <span>Waiting for response</span>
+                <div className="dashboard-stat in-progress">
+                    <span>In-progress consultations</span>
 
                     <strong>
-                        {waitingConsultations.length}
+                        {inProgressConsultations.length}
                     </strong>
                 </div>
 
-                <div className="dashboard-stat upcoming">
+                <div className="dashboard-stat ready">
+                    <span>Ready consultations</span>
+
+                    <strong>
+                        {readyConsultations.length}
+                    </strong>
+                </div>
+
+                <div className="dashboard-stat closed">
+                    <span>Closed consultations</span>
+
+                    <strong>
+                        {closedConsultations.length}
+                    </strong>
+                </div>
+
+                <div className="dashboard-stat total">
                     <span>Total consultations</span>
 
                     <strong>
                         {consultations.length}
-                    </strong>
-                </div>
-
-                <div className="dashboard-stat active">
-                    <span>Active consultations</span>
-
-                    <strong>
-                        {activeConsultations.length}
                     </strong>
                 </div>
 
