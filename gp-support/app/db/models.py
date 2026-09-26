@@ -58,7 +58,7 @@ class User(Base):
         nullable=True
     )
 
-    nationality: Mapped[str | None] = mapped_column(
+    ethnicity: Mapped[str | None] = mapped_column(
         String(100),
         nullable=True
     )
@@ -90,13 +90,13 @@ class User(Base):
         nullable=True
     )
 
-    allergies: Mapped[str | None] = mapped_column(
-        Text,
+    allergies: Mapped[list[str] | None] = mapped_column(
+        JSONB,
         nullable=True
     )
 
-    medications: Mapped[str | None] = mapped_column(
-        Text,
+    medications: Mapped[list[str] | None] = mapped_column(
+        JSONB,
         nullable=True
     )
 
