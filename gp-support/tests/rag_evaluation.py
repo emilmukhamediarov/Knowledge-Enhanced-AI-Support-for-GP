@@ -170,6 +170,7 @@ def evaluate_case(index, case: dict, retrieval_only: bool) -> dict[str, Any]:
 
     rag_result = ask_structured(index, query)
 
+    parse_pass = not rag_result.get("parse_error", False)
     answer_pass, answer_detail = _answer_content_check(case, rag_result)
 
     no_match_e2e_pass = True

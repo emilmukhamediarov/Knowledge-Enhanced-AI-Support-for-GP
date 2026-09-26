@@ -1,44 +1,47 @@
 {
   "mode": "end_to_end",
-  "passed": 2,
-  "failed": 6,
-  "total": 8,
+  "passed": 13,
+  "failed": 3,
+  "total": 16,
   "results": [
     {
       "name": "persistent_cough_4_weeks",
       "purpose": "Tests whether a duration threshold from the acute bronchitis guidance can be applied to the patient case.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: persistent cough, cough.",
+      "query": "Clinical guidance, and diagnostic criteria for: persistent cough, cough.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.649072051048279,
-            "file_name": "Chest Cold (Acute Bronchitis).txt",
-            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+            "score": 0.671057462692261,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "WHEN AND WHERE TO GET MEDICAL HELP:\n- Bronchitis usually gets better on its own, but you may need medical advice if your symptoms do not get any better.\n- You should also get advice if you have a health issue that makes you more vulnerable to bronchitis, like having diabetes.\n\nAsk for an urgent GP a"
           },
           {
-            "score": 0.6484616221831341,
-            "file_name": "Influenza.txt",
-            "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
+            "score": 0.670923352241516,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "BRONCHITIS:\n\n\nOVERVIEW:\nBronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks.\nSome people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obs"
           }
         ],
-        "filtered_candidates": []
+        "filtered_candidates": [
+          {
+            "score": 0.671057462692261,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "WHEN AND WHERE TO GET MEDICAL HELP:\n- Bronchitis usually gets better on its own, but you may need medical advice if your symptoms do not get any better.\n- You should also get advice if you have a health issue that makes you more vulnerable to bronchitis, like having diabetes.\n\nAsk for an urgent GP a"
+          },
+          {
+            "score": 0.670923352241516,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "BRONCHITIS:\n\n\nOVERVIEW:\nBronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks.\nSome people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obs"
+          }
+        ]
       },
       "checks": {
         "source": {
           "pass": false,
-          "detail": "expected one of ['Chest Cold (Acute Bronchitis).txt']; retrieved []"
+          "detail": "expected one of ['Chest Cold (Acute Bronchitis).txt']; retrieved ['Bronchitis.txt', 'Bronchitis.txt']"
         },
         "parse": {
           "pass": true,
           "detail": "valid structured result"
-        },
-        "red_flags": {
-          "pass": false,
-          "detail": "expected one of ['more than 3 weeks', '3 weeks']; returned red flags: []"
-        },
-        "urgency": {
-          "pass": true,
-          "detail": "urgency deliberately not asserted"
         },
         "answer_content": {
           "pass": true,
@@ -50,12 +53,16 @@
         }
       },
       "rag_result": {
-        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
-        "red_flags_identified": [],
-        "requires_urgent_attention": false,
+        "answer": "Bronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks. Some people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obstructive pulmonary disease (COPD). The symptoms of bronchitis can be similar to a cold or flu. Symptoms include: a cough, you may cough up mucus, chest pain when coughing, shortness of breath, a sore throat, a runny nose, a high temperature. Bronchitis usually clears up without treatment in around 3 weeks. See a GP if your symptoms last longer than 3 weeks. Antibiotics may be offered if your bronchitis is caused by a more serious infection.",
         "confidence": "weak match",
-        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
-        "sources": [],
+        "confidence_message": "This answer has weak grounding in the knowledge base for this case — the retrieved information may not closely match the patient's presentation. Verify independently before relying on this answer.",
+        "sources": [
+          "WHEN AND WHERE TO GET MEDICAL HELP:\n- Bronchitis usually gets better on its own, but you may need medical advice if your symptoms do not get any better.\n- You should also get advice if you have a health issue that makes you more vulnerable to bronchitis, like having diabetes.\n\nAsk for an urgent GP appointment or get help if:\n- you've had a cough for more than 3 weeks and it is not getting better\n- you cough up blood or blood-stained mucus\n- you have chest pain that comes and goes, or when breathing or coughing\n- you're over 65\n- you're pregnant\n- you have a long-term condition, such as diabetes, or a heart, lung or kidney condition\n- you have a weakened immune system – for example, you have a condition that affects the immune system, or - you're having chemotherapy\n- you feel too unwell to do usual daily activities\n- you're feeling short of breath\n\n\nCALL EMERGENCY IF:\n- you are struggling to breathe – you are choking, gasping and unable to speak\n- your lips or skin are turning very pale, blue or grey – on brown or black skin this may be easier to see on the palms of the hands, on the lips, tongue or gums, under the nails or around the eyes\n- you suddenly feel confused – for example, you do not know where you are\n- you're unable to wake your baby or they feel floppy\n\n\n\nTREATMENTS FOR BRONCHITIS:\n- Bronchitis usually clears up without treatment in around 3 weeks. See a GP if your symptoms last longer than 3 weeks.\n- Antibiotics may be offered if your bronchitis is caused by a more serious infection.\n\n\nSOURCES:\nhttps://www.nhs.uk/conditions/bronchitis/",
+          "BRONCHITIS:\n\n\nOVERVIEW:\nBronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks.\nSome people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obstructive pulmonary disease (COPD).\n\n\nSYMPTOMS OF BRONCHITIS:\nThe symptoms of bronchitis can be similar to a cold or flu.\nSymptoms include:\n- a cough, you may cough up mucus\n- chest pain when coughing\n- shortness of breath\n- a sore throat\n- a runny nose\n- a high temperature\n\n\nTHINGS YOU CAN DO TO HELP WITH BRONCHITIS:\n- Bronchitis is often caused by infections that can be easily spread through coughing and sneezing.\n- There are some things you can do to ease the symptoms of bronchitis and reduce the risk of spreading infections to other people.\n\nDo:\n  * get plenty of rest – try to stay at home and avoid contact with other people if you have a high temperature or do not feel well enough to do your normal activities\n  * drink plenty of fluids\n  * take painkillers like paracetamol or ibuprofen to help with pain and bring down a high temperature\n  * try adding honey to a warm drink to help soothe your throat (do not give honey to babies under 1)\n  * cover your mouth and nose with a tissue when you cough or sneeze – put used tissues in the bin as quickly as possible\n  * wash your hands regularly with water and soap\n\nDon’t:\n  * do not smoke"
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/bronchitis/"
+        ],
         "parse_error": false
       },
       "pass": false
@@ -63,38 +70,41 @@
     {
       "name": "cough_with_bloody_mucus_in_additional_concerns",
       "purpose": "Tests whether additional_concerns reaches RAG reasoning. The current query builder does not include this field.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: persistent cough, cough.",
+      "query": "Clinical guidance, and diagnostic criteria for: persistent cough, cough.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.649072051048279,
-            "file_name": "Chest Cold (Acute Bronchitis).txt",
-            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+            "score": 0.671057462692261,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "WHEN AND WHERE TO GET MEDICAL HELP:\n- Bronchitis usually gets better on its own, but you may need medical advice if your symptoms do not get any better.\n- You should also get advice if you have a health issue that makes you more vulnerable to bronchitis, like having diabetes.\n\nAsk for an urgent GP a"
           },
           {
-            "score": 0.6484616221831341,
-            "file_name": "Influenza.txt",
-            "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
+            "score": 0.670923352241516,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "BRONCHITIS:\n\n\nOVERVIEW:\nBronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks.\nSome people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obs"
           }
         ],
-        "filtered_candidates": []
+        "filtered_candidates": [
+          {
+            "score": 0.671057462692261,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "WHEN AND WHERE TO GET MEDICAL HELP:\n- Bronchitis usually gets better on its own, but you may need medical advice if your symptoms do not get any better.\n- You should also get advice if you have a health issue that makes you more vulnerable to bronchitis, like having diabetes.\n\nAsk for an urgent GP a"
+          },
+          {
+            "score": 0.670923352241516,
+            "file_name": "Bronchitis.txt",
+            "text_preview": "BRONCHITIS:\n\n\nOVERVIEW:\nBronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks.\nSome people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obs"
+          }
+        ]
       },
       "checks": {
         "source": {
           "pass": false,
-          "detail": "expected one of ['Chest Cold (Acute Bronchitis).txt']; retrieved []"
+          "detail": "expected one of ['Chest Cold (Acute Bronchitis).txt']; retrieved ['Bronchitis.txt', 'Bronchitis.txt']"
         },
         "parse": {
           "pass": true,
           "detail": "valid structured result"
-        },
-        "red_flags": {
-          "pass": false,
-          "detail": "expected one of ['bloody mucus', 'blood']; returned red flags: []"
-        },
-        "urgency": {
-          "pass": true,
-          "detail": "urgency deliberately not asserted"
         },
         "answer_content": {
           "pass": true,
@@ -106,12 +116,16 @@
         }
       },
       "rag_result": {
-        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
-        "red_flags_identified": [],
-        "requires_urgent_attention": false,
+        "answer": "Bronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks. Some people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obstructive pulmonary disease (COPD). The symptoms of bronchitis can be similar to a cold or flu. Symptoms include: a cough, you may cough up mucus, chest pain when coughing, shortness of breath, a sore throat, a runny nose, a high temperature. Bronchitis usually clears up without treatment in around 3 weeks. See a GP if your symptoms last longer than 3 weeks. Antibiotics may be offered if your bronchitis is caused by a more serious infection. If you have had a cough for more than 3 weeks and it is not getting better, you should see a GP.",
         "confidence": "weak match",
-        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
-        "sources": [],
+        "confidence_message": "This answer has weak grounding in the knowledge base for this case — the retrieved information may not closely match the patient's presentation. Verify independently before relying on this answer.",
+        "sources": [
+          "WHEN AND WHERE TO GET MEDICAL HELP:\n- Bronchitis usually gets better on its own, but you may need medical advice if your symptoms do not get any better.\n- You should also get advice if you have a health issue that makes you more vulnerable to bronchitis, like having diabetes.\n\nAsk for an urgent GP appointment or get help if:\n- you've had a cough for more than 3 weeks and it is not getting better\n- you cough up blood or blood-stained mucus\n- you have chest pain that comes and goes, or when breathing or coughing\n- you're over 65\n- you're pregnant\n- you have a long-term condition, such as diabetes, or a heart, lung or kidney condition\n- you have a weakened immune system – for example, you have a condition that affects the immune system, or - you're having chemotherapy\n- you feel too unwell to do usual daily activities\n- you're feeling short of breath\n\n\nCALL EMERGENCY IF:\n- you are struggling to breathe – you are choking, gasping and unable to speak\n- your lips or skin are turning very pale, blue or grey – on brown or black skin this may be easier to see on the palms of the hands, on the lips, tongue or gums, under the nails or around the eyes\n- you suddenly feel confused – for example, you do not know where you are\n- you're unable to wake your baby or they feel floppy\n\n\n\nTREATMENTS FOR BRONCHITIS:\n- Bronchitis usually clears up without treatment in around 3 weeks. See a GP if your symptoms last longer than 3 weeks.\n- Antibiotics may be offered if your bronchitis is caused by a more serious infection.\n\n\nSOURCES:\nhttps://www.nhs.uk/conditions/bronchitis/",
+          "BRONCHITIS:\n\n\nOVERVIEW:\nBronchitis is inflammation of the airways in the lungs that is usually caused by an infection. It often gets better without treatment in around 3 weeks.\nSome people have long-term inflammation of the airways in the lungs called chronic bronchitis. This is known as chronic obstructive pulmonary disease (COPD).\n\n\nSYMPTOMS OF BRONCHITIS:\nThe symptoms of bronchitis can be similar to a cold or flu.\nSymptoms include:\n- a cough, you may cough up mucus\n- chest pain when coughing\n- shortness of breath\n- a sore throat\n- a runny nose\n- a high temperature\n\n\nTHINGS YOU CAN DO TO HELP WITH BRONCHITIS:\n- Bronchitis is often caused by infections that can be easily spread through coughing and sneezing.\n- There are some things you can do to ease the symptoms of bronchitis and reduce the risk of spreading infections to other people.\n\nDo:\n  * get plenty of rest – try to stay at home and avoid contact with other people if you have a high temperature or do not feel well enough to do your normal activities\n  * drink plenty of fluids\n  * take painkillers like paracetamol or ibuprofen to help with pain and bring down a high temperature\n  * try adding honey to a warm drink to help soothe your throat (do not give honey to babies under 1)\n  * cover your mouth and nose with a tissue when you cough or sneeze – put used tissues in the bin as quickly as possible\n  * wash your hands regularly with water and soap\n\nDon’t:\n  * do not smoke"
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/bronchitis/"
+        ],
         "parse_error": false
       },
       "pass": false
@@ -119,28 +133,28 @@
     {
       "name": "cold_12_days_without_improvement",
       "purpose": "Tests whether the common-cold duration criterion is applied using the patient's full case.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: cold symptoms, runny nose, sore throat, cough.",
+      "query": "Clinical guidance, and diagnostic criteria for: cold symptoms, runny nose, sore throat, cough.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.728444457054138,
+            "score": 0.7401973009109499,
             "file_name": "Cold.txt",
             "text_preview": "Preventing and Managing the Common Cold\n\nAre you sneezing, or do you have a stuffy and runny nose? You might have a cold. Antibiotics do not work against viruses that cause colds and will not help you feel better.\n\nWhat is Common Cold?\nA common cold is a mild upper respiratory illness caused by a vi"
           },
           {
-            "score": 0.707115685091538,
+            "score": 0.720809016131285,
             "file_name": "Influenza.txt",
             "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
           }
         ],
         "filtered_candidates": [
           {
-            "score": 0.728444457054138,
+            "score": 0.7401973009109499,
             "file_name": "Cold.txt",
             "text_preview": "Preventing and Managing the Common Cold\n\nAre you sneezing, or do you have a stuffy and runny nose? You might have a cold. Antibiotics do not work against viruses that cause colds and will not help you feel better.\n\nWhat is Common Cold?\nA common cold is a mild upper respiratory illness caused by a vi"
           },
           {
-            "score": 0.707115685091538,
+            "score": 0.720809016131285,
             "file_name": "Influenza.txt",
             "text_preview": "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza "
           }
@@ -155,14 +169,6 @@
           "pass": true,
           "detail": "valid structured result"
         },
-        "red_flags": {
-          "pass": true,
-          "detail": "matched expected red-flag term: more than 10 days"
-        },
-        "urgency": {
-          "pass": true,
-          "detail": "urgency deliberately not asserted"
-        },
         "answer_content": {
           "pass": true,
           "detail": "no forbidden answer wording detected"
@@ -173,17 +179,16 @@
         }
       },
       "rag_result": {
-        "answer": "Cold symptoms, runny nose, sore throat, and cough are common symptoms of a cold. They usually peak within 2 to 3 days and can last up to 10–14 days. Clear mucus is normal, but if it changes to a white, yellow, or green color after 2–3 days, this is also normal. If symptoms last more than 10 days without improvement, or if they improve but then return or worsen, seek medical care.",
-        "red_flags_identified": [
-          "Symptoms that last more than 10 days without improvement",
-          "Symptoms, such as fever or cough, that improve but then return or worsen"
-        ],
-        "requires_urgent_attention": true,
+        "answer": "The symptoms of a cold typically include sneezing, nasal congestion, sore throat, cough, and sometimes fever. The runny nose, sore throat, and cough are common symptoms of a cold. The runny nose may start as clear mucus and can change to white, yellow, or green after a few days, which is normal. The sore throat and cough can last up to 10-14 days. There is no cure for a cold, and it will get better on its own without antibiotics.",
         "confidence": "strong match",
         "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
         "sources": [
           "Preventing and Managing the Common Cold\n\nAre you sneezing, or do you have a stuffy and runny nose? You might have a cold. Antibiotics do not work against viruses that cause colds and will not help you feel better.\n\nWhat is Common Cold?\nA common cold is a mild upper respiratory illness caused by a virus that resolves in a short period of time. Colds can have similar symptoms to flu. It can be difficult (or even impossible) to tell the difference between them based on symptoms alone.\n\nSymptoms\nSymptoms of a cold usually peak within 2 to 3 days, though some (especially runny nose and cough) can last up to 10–14 days. Symptoms can include:\n- Sneezing\n- Nasal congestion\n- Sore throat\n- Cough\n- Fever (although most people with colds do not have fever)\n- Mucus\n  * Clear mucus helps wash viruses from the nose and sinuses\n  * Mucus may change to a white, yellow, or green color after 2–3 days, this is normal\n\nCauses\nMore than 200 viruses can cause a cold, but rhinoviruses are the most common type. Viruses that cause colds can spread from person to person through the air and close personal contact.\n\nWhen to Seek Medical Care*\nSee a healthcare professional if you have:\n- Trouble breathing or fast breathing\n- Dehydration\n- Fever that lasts longer than 4 days\n- Symptoms that last more than 10 days without improvement\n- Symptoms, such as fever or cough, that improve but then return or worsen\n- Worsening of chronic medical conditions\n\n*This list is not all-inclusive. Please see a healthcare professional for any symptom that is severe or concerning.\nTalk to a healthcare professional right away if your child is under 3 months old with a fever of 100.4 °F (38 °C) or higher.\n\nTreatment\nThere is no cure for a cold. It will get better on its own—without antibiotics. Antibiotics won’t help you get better if you have a cold.",
           "This includes people 65 years and older, people of any age with certain chronic medical conditions (such as asthma, diabetes, or heart disease), pregnant women and children younger than 5 years, but especially those younger than 2 years old.\n\nCold versus flu\n\n| Signs and Symptoms | Cold | Influenza (Flu) |\n| --- | --- | --- |\n| Symptom onset | Gradual | Abrupt |\n| Fever | Rare | Common; lasts 3-4 days |\n| Aches | Slight | Common; often severe |\n| Chills | Uncommon | Fairly common |\n| Fatigue, weakness | Sometimes | Usual |\n| Sneezing | Common | Sometimes |\n| Chest discomfort, cough | Mild to moderate; hacking cough | Common; can be severe |\n| Stuffy nose | Common | Sometimes |\n| Sore throat | Common | Sometimes |\n| Headache | Rare | Common |\n\nSources\nhttps://www.cdc.gov/flu/signs-symptoms/index.html"
+        ],
+        "link": [
+          "https://www.cdc.gov/common-cold/media/pdfs/2026/03/BAA_Common-Cold_Final-508.pdf",
+          "https://www.cdc.gov/flu/signs-symptoms/index.html"
         ],
         "parse_error": false
       },
@@ -191,31 +196,31 @@
     },
     {
       "name": "meningococcal_clinical_features",
-      "purpose": "Tests retrieval and red-flag matching for an explicitly high-concern symptom combination in the knowledge base.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: sudden fever and rash, sudden high fever, neck stiffness, confusion, purpuric rash.",
+      "purpose": "Tests retrieval for an explicitly high-concern symptom combination in the knowledge base.",
+      "query": "Clinical guidance, and diagnostic criteria for: sudden fever and rash, sudden high fever, neck stiffness, confusion, purpuric rash.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.7164623354811179,
-            "file_name": "Lyme Disease.txt",
-            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
-          },
-          {
-            "score": 0.715812346810471,
+            "score": 0.714929699897766,
             "file_name": "Meningococcal Disease.txt",
             "text_preview": "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropria"
+          },
+          {
+            "score": 0.70756459236145,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
           }
         ],
         "filtered_candidates": [
           {
-            "score": 0.7164623354811179,
-            "file_name": "Lyme Disease.txt",
-            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
-          },
-          {
-            "score": 0.715812346810471,
+            "score": 0.714929699897766,
             "file_name": "Meningococcal Disease.txt",
             "text_preview": "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropria"
+          },
+          {
+            "score": 0.70756459236145,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
           }
         ]
       },
@@ -228,17 +233,9 @@
           "pass": true,
           "detail": "valid structured result"
         },
-        "red_flags": {
-          "pass": true,
-          "detail": "matched expected red-flag term: neck stiffness"
-        },
-        "urgency": {
-          "pass": true,
-          "detail": "expected urgency=True, actual=True"
-        },
         "answer_content": {
-          "pass": false,
-          "detail": "forbidden answer wording detected: 'could be indicative of Lyme'"
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
         },
         "negative_control": {
           "pass": true,
@@ -246,51 +243,50 @@
         }
       },
       "rag_result": {
-        "answer": "Sudden fever and rash could be indicative of Lyme Disease, especially if the rash is an erythema migrans (EM) rash that appears 3 to 30 days after a tick bite. Sudden high fever, neck stiffness, confusion, and purpuric rash are indicative of meningococcal disease. Meningococcal disease is a serious and potentially life-threatening infection that requires prompt medical attention.",
-        "red_flags_identified": [
-          "Sudden high fever",
-          "Neck stiffness",
-          "Confusion",
-          "Purpuric rash"
-        ],
-        "requires_urgent_attention": true,
+        "answer": "Sudden fever and rash, sudden high fever, neck stiffness, confusion, and purpuric rash are clinical features of meningococcal disease. The context does not provide specific diagnostic criteria for these symptoms, but they are indicative of a potentially serious infection that requires prompt medical attention.",
         "confidence": "moderate match",
         "confidence_message": "This answer is only moderately grounded in the knowledge base — use caution and consider verifying key details independently.",
         "sources": [
-          "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick bite after a delay of 3 to 30 days (average is about 7 days)\n\t* Expands gradually over several days reaching up to 12 inches (30 cm) or more across\n\t* May feel warm to the touch but is rarely itchy or painful\n\t* Sometimes clears as it enlarges, resulting in a target or \"bull's-eye\" appearance\n\t* May appear on any area of the body\n\t* Does not always appear as a \"classic bull's-eye\" rash\n\n\nLATER SIGNS AND SYMPTOMS (days to months after tick bite)\n- Severe headaches and neck stiffness\n- Additional EM rashes on other areas of the body\n- Facial palsy (loss of muscle tone or droop on one or both sides of the face)\n- Arthritis with severe joint pain and swelling, particularly the knees and other large joints.\n- Intermittent pain in tendons, muscles, joints, and bones\n- Heart palpitations or an irregular heartbeat (Lyme carditis)\n- Episodes of dizziness or shortness of breath\n- Inflammation of the brain and spinal cord\n- Nerve pain\n- Shooting pains, numbness, or tingling in the hands or feet",
-          "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropriate treatment, the infection can progress rapidly and result in death.\n\nAsymptomatic nasopharyngeal carriage of N. meningitidis is common, but few carriers develop invasive disease, and carriers without an exposure do not require treatment or chemoprophylaxis. Persons who have close contact with persons with invasive disease are at substantially increased risk for acquiring carriage and disease.\n\nPatients infected with N. meningitidis may be contagious in the 7 days before symptom onset and are rendered noninfectious by 24 hours of effective antimicrobial therapy. Cases occur in all age groups; however, children less than 2 years old, adolescents 16 through 23 years old, and adults 85 years of age or older have higher rates of disease than other age groups. In addition, people with certain medical conditions, such as functional or anatomic asplenia; persistent complement component deficiencies (e.g., C3, C5-9, properdin, factor H, factor D or are taking eculizumab or ravulizumab); and HIV infection are at increased risk for meningococcal disease.\n\nThe incubation period of meningococcal disease is 3 to 4 days, with a range of 1 to 10 days."
+          "CLINICAL FEATURES:\nMeningococcal disease is a serious and potentially life-threatening infection. Common signs and symptoms of meningococcal disease include sudden onset of high fever, neck stiffness, confusion, nausea, vomiting, lethargy, and petechial or purpuric rash. Without prompt and appropriate treatment, the infection can progress rapidly and result in death.\n\nAsymptomatic nasopharyngeal carriage of N. meningitidis is common, but few carriers develop invasive disease, and carriers without an exposure do not require treatment or chemoprophylaxis. Persons who have close contact with persons with invasive disease are at substantially increased risk for acquiring carriage and disease.\n\nPatients infected with N. meningitidis may be contagious in the 7 days before symptom onset and are rendered noninfectious by 24 hours of effective antimicrobial therapy. Cases occur in all age groups; however, children less than 2 years old, adolescents 16 through 23 years old, and adults 85 years of age or older have higher rates of disease than other age groups. In addition, people with certain medical conditions, such as functional or anatomic asplenia; persistent complement component deficiencies (e.g., C3, C5-9, properdin, factor H, factor D or are taking eculizumab or ravulizumab); and HIV infection are at increased risk for meningococcal disease.\n\nThe incubation period of meningococcal disease is 3 to 4 days, with a range of 1 to 10 days.",
+          "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick bite after a delay of 3 to 30 days (average is about 7 days)\n\t* Expands gradually over several days reaching up to 12 inches (30 cm) or more across\n\t* May feel warm to the touch but is rarely itchy or painful\n\t* Sometimes clears as it enlarges, resulting in a target or \"bull's-eye\" appearance\n\t* May appear on any area of the body\n\t* Does not always appear as a \"classic bull's-eye\" rash\n\n\nLATER SIGNS AND SYMPTOMS (days to months after tick bite)\n- Severe headaches and neck stiffness\n- Additional EM rashes on other areas of the body\n- Facial palsy (loss of muscle tone or droop on one or both sides of the face)\n- Arthritis with severe joint pain and swelling, particularly the knees and other large joints.\n- Intermittent pain in tendons, muscles, joints, and bones\n- Heart palpitations or an irregular heartbeat (Lyme carditis)\n- Episodes of dizziness or shortness of breath\n- Inflammation of the brain and spinal cord\n- Nerve pain\n- Shooting pains, numbness, or tingling in the hands or feet"
+        ],
+        "link": [
+          "https://www.cdc.gov/infection-control/hcp/healthcare-personnel-epidemiology-control/meningococcal-disease.html",
+          "https://www.cdc.gov/lyme/about/index.html",
+          "https://www.cdc.gov/lyme/signs-symptoms/index.html",
+          "https://www.cdc.gov/lyme/diagnosis-testing/index.html"
         ],
         "parse_error": false
       },
-      "pass": false
+      "pass": true
     },
     {
       "name": "asthma_pattern",
-      "purpose": "Tests straightforward asthma retrieval and rejects a false bronchitis duration red flag that the patient does not meet.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: breathing problems, wheezing, chest tightness, cough at night.",
+      "purpose": "Tests straightforward asthma retrieval and rejects a false bronchitis duration criterion that the patient does not meet.",
+      "query": "Clinical guidance, and diagnostic criteria for: breathing problems, wheezing, chest tightness, cough at night.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.724819140147023,
+            "score": 0.737133741378784,
             "file_name": "Asthma.txt",
             "text_preview": "Asthma\n\nKEY POINTS\n- Asthma is a disease that affects your lungs.\n- It is one of the most common long-term diseases of children, but adults can have asthma, too.\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning.\n\nSYMPTOMS\n- Asthma causes wheezi"
           },
           {
-            "score": 0.6839340517560231,
-            "file_name": "Chest Cold (Acute Bronchitis).txt",
-            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+            "score": 0.705478191375732,
+            "file_name": "Covid 19.txt",
+            "text_preview": "But there are things you can do to help ease someof the symptoms, such as a high temperature, a cough and breathlessness.\r\rDO:\r- get lots of rest\r- drink plenty of water to avoid dehydration (your pee should be light yellow orclear)\r- take paracetamol or ibuprofen if you feel uncomfortable\r- try hav"
           }
         ],
         "filtered_candidates": [
           {
-            "score": 0.724819140147023,
+            "score": 0.737133741378784,
             "file_name": "Asthma.txt",
             "text_preview": "Asthma\n\nKEY POINTS\n- Asthma is a disease that affects your lungs.\n- It is one of the most common long-term diseases of children, but adults can have asthma, too.\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning.\n\nSYMPTOMS\n- Asthma causes wheezi"
           },
           {
-            "score": 0.6839340517560231,
-            "file_name": "Chest Cold (Acute Bronchitis).txt",
-            "text_preview": "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usual"
+            "score": 0.705478191375732,
+            "file_name": "Covid 19.txt",
+            "text_preview": "But there are things you can do to help ease someof the symptoms, such as a high temperature, a cough and breathlessness.\r\rDO:\r- get lots of rest\r- drink plenty of water to avoid dehydration (your pee should be light yellow orclear)\r- take paracetamol or ibuprofen if you feel uncomfortable\r- try hav"
           }
         ]
       },
@@ -303,14 +299,6 @@
           "pass": true,
           "detail": "valid structured result"
         },
-        "red_flags": {
-          "pass": false,
-          "detail": "expected no red flags; returned: ['Symptoms that last more than 3 weeks']"
-        },
-        "urgency": {
-          "pass": false,
-          "detail": "expected urgency=False, actual=True"
-        },
         "answer_content": {
           "pass": true,
           "detail": "no forbidden answer wording detected"
@@ -321,46 +309,46 @@
         }
       },
       "rag_result": {
-        "answer": "Breathing problems, wheezing, chest tightness, and cough at night can be symptoms of asthma or acute bronchitis. For asthma, these symptoms can be managed by avoiding triggers and following a doctor's advice. For acute bronchitis, these symptoms are common and usually resolve within 3 weeks. If symptoms persist beyond 3 weeks, it is advisable to seek medical care.",
-        "red_flags_identified": [
-          "Symptoms that last more than 3 weeks"
-        ],
-        "requires_urgent_attention": true,
+        "answer": "Breathing problems, wheezing, chest tightness, and cough at night are symptoms of asthma. To diagnose asthma, a doctor may ask about frequent coughing, especially at night, and whether breathing problems worsen after physical activity or at certain times of year. The doctor may also inquire about chest tightness, wheezing, and prolonged colds. Family history of asthma, allergies, or other breathing problems, as well as the impact of symptoms on daily activities, may also be discussed. A breathing test called spirometry may be performed to assess lung function before and after using asthma medication.",
         "confidence": "strong match",
         "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
         "sources": [
           "Asthma\n\nKEY POINTS\n- Asthma is a disease that affects your lungs.\n- It is one of the most common long-term diseases of children, but adults can have asthma, too.\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning.\n\nSYMPTOMS\n- Asthma causes wheezing, breathlessness, chest tightness, and coughing at night or early in the morning. \n- If you have asthma, you have it all the time, but you will have asthma attacks only when something bothers your lungs.\n- An asthma attack may include coughing, chest tightness, wheezing, and trouble breathing. \n- The attack happens in your body's airways, which are the paths that carry air to your lungs. As the air moves through your lungs, the airways become smaller, like the branches of a tree are smaller than the tree trunk. During an asthma attack, the sides of the airways in your lungs swell and the airways shrink. Less air gets in and out of your lungs, and mucous that your body makes clogs up the airways.\n- You can control your asthma by knowing the warning signs of an asthma attack, staying away from things that cause an attack, and following your doctor's advice.\n\nDIAGNOSIS\n- It can be hard to tell if someone has asthma, especially in children under age 5. A doctor can help you find out if you have asthma.\n- During a checkup, a doctor may ask if you cough a lot, especially at night. \n- The doctor may also ask whether your breathing problems are worse after physical activity or at certain times of year. \n- The doctor may ask about chest tightness, wheezing, and colds lasting more than 10 days. \n- The docotr may ask whether anyone in your family has or has had asthma, allergies, or other breathing problems. \n- The doctor may ask about your home and whether you have missed school or work or have trouble doing certain things.\n- The doctor may also do a breathing test, called spirometry, to find out how well your lungs are working. Spirometry tests how much air you breathe out after taking a very deep breath before and after you use asthma medicine.",
-          "Chest Cold (Acute Bronchitis) Basics\n\nKEY POINTS\n- Cough keeping you up at night? Congestion? Sore throat? You may have a chest cold (or acute bronchitis).\n- If you're a healthy person without underlying heart or lung problems or a weakened immune system, this information is for you.\n- Viruses usually cause chest colds.\n- Antibiotics will not help you feel better if you have a chest cold.\n\nOverview\nAcute bronchitis (often called a “chest cold”) occurs when the airways of the lungs swell and produce mucus (a thick, sticky fluid).\n\nSymptoms\nSymptoms of acute bronchitis last less than 3 weeks and can include:\n- Coughing with or without mucus\n- Feeling tired\n- Swelling of airways in the lungs produce mucus in the lungs and makes you cough.\n- Congestion\n- Sore throat\n- Mild body aches\n\nCauses\nA virus usually causes a chest cold. Bacteria can sometimes cause a chest cold, but even in these cases, antibiotics are NOT recommended and will not help you feel better.\n\nPrevention\nCDC recommends that all people use core prevention strategies. These are important steps you can take to protect yourself and others from respiratory viruses, including those that cause acute bronchitis:\n- Stay up to date with recommended vaccines and boosters, such as the flu vaccine.\n- Practice good hygiene (practices that improve cleanliness).\n  * Cover your coughs and sneezes\n  * Wash or sanitize your hands often\n  * Clean frequently touched surfaces\n- Take steps for cleaner air.\n  * Bring in fresh outside air\n  * Purify indoor air\n  * Gather outdoors\n\nWhen to seek medical care\nSee a healthcare professional if you have any of the following:\n- Fever that lasts longer than 5 days or fever of 104°F or higher\n- Cough with bloody mucus\n- Shortness of breath or trouble breathing\n- Symptoms that last more than 3 weeks\n- Repeated episodes of bronchitis\n\nThis list is not all-inclusive. Please see a healthcare professional for any symptom that is severe or concerning."
+          "But there are things you can do to help ease someof the symptoms, such as a high temperature, a cough and breathlessness.\r\rDO:\r- get lots of rest\r- drink plenty of water to avoid dehydration (your pee should be light yellow orclear)\r- take paracetamol or ibuprofen if you feel uncomfortable\r- try having a teaspoon of honey if you have a cough – do not give honey tobabies under 12 months\r- try turning the heating down or opening a window to help withbreathlessness\r- breathe slowly in through your nose and out through your mouth, with yourlips together like you're gently blowing out a candle\r- sit upright in a chair to help with breathlessness\r- relax your shoulders, so you're not hunched to help with breathlessness\r- lean forward slightly – support yourself by putting your hands on your kneesor on something stable like a chair to help with breathlessness\n\n\rDON’T\r- do not lie on your back if you have a cough – lie on your side or sit uprightinstead\r- do not use a fan to cool your room as it may spread the virus\r- try not to panic if you're feeling breathless – this can make it worse\r\r\rA PHARMACIST CAN HELP WITH A COUGH:\r- If you have a cough, you can ask a pharmacist for advice about cough treatments."
+        ],
+        "link": [
+          "https://www.cdc.gov/asthma/about/index.html",
+          "https://www.nhs.uk/conditions/covid-19/covid-19-symptoms-and-what-to-do/"
         ],
         "parse_error": false
       },
-      "pass": false
+      "pass": true
     },
     {
       "name": "strep_throat_pattern",
-      "purpose": "Tests straightforward strep-throat retrieval and verifies that ordinary listed symptoms are not relabelled as red flags.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: sore throat, fever, pain when swallowing, red swollen tonsils.",
+      "purpose": "Tests straightforward strep-throat retrieval and verifies that ordinary listed symptoms are described accurately.",
+      "query": "Clinical guidance, and diagnostic criteria for: sore throat, fever, pain when swallowing, red swollen tonsils.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.7483953237533569,
+            "score": 0.7542879806246761,
             "file_name": "Strep Throat.txt",
             "text_preview": "About Strep Throat\n\nKEY POINTS\n- Strep throat is a bacterial infection in the throat and tonsils.\n- Healthcare providers can do a quick test to see if a sore throat is strep throat.\n- Antibiotics can help people with strep throat feel better faster.\n- Speak with a healthcare provider if you have con"
           },
           {
-            "score": 0.68709933757782,
+            "score": 0.7003439873559469,
             "file_name": "Ear Infection.txt",
             "text_preview": "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but man"
           }
         ],
         "filtered_candidates": [
           {
-            "score": 0.7483953237533569,
+            "score": 0.7542879806246761,
             "file_name": "Strep Throat.txt",
             "text_preview": "About Strep Throat\n\nKEY POINTS\n- Strep throat is a bacterial infection in the throat and tonsils.\n- Healthcare providers can do a quick test to see if a sore throat is strep throat.\n- Antibiotics can help people with strep throat feel better faster.\n- Speak with a healthcare provider if you have con"
           },
           {
-            "score": 0.68709933757782,
+            "score": 0.7003439873559469,
             "file_name": "Ear Infection.txt",
             "text_preview": "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but man"
           }
@@ -375,14 +363,6 @@
           "pass": true,
           "detail": "valid structured result"
         },
-        "red_flags": {
-          "pass": false,
-          "detail": "expected no red flags; returned: ['Sore throat that started very quickly and may look red', 'Swollen lymph nodes in the front of the neck', 'White patches or streaks of pus on the tonsils', 'Fever', 'Pain when swallowing', 'Red and swollen tonsils']"
-        },
-        "urgency": {
-          "pass": false,
-          "detail": "expected urgency=False, actual=True"
-        },
         "answer_content": {
           "pass": true,
           "detail": "no forbidden answer wording detected"
@@ -393,46 +373,41 @@
         }
       },
       "rag_result": {
-        "answer": "Sore throat, fever, pain when swallowing, and red swollen tonsils are common symptoms of strep throat. A healthcare provider can do a quick test to see if a sore throat is strep throat. Antibiotics can help people with strep throat feel better faster.",
-        "red_flags_identified": [
-          "Sore throat that started very quickly and may look red",
-          "Swollen lymph nodes in the front of the neck",
-          "White patches or streaks of pus on the tonsils",
-          "Fever",
-          "Pain when swallowing",
-          "Red and swollen tonsils"
-        ],
-        "requires_urgent_attention": true,
+        "answer": "The symptoms of sore throat, fever, pain when swallowing, and red swollen tonsils are common symptoms of strep throat. Healthcare providers can do a quick test to see if a sore throat is strep throat. If you have these symptoms, it is advisable to speak with a healthcare provider.",
         "confidence": "strong match",
         "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
         "sources": [
           "About Strep Throat\n\nKEY POINTS\n- Strep throat is a bacterial infection in the throat and tonsils.\n- Healthcare providers can do a quick test to see if a sore throat is strep throat.\n- Antibiotics can help people with strep throat feel better faster.\n- Speak with a healthcare provider if you have concerns about strep throat.\n\nWhat it is\nStrep throat is a bacterial infection in the throat and tonsils.\n\nWorried your sore throat may be strep throat?\nViruses cause most sore throats. Only around 1 in 10 adults and 3 in 10 children with a sore throat have strep throat.\n\nSymptoms\nIt usually takes 2 to 5 days after exposure to become ill with strep throat.\n\nCommon symptoms may include:\n- Fever\n- Pain when swallowing\n- Red and swollen tonsils\n- Sore throat that started very quickly and may look red\n- Swollen lymph nodes in the front of the neck\n- Tiny, red spots on the roof of the mouth, called petechiae\n- White patches or streaks of pus on the tonsils\n- Swelling, redness, and white patches are common symptoms of strep throat.\n\nLess common symptoms, especially for children, may include:\n- Headache\n- Nausea or vomiting\n- Rash (scarlet fever)\n- Stomach pain\n\nComplications\nComplications can occur after a strep throat infection if the bacteria spread to other parts of the body.\nComplications can include:\n- Abscesses (pockets of pus) around the tonsils or in the neck\n- Ear infections\n- Post-streptococcal glomerulonephritis (a kidney disease)\n- Rheumatic fever (a disease affecting the heart, joints, brain, skin)\n- Sinus infections\n\nRisk factors\nAnyone can get strep throat, but some factors increase the risk of getting it.\n\nAge\nStrep throat is more common in children than adults.\n- Most common: Children 5 through 15 years old\n- Rare: Children younger than 3 years old\n\nClose contact\nClose contact with another person with strep throat is the most common risk factor for illness. For example, if someone has strep throat, the bacteria often spread to other people in their household.",
           "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but many can get better on their own without antibiotics.\n\nWhat is an ear infection?\nThere are different types of ear infections. Middle ear infection (acute otitis media) is an infection in the middle ear. \nAnother condition that affects the middle ear is called otitis media with effusion. It occurs when fluid builds up in the middle ear without being infected and without causing fever, ear pain, or pus buildup in the middle ear.\nWhen the outer ear canal is infected, the condition is called “swimmer’s ear,” which is different from a middle ear infection. \n\nCauses \nMiddle ear infections can be caused by: \n- Bacteria, like Streptococcus pneumoniae and Haemophilus influenzae (nontypeable)—the two most common bacterial causes.\n- Viruses, like those that cause colds or flu.\n\nSymptoms\nCommon symptoms of middle ear infection in children can include:\n- Ear pain.\n- Fever.\n- Fussiness or irritability.\n- Rubbing or tugging at an ear.\n- Difficulty sleeping.\n\nWhen to Seek Medical Care\nSee a doctor if your child has:\n- A fever of 102.2°F (39°C) or higher.\n- Pus, discharge, or fluid coming from the ear.\n- Worsening symptoms.\n- Symptoms of a middle ear infection that last for more than 2–3 days.\n- Hearing loss.\n\nPediatric Warning:\nSee a doctor right away if your child is younger than 3 months old and has a fever greater than 100.4 °F (38 °C). \n\nTreatment\nA doctor will determine what type of illness your child has by asking about symptoms and doing a physical examination. Your doctor can make the diagnosis of a middle ear infection by looking inside your child’s ear to examine the eardrum and see if there is pus in the middle ear. \nAntibiotics are often not needed for middle ear infections because the body’s immune system can fight off the infection on its own."
         ],
+        "link": [
+          "https://www.cdc.gov/group-a-strep/about/strep-throat.html",
+          "https://www.cdc.gov/antibiotic-use/communication-resources/preventing-treating-ear-infections.html"
+        ],
         "parse_error": false
       },
-      "pass": false
+      "pass": true
     },
     {
       "name": "pink_eye_pattern",
       "purpose": "Tests conjunctivitis retrieval and verifies that conditional contact-lens guidance is not applied when contact-lens use was never stated by the patient.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: red eye, purulent eye discharge, eyelids matted together, decreased vision, left eye.",
+      "query": "Clinical guidance, and diagnostic criteria for: red eye, purulent eye discharge, eyelids matted together, decreased vision, left eye.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.7279176278163431,
+            "score": 0.7282257838114641,
             "file_name": "Pink Eye.txt",
             "text_preview": "Bacterial Conjunctivitis Features:\nSigns and symptoms of bacterial conjunctivitis overlap with other causes of conjunctivitis, including viral and allergic conjunctivitis, which can make diagnosis difficult.\nTypical signs and symptoms include:\n- Red eye\n- Purulent discharge that causes eyelids to be"
           },
           {
-            "score": 0.660936792520785,
+            "score": 0.662106056872191,
             "file_name": "Pink Eye.txt",
             "text_preview": "These include from:\n- Hand-to-eye contact\n- Contact of eye with contaminated objects\n- Sexual encounters with eye to genital contact, or vertically from mother to baby\n- Large respiratory tract droplets\nAlternatively, changes in the usual bacteria that live on the conjunctiva can also cause conjunct"
           }
         ],
         "filtered_candidates": [
           {
-            "score": 0.7279176278163431,
+            "score": 0.7282257838114641,
             "file_name": "Pink Eye.txt",
             "text_preview": "Bacterial Conjunctivitis Features:\nSigns and symptoms of bacterial conjunctivitis overlap with other causes of conjunctivitis, including viral and allergic conjunctivitis, which can make diagnosis difficult.\nTypical signs and symptoms include:\n- Red eye\n- Purulent discharge that causes eyelids to be"
           }
@@ -447,17 +422,9 @@
           "pass": true,
           "detail": "valid structured result"
         },
-        "red_flags": {
-          "pass": false,
-          "detail": "expected no red flags; returned: ['Contact lens wearers with bacterial conjunctivitis are at higher risk of bacterial keratitis.']"
-        },
-        "urgency": {
-          "pass": false,
-          "detail": "expected urgency=False, actual=True"
-        },
         "answer_content": {
-          "pass": false,
-          "detail": "forbidden answer wording detected: 'contact lens wearers with these symptoms should'"
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
         },
         "negative_control": {
           "pass": true,
@@ -465,35 +432,34 @@
         }
       },
       "rag_result": {
-        "answer": "The symptoms of red eye, purulent eye discharge, eyelids matted together, and decreased vision in the left eye are consistent with bacterial conjunctivitis. Contact lens wearers with these symptoms should be asked to remove their contact lenses, treated with topical antibiotics, and promptly evaluated by an ophthalmologist due to the higher risk of bacterial keratitis. Patients should be advised to remain home if they have systemic signs of illness and should return to work or school only after receiving clinician approval and implementing any indicated therapy. Patients with viral conjunctivitis should be counseled to prevent transmission by washing hands frequently, using separate towels, and avoiding close contact with others.",
-        "red_flags_identified": [
-          "Contact lens wearers with bacterial conjunctivitis are at higher risk of bacterial keratitis."
-        ],
-        "requires_urgent_attention": true,
+        "answer": "The symptoms of red eye, purulent eye discharge, eyelids matted together, and decreased vision in the left eye are consistent with bacterial conjunctivitis. However, the context does not provide specific diagnostic criteria for these symptoms. It is important to note that these symptoms can overlap with other causes of conjunctivitis, such as viral and allergic conjunctivitis. Further evaluation by a healthcare professional may be necessary to determine the exact cause and appropriate treatment.",
         "confidence": "strong match",
         "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
         "sources": [
           "Bacterial Conjunctivitis Features:\nSigns and symptoms of bacterial conjunctivitis overlap with other causes of conjunctivitis, including viral and allergic conjunctivitis, which can make diagnosis difficult.\nTypical signs and symptoms include:\n- Red eye\n- Purulent discharge that causes eyelids to be matted together\n- Chemosis\n- Decreased vision\n- Eyelid swelling and pain\n\nTreatment and recovery\nMost cases of acute, infectious conjunctivitis in adults are viral and self-limited; these cases do not require antimicrobial treatment. Antiviral medication may be used to treat more serious forms of conjunctivitis. This can include conjunctivitis caused by herpes simplex virus or varicella-zoster virus.\n\nContact lens wearers with bacterial conjunctivitis are at higher risk of bacterial keratitis. They should be asked to remove their contact lenses; treated with topical antibiotics; and promptly evaluated by an ophthalmologist.\n\nPatient counseling\n- Advise patients to remain home if they have viral or bacterial conjunctivitis with systemic signs of illness, especially if they cannot avoid close contact with others. Patients may return to work or school if they receive clinician approval and after any indicated therapy is implemented.\n- Counsel patients with viral conjunctivitis to prevent transmission by washing hands frequently, using separate towels, and avoiding close contact with others.\n\nSources\nhttps://www.cdc.gov/conjunctivitis/hcp/clinical-overview/index.html"
         ],
+        "link": [
+          "https://www.cdc.gov/conjunctivitis/hcp/clinical-overview/index.html"
+        ],
         "parse_error": false
       },
-      "pass": false
+      "pass": true
     },
     {
       "name": "unsupported_urinary_presentation",
       "purpose": "Negative-control case: the supplied knowledge base contains no urinary-condition document, so retrieval should reject the presentation rather than force an unrelated match.",
-      "query": "Clinical guidance, red flags, and diagnostic criteria for: burning when urinating, burning urination, urinary frequency.",
+      "query": "Clinical guidance, and diagnostic criteria for: burning when urinating, burning urination, urinary frequency.",
       "retrieval": {
         "raw_candidates": [
           {
-            "score": 0.587349772453312,
-            "file_name": "Meningococcal Disease.txt",
-            "text_preview": "TESTING AND DIAGNOSIS:\nDiagnosis of meningococcal disease can pose challenges because its initial clinical manifestations are similar to more common, but less serious, illnesses12. Hence, laboratory testing is helpful in confirming the diagnosis. N. meningitidis is confirmed through culture or polym"
+            "score": 0.615823961247443,
+            "file_name": "Heartburn and acid reflux.txt",
+            "text_preview": "IMPORTANT:\n- If a PPI does not help, your doctor may suggest trying a different type of medicine called an H2 receptor antagonist, such as famotidine.\n\n\nTESTS AND TREATMENTS FOR SEVERE HEARTBURN AND ACID REFLUX:\nIf medicines do not help or your symptoms are severe, a GP may refer you to a specialist"
           },
           {
-            "score": 0.578301991325499,
-            "file_name": "Asthma.txt",
-            "text_preview": "- The doctor may also do a breathing test, called spirometry, to find out how well your lungs are working. Spirometry tests how much air you breathe out after taking a very deep breath before and after you use asthma medicine.\n\nSYMPTOM MANAGEMENT\n\n- Take your medicine exactly as your doctor tells yo"
+            "score": 0.61187332868576,
+            "file_name": "Appendicitis.txt",
+            "text_preview": "GO TO A&E IF:\nYou or your child have:\n- severe pain in your abdomen (tummy)\n- confusion, blotchy or paler than usual skin (on brown or black skin this may be easier to see on the palms of the hands or soles of the feet) or difficulty breathing – these could be signs of sepsis\n\n\nHOW APPENDICITIS IS D"
           }
         ],
         "filtered_candidates": []
@@ -507,13 +473,63 @@
           "pass": true,
           "detail": "valid structured result"
         },
-        "red_flags": {
+        "answer_content": {
           "pass": true,
-          "detail": "red-flag behaviour matched expectations"
+          "detail": "no forbidden answer wording detected"
         },
-        "urgency": {
+        "negative_control": {
           "pass": true,
-          "detail": "expected urgency=False, actual=False"
+          "detail": "RAG correctly returned no grounded source"
+        }
+      },
+      "rag_result": {
+        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
+        "confidence": "weak match",
+        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
+        "sources": [],
+        "link": [],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "appendicitis_migrating_abdominal_pain",
+      "purpose": "Tests retrieval and urgent-care guidance for abdominal pain that moves to the lower right side.",
+      "query": "Clinical guidance, and diagnostic criteria for: worsening abdominal pain, pain around belly button, pain moved to lower right abdomen.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.810731053352356,
+            "file_name": "Appendicitis.txt",
+            "text_preview": "APPENDICITIS:\n\n\nOVERVIEW:\nAppendicitis is swelling and infection in your appendix (part of your bowel). It usually causes pain in the lower right side of your abdomen (tummy). It needs urgent treatment in hospital.\n\n\nSYMPTOMS OF APPENDICITIS:\n- Symptoms of appendicitis usually start with pain in the"
+          },
+          {
+            "score": 0.7453546524047849,
+            "file_name": "Appendicitis.txt",
+            "text_preview": "GO TO A&E IF:\nYou or your child have:\n- severe pain in your abdomen (tummy)\n- confusion, blotchy or paler than usual skin (on brown or black skin this may be easier to see on the palms of the hands or soles of the feet) or difficulty breathing – these could be signs of sepsis\n\n\nHOW APPENDICITIS IS D"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.810731053352356,
+            "file_name": "Appendicitis.txt",
+            "text_preview": "APPENDICITIS:\n\n\nOVERVIEW:\nAppendicitis is swelling and infection in your appendix (part of your bowel). It usually causes pain in the lower right side of your abdomen (tummy). It needs urgent treatment in hospital.\n\n\nSYMPTOMS OF APPENDICITIS:\n- Symptoms of appendicitis usually start with pain in the"
+          },
+          {
+            "score": 0.7453546524047849,
+            "file_name": "Appendicitis.txt",
+            "text_preview": "GO TO A&E IF:\nYou or your child have:\n- severe pain in your abdomen (tummy)\n- confusion, blotchy or paler than usual skin (on brown or black skin this may be easier to see on the palms of the hands or soles of the feet) or difficulty breathing – these could be signs of sepsis\n\n\nHOW APPENDICITIS IS D"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Appendicitis.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
         },
         "answer_content": {
           "pass": true,
@@ -521,16 +537,464 @@
         },
         "negative_control": {
           "pass": true,
-          "detail": "RAG correctly returned no grounded source/red flag"
+          "detail": "not a negative-control case"
         }
       },
       "rag_result": {
-        "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
-        "red_flags_identified": [],
-        "requires_urgent_attention": false,
-        "confidence": "weak match",
-        "confidence_message": "No relevant clinical guidelines matched the search criteria.",
-        "sources": [],
+        "answer": "The patient should be advised to seek an urgent GP appointment or go to A&E if the abdominal pain is gradually getting worse or does not go away, and moves to the lower right side of the abdomen. The GP or hospital doctor will feel the abdomen to check for pain and swelling. The patient will need to go to hospital for tests such as blood tests, urine tests, ultrasound or CT scans, and possibly a pregnancy test if applicable. It can be hard to diagnose appendicitis because the symptoms can be similar to other conditions. Sometimes doctors will wait a few hours to see how the symptoms develop in hospital. If the symptoms strongly suggest appendicitis, or if the appendix may have burst, surgery may be recommended instead of waiting for more tests.",
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "APPENDICITIS:\n\n\nOVERVIEW:\nAppendicitis is swelling and infection in your appendix (part of your bowel). It usually causes pain in the lower right side of your abdomen (tummy). It needs urgent treatment in hospital.\n\n\nSYMPTOMS OF APPENDICITIS:\n- Symptoms of appendicitis usually start with pain in the middle of your abdomen (tummy), around your belly button. After a few hours the pain usually moves to the lower right side of your abdomen, and gets worse.\n- The pain may feel worse when you move, cough or press on the area. It may feel slightly better when you pull your knees up to your chest.\n- Some people with appendicitis do not have the usual pain symptoms. For example, you might have pain that's less severe, develops more slowly, or in a different place. This can be more likely if you're pregnant and in young children and older people.\n- Other symptoms of appendicitis can include:\n  * feeling or being sick, or loss of appetite\n  * a high temperature\n  * constipation or diarrhoea\n  * peeing more than usual\n  * sudden confusion (in older people)\n-If appendicitis is not treated quickly, your appendix can burst. If this happens your pain may suddenly get better for a short time. You'll then usually have severe pain that spreads to the whole of your abdomen. It may be very painful to move.\n\n\nIF YOU'RE NOT SURE IT'S APPENDICITIS:\nMany other conditions can cause pain in your abdomen, including:\n- urinary tract infections\n- kidney stones or gallstones\n- bowel problems such as irritable bowel syndrome or Crohn's disease\n- conditions affecting your womb or ovaries, such as pelvic inflammatory disease or a ruptured ovarian cyst\n- an ectopic pregnancy\nBut do not try to diagnose the problem yourself. Get medical help if you're worried.\n\n\nASK FOR AN URGENT GP APPOINTMENT OR GET HELP IF:\nYou or your child have pain in your abdomen (tummy) that:\n- is gradually getting worse or does not go away\n- moves to the lower right side of your abdomen",
+          "GO TO A&E IF:\nYou or your child have:\n- severe pain in your abdomen (tummy)\n- confusion, blotchy or paler than usual skin (on brown or black skin this may be easier to see on the palms of the hands or soles of the feet) or difficulty breathing – these could be signs of sepsis\n\n\nHOW APPENDICITIS IS DIAGNOSED:\n- If you have symptoms of appendicitis, a GP or hospital doctor will feel your abdomen (tummy) to check for pain and swelling.\n- You'll need to go to hospital for tests and treatment. Tests you may have include:\n  * blood tests\n  * testing a sample of your pee\n  * scans such as an ultrasound scan or CT scan to check for swelling in your appendix\n  * a pregnancy test if there's a chance you could be pregnant\n- There's no test that can always show if you have appendicitis. It can be hard to diagnose because the symptoms can be similar to other conditions. Sometimes doctors will try waiting a few hours to see how your symptoms develop in hospital.\n- If your symptoms mean it's very likely you have appendicitis, or if your appendix may have burst, doctors may recommend surgery instead of waiting for more tests."
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/appendicitis/"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "food_poisoning_dehydration",
+      "purpose": "Tests retrieval for vomiting and diarrhea with signs of dehydration.",
+      "query": "Clinical guidance, and diagnostic criteria for: vomiting and diarrhea, vomiting, diarrhea, urinating less than usual.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.7394187916364461,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "CALL EMERGENCY NOW IF:\n- you're worried about a baby under 12 months\n- your child stops breast or bottle feeding while they're ill\n- a child under 5 years has signs of dehydration, such as fewer wet nappies\n- you or your child (aged 5 years or over) still have signs of dehydration after using oral r"
+          },
+          {
+            "score": 0.7289318169436669,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "FOOD POISONING:\n\nFood poisoning is rarely serious and usually gets better within a week. You can normally treat yourself or your child at home.\n\nSYMPTOMS OF FOOD POISONING:\n- feeling sick or being sick\n- diarrhoea\n- tummy pain\n- a high temperature\n- feeling generally unwell\nThe symptoms usually star"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.7394187916364461,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "CALL EMERGENCY NOW IF:\n- you're worried about a baby under 12 months\n- your child stops breast or bottle feeding while they're ill\n- a child under 5 years has signs of dehydration, such as fewer wet nappies\n- you or your child (aged 5 years or over) still have signs of dehydration after using oral r"
+          },
+          {
+            "score": 0.7289318169436669,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "FOOD POISONING:\n\nFood poisoning is rarely serious and usually gets better within a week. You can normally treat yourself or your child at home.\n\nSYMPTOMS OF FOOD POISONING:\n- feeling sick or being sick\n- diarrhoea\n- tummy pain\n- a high temperature\n- feeling generally unwell\nThe symptoms usually star"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Food poisoning.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "For vomiting and diarrhea, the guidance is to stay at home and get plenty of rest, drink lots of fluids, and eat when you feel able to. Avoid fruit juice or fizzy drinks as they can make diarrhea worse. For vomiting, continue breast or bottle feeding your baby, and give babies on formula or solid foods small sips of water between feeds. For urinating less than usual, speak to a pharmacist if you have signs of dehydration, such as dark, smelly pee or peeing less than usual. They may recommend oral rehydration powder or medicine to stop diarrhea for a few hours.",
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "CALL EMERGENCY NOW IF:\n- you're worried about a baby under 12 months\n- your child stops breast or bottle feeding while they're ill\n- a child under 5 years has signs of dehydration, such as fewer wet nappies\n- you or your child (aged 5 years or over) still have signs of dehydration after using oral rehydration sachets\n- you or your child keep being sick and cannot keep fluid down\n- you or your child have bloody diarrhoea or bleeding from the bottom\n- you or your child have diarrhoea for more than 7 days or vomiting for more than 2 days\n- vomit blood or have vomit that looks like ground coffee\n- have green vomit (adults)\n- have yellow-green or green vomit (children)\n- may have swallowed something poisonous\n- have a stiff neck and pain when looking at bright lights\n- have a sudden, severe headache\n- have a sudden, severe tummy ache\n- have blue, grey, pale or blotchy skin, lips or tongue - on brown or black skin this may be easier to see on the palms of the hands or soles of the feet\n- are having severe difficulty breathing, or taking lots of quick, short breaths\n- are confused or not responding as usual\n- What we mean by severe pain\n- Severe pain:\t\n  * always there and so bad it's hard to think or talk\n  * you cannot sleep\n  * it's very hard to move, get out of bed, go to the bathroom, wash or dress\n- Moderate pain:\t\n  * always there\n  * makes it hard to concentrate or sleep\n  * you can manage to get up, wash or dress\n- Mild pain:\t\n  * comes and goes\n  * is annoying but does not stop you doing daily activities\n\nHOW YOU GET FOOD POISONING:\nFood poisoning is caused by eating something that has been contaminated with germs.\nThis can happen if food is:\n- not cooked or reheated thoroughly\n- not stored correctly – for example, it's not been frozen or chilled\n- left out for too long\n- handled by someone who's ill or has not washed their hands\n- eaten after its \"use by\" date\n- Any type of food can cause food poisoning.",
+          "FOOD POISONING:\n\nFood poisoning is rarely serious and usually gets better within a week. You can normally treat yourself or your child at home.\n\nSYMPTOMS OF FOOD POISONING:\n- feeling sick or being sick\n- diarrhoea\n- tummy pain\n- a high temperature\n- feeling generally unwell\nThe symptoms usually start within a few hours or a few days of eating food that caused the infection.\nSometimes symptoms do not start for a few weeks.\n\nHOW TO TREAT FOOD POISONING YOURSELF:\nIf you or your child have food poisoning, you can usually treat it at home.\nThe symptoms usually get better within a week.\nDiarrhoea and vomiting can usually be treated at home. The most important thing is to have lots of fluids to avoid dehydration.\n\nDO:\n- stay at home and get plenty of rest\n- drink lots of fluids, such as water or squash – take small sips if you feel sick\n- carry on breast or bottle feeding your baby – if they're being sick, try giving small feeds more often than usual\n- give babies on formula or solid foods small sips of water between feeds\n- eat when you feel able to – it may help to avoid foods that are fatty or spicy\n- take paracetamol if you're in discomfort – check the leaflet before giving it to your child\n\nDON’T:\n- do not have fruit juice or fizzy drinks – they can make diarrhoea worse\n- do not make baby formula weaker – use it at its usual strength\n- do not give children under 12 medicine to stop diarrhoea\n- do not give aspirin to children under 16\n\nA PHARMACIST CAN HELP WITH FOOD POISONING, SPEAK TO A PHARMACIST IF:\n- you or your child (over 5 years) have signs of dehydration, such as dark, smelly pee or peeing less than usual\n- you're an older person, have a weakened immune system, or have other health conditions that increase your risk of dehydration\n- you need to stop diarrhoea for a few hours\n- They may recommend:\n  * oral rehydration powder that you mix with water to make a drink\nmedicine to stop diarrhoea for a few hours, like loperamide (not suitable for children under 12)"
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/food-poisoning/"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "norovirus_after_exposure",
+      "purpose": "Tests retrieval for vomiting and diarrhea starting after contact with someone ill.",
+      "query": "Clinical guidance, and diagnostic criteria for: vomiting and diarrhea, vomiting, diarrhea, nausea.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.707880412592844,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "CALL EMERGENCY NOW IF:\n- you're worried about a baby under 12 months\n- your child stops breast or bottle feeding while they're ill\n- a child under 5 years has signs of dehydration, such as fewer wet nappies\n- you or your child (aged 5 years or over) still have signs of dehydration after using oral r"
+          },
+          {
+            "score": 0.707536118773455,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "FOOD POISONING:\n\nFood poisoning is rarely serious and usually gets better within a week. You can normally treat yourself or your child at home.\n\nSYMPTOMS OF FOOD POISONING:\n- feeling sick or being sick\n- diarrhoea\n- tummy pain\n- a high temperature\n- feeling generally unwell\nThe symptoms usually star"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.707880412592844,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "CALL EMERGENCY NOW IF:\n- you're worried about a baby under 12 months\n- your child stops breast or bottle feeding while they're ill\n- a child under 5 years has signs of dehydration, such as fewer wet nappies\n- you or your child (aged 5 years or over) still have signs of dehydration after using oral r"
+          },
+          {
+            "score": 0.707536118773455,
+            "file_name": "Food poisoning.txt",
+            "text_preview": "FOOD POISONING:\n\nFood poisoning is rarely serious and usually gets better within a week. You can normally treat yourself or your child at home.\n\nSYMPTOMS OF FOOD POISONING:\n- feeling sick or being sick\n- diarrhoea\n- tummy pain\n- a high temperature\n- feeling generally unwell\nThe symptoms usually star"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": false,
+          "detail": "expected one of ['Norovirus Stomach Bug.txt']; retrieved ['Food poisoning.txt', 'Food poisoning.txt']"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "Vomiting and diarrhea, vomiting, diarrhea, and nausea are symptoms of food poisoning. The symptoms usually start within a few hours or a few days of eating food that caused the infection. To treat food poisoning at home, stay at home and get plenty of rest, drink lots of fluids, eat when you feel able to, and take paracetamol if you're in discomfort. Avoid fruit juice or fizzy drinks, making baby formula weaker, giving children under 12 medicine to stop diarrhea, and giving aspirin to children under 16. If you or your child have signs of dehydration, speak to a pharmacist.",
+        "confidence": "moderate match",
+        "confidence_message": "This answer is only moderately grounded in the knowledge base — use caution and consider verifying key details independently.",
+        "sources": [
+          "CALL EMERGENCY NOW IF:\n- you're worried about a baby under 12 months\n- your child stops breast or bottle feeding while they're ill\n- a child under 5 years has signs of dehydration, such as fewer wet nappies\n- you or your child (aged 5 years or over) still have signs of dehydration after using oral rehydration sachets\n- you or your child keep being sick and cannot keep fluid down\n- you or your child have bloody diarrhoea or bleeding from the bottom\n- you or your child have diarrhoea for more than 7 days or vomiting for more than 2 days\n- vomit blood or have vomit that looks like ground coffee\n- have green vomit (adults)\n- have yellow-green or green vomit (children)\n- may have swallowed something poisonous\n- have a stiff neck and pain when looking at bright lights\n- have a sudden, severe headache\n- have a sudden, severe tummy ache\n- have blue, grey, pale or blotchy skin, lips or tongue - on brown or black skin this may be easier to see on the palms of the hands or soles of the feet\n- are having severe difficulty breathing, or taking lots of quick, short breaths\n- are confused or not responding as usual\n- What we mean by severe pain\n- Severe pain:\t\n  * always there and so bad it's hard to think or talk\n  * you cannot sleep\n  * it's very hard to move, get out of bed, go to the bathroom, wash or dress\n- Moderate pain:\t\n  * always there\n  * makes it hard to concentrate or sleep\n  * you can manage to get up, wash or dress\n- Mild pain:\t\n  * comes and goes\n  * is annoying but does not stop you doing daily activities\n\nHOW YOU GET FOOD POISONING:\nFood poisoning is caused by eating something that has been contaminated with germs.\nThis can happen if food is:\n- not cooked or reheated thoroughly\n- not stored correctly – for example, it's not been frozen or chilled\n- left out for too long\n- handled by someone who's ill or has not washed their hands\n- eaten after its \"use by\" date\n- Any type of food can cause food poisoning.",
+          "FOOD POISONING:\n\nFood poisoning is rarely serious and usually gets better within a week. You can normally treat yourself or your child at home.\n\nSYMPTOMS OF FOOD POISONING:\n- feeling sick or being sick\n- diarrhoea\n- tummy pain\n- a high temperature\n- feeling generally unwell\nThe symptoms usually start within a few hours or a few days of eating food that caused the infection.\nSometimes symptoms do not start for a few weeks.\n\nHOW TO TREAT FOOD POISONING YOURSELF:\nIf you or your child have food poisoning, you can usually treat it at home.\nThe symptoms usually get better within a week.\nDiarrhoea and vomiting can usually be treated at home. The most important thing is to have lots of fluids to avoid dehydration.\n\nDO:\n- stay at home and get plenty of rest\n- drink lots of fluids, such as water or squash – take small sips if you feel sick\n- carry on breast or bottle feeding your baby – if they're being sick, try giving small feeds more often than usual\n- give babies on formula or solid foods small sips of water between feeds\n- eat when you feel able to – it may help to avoid foods that are fatty or spicy\n- take paracetamol if you're in discomfort – check the leaflet before giving it to your child\n\nDON’T:\n- do not have fruit juice or fizzy drinks – they can make diarrhoea worse\n- do not make baby formula weaker – use it at its usual strength\n- do not give children under 12 medicine to stop diarrhoea\n- do not give aspirin to children under 16\n\nA PHARMACIST CAN HELP WITH FOOD POISONING, SPEAK TO A PHARMACIST IF:\n- you or your child (over 5 years) have signs of dehydration, such as dark, smelly pee or peeing less than usual\n- you're an older person, have a weakened immune system, or have other health conditions that increase your risk of dehydration\n- you need to stop diarrhoea for a few hours\n- They may recommend:\n  * oral rehydration powder that you mix with water to make a drink\nmedicine to stop diarrhoea for a few hours, like loperamide (not suitable for children under 12)"
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/food-poisoning/"
+        ],
+        "parse_error": false
+      },
+      "pass": false
+    },
+    {
+      "name": "ankle_sprain_recent_injury",
+      "purpose": "Tests retrieval for a recent ankle sprain and the source's initial self-care guidance.",
+      "query": "Clinical guidance, and diagnostic criteria for: ankle injury, ankle pain, swelling, bruising.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.690891582316663,
+            "file_name": "Sprains and strains.txt",
+            "text_preview": "SPRAINS AND STRAINS:\n\nOVERVIEW:\nSprains and strains are common injuries affecting the muscles and ligaments. Most can be treated at home without seeing a GP.\n\nSYMPTOMS OF A SPRAIN OR STRAIN:\nIt's likely to be a sprain or strain if:\n- you have pain, tenderness or weakness – usually around your ankle,"
+          },
+          {
+            "score": 0.684387166238597,
+            "file_name": "Sprains and strains.txt",
+            "text_preview": "HOW TO TREAT SPRAINS AND STRAINS YOURSELF:\nFor the first 2 to 3 days after a sprain or strain, follow the 5 steps known as PRICE therapy to help bring down swelling and support the injury:\n- Protection – protect the injury, for example by using a support, or shoes that support your foot or ankle.\n- "
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.690891582316663,
+            "file_name": "Sprains and strains.txt",
+            "text_preview": "SPRAINS AND STRAINS:\n\nOVERVIEW:\nSprains and strains are common injuries affecting the muscles and ligaments. Most can be treated at home without seeing a GP.\n\nSYMPTOMS OF A SPRAIN OR STRAIN:\nIt's likely to be a sprain or strain if:\n- you have pain, tenderness or weakness – usually around your ankle,"
+          },
+          {
+            "score": 0.684387166238597,
+            "file_name": "Sprains and strains.txt",
+            "text_preview": "HOW TO TREAT SPRAINS AND STRAINS YOURSELF:\nFor the first 2 to 3 days after a sprain or strain, follow the 5 steps known as PRICE therapy to help bring down swelling and support the injury:\n- Protection – protect the injury, for example by using a support, or shoes that support your foot or ankle.\n- "
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Sprains and strains.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "Based on the context information, an ankle injury with pain, swelling, and bruising is likely a sprain or strain. For sprains, it involves a torn or twisted ligament, most common in the ankle. For strains, it involves an overstretched or torn muscle, also common in the ankle. To treat it yourself, follow PRICE therapy: Protection, Rest, Ice, Compression, and Elevation. Over-the-counter painkillers like paracetamol and ibuprofen can help with pain and swelling. Consult a pharmacist for further treatment options.",
+        "confidence": "moderate match",
+        "confidence_message": "This answer is only moderately grounded in the knowledge base — use caution and consider verifying key details independently.",
+        "sources": [
+          "SPRAINS AND STRAINS:\n\nOVERVIEW:\nSprains and strains are common injuries affecting the muscles and ligaments. Most can be treated at home without seeing a GP.\n\nSYMPTOMS OF A SPRAIN OR STRAIN:\nIt's likely to be a sprain or strain if:\n- you have pain, tenderness or weakness – usually around your ankle, foot, wrist, thumb, knee, leg or back\n- the injured area is swollen or bruised\n- you cannot put weight on the injury or use it normally\n- you have muscle spasms or cramping – where your muscles painfully tighten on their own\n\n\nIS IT A SPRAIN OR A STRAIN?:\nDifferences between sprains and strains\n- Sprains:\t\n  * Torn or twisted ligament (tissue that connects the joints)\n  * Most common in wrists, ankles, thumbs, knees\n\n- Strains:\n  * Overstretched or torn muscle (also known as a pulled muscle)\n  * Most common in feet, legs, back",
+          "HOW TO TREAT SPRAINS AND STRAINS YOURSELF:\nFor the first 2 to 3 days after a sprain or strain, follow the 5 steps known as PRICE therapy to help bring down swelling and support the injury:\n- Protection – protect the injury, for example by using a support, or shoes that support your foot or ankle.\n- Rest – stop any exercise or activities and try not to put any weight on the injury.\n- Ice – apply an ice pack (or a bag of frozen vegetables wrapped in a tea towel) to the injury for up to 20 minutes every 2 to 3 hours.\n- Compression – wrap a bandage around the injury to support it during the day.\n- Elevate – keep it raised on a pillow as much as possible.\n- To help prevent swelling, try to avoid heat (such as hot baths and heat packs), alcohol and massages for the first couple of days.\n- When you can move the injured area without pain stopping you, try to keep moving it so the joint or muscle does not become stiff.\n\nA PHARMACIST CAN HELP WITH SPRAINS AND STRAINS:\n- Speak to a pharmacist about the best treatment for you. They might suggest tablets, or a cream or gel you rub on the skin.\n- At first, try painkillers like paracetamol to ease the pain and ibuprofen gel, mousse or spray to bring down swelling.\n- If needed, you can take ibuprofen tablets, capsules or syrup that you swallow."
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/sprains-and-strains/"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "child_ear_infection_persistent_symptoms",
+      "purpose": "Tests retrieval for a child's ear pain lasting longer than the source's 2–3 day threshold.",
+      "query": "Clinical guidance, and diagnostic criteria for: child's ear pain, ear pain, fever.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.789051532745361,
+            "file_name": "Ear Infection.txt",
+            "text_preview": "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but man"
+          },
+          {
+            "score": 0.7247915863990779,
+            "file_name": "Ear Infection.txt",
+            "text_preview": "Antibiotics are often not needed for middle ear infections because the body’s immune system can fight off the infection on its own. But sometimes antibiotics, such as amoxicillin, are needed to treat infants, severe cases, or cases that last longer than 2–3 days.\nFor mild cases of middle ear infecti"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.789051532745361,
+            "file_name": "Ear Infection.txt",
+            "text_preview": "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but man"
+          },
+          {
+            "score": 0.7247915863990779,
+            "file_name": "Ear Infection.txt",
+            "text_preview": "Antibiotics are often not needed for middle ear infections because the body’s immune system can fight off the infection on its own. But sometimes antibiotics, such as amoxicillin, are needed to treat infants, severe cases, or cases that last longer than 2–3 days.\nFor mild cases of middle ear infecti"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Ear Infection.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "For a child experiencing ear pain, fever, and other symptoms such as fussiness or irritability, a doctor should be consulted. The doctor will ask about symptoms and perform a physical examination, looking inside the ear to examine the eardrum and check for pus in the middle ear to diagnose a middle ear infection. Antibiotics are often not needed as the body's immune system can fight off the infection on its own, but may be prescribed for infants, severe cases, or if symptoms persist longer than 2–3 days. For mild cases, watchful waiting or delayed antibiotic prescribing may be recommended. Over-the-counter pain relievers like acetaminophen or ibuprofen can be used to relieve pain or fever, but dosage should be confirmed with a doctor or pharmacist.",
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "Preventing and Treating Ear Infections\n\nIs your child’s ear hurting? It could be an ear infection. Children are more likely than adults to get ear infections. Talk to your child’s doctor about the best treatment. \nSome ear infections, such as middle ear infections, need antibiotic treatment, but many can get better on their own without antibiotics.\n\nWhat is an ear infection?\nThere are different types of ear infections. Middle ear infection (acute otitis media) is an infection in the middle ear. \nAnother condition that affects the middle ear is called otitis media with effusion. It occurs when fluid builds up in the middle ear without being infected and without causing fever, ear pain, or pus buildup in the middle ear.\nWhen the outer ear canal is infected, the condition is called “swimmer’s ear,” which is different from a middle ear infection. \n\nCauses \nMiddle ear infections can be caused by: \n- Bacteria, like Streptococcus pneumoniae and Haemophilus influenzae (nontypeable)—the two most common bacterial causes.\n- Viruses, like those that cause colds or flu.\n\nSymptoms\nCommon symptoms of middle ear infection in children can include:\n- Ear pain.\n- Fever.\n- Fussiness or irritability.\n- Rubbing or tugging at an ear.\n- Difficulty sleeping.\n\nWhen to Seek Medical Care\nSee a doctor if your child has:\n- A fever of 102.2°F (39°C) or higher.\n- Pus, discharge, or fluid coming from the ear.\n- Worsening symptoms.\n- Symptoms of a middle ear infection that last for more than 2–3 days.\n- Hearing loss.\n\nPediatric Warning:\nSee a doctor right away if your child is younger than 3 months old and has a fever greater than 100.4 °F (38 °C). \n\nTreatment\nA doctor will determine what type of illness your child has by asking about symptoms and doing a physical examination. Your doctor can make the diagnosis of a middle ear infection by looking inside your child’s ear to examine the eardrum and see if there is pus in the middle ear. \nAntibiotics are often not needed for middle ear infections because the body’s immune system can fight off the infection on its own.",
+          "Antibiotics are often not needed for middle ear infections because the body’s immune system can fight off the infection on its own. But sometimes antibiotics, such as amoxicillin, are needed to treat infants, severe cases, or cases that last longer than 2–3 days.\nFor mild cases of middle ear infection, your doctor might recommend watchful waiting or delayed antibiotic prescribing. \n\nWatchful waiting: Your child’s doctor may suggest watching and waiting to see if your child needs antibiotics. This gives the immune system time to fight off the infection. If your child doesn’t feel better after 2–3 days of rest, extra fluids, and pain relievers, the doctor will write a prescription for an antibiotic.\n\nDelayed prescribing: Your child’s doctor may give an antibiotic prescription but will suggest that you wait 2–3 days to see if your child is still sick before filling it. \n\nHow to Feel Better \nSome ways to feel better—whether or not antibiotics are needed for an ear infection: \n- Rest.\n- Drink extra water or other fluids.\n- Take acetaminophen or ibuprofen to relieve pain or fever. Ask your doctor or pharmacist what medications are safe for your child to take and what dose to give your child.\n\nOver-the-Counter Medicine and Children\nBe careful about giving over-the-counter medicines to children. Not all over-the-counter medicines are recommended for children of certain ages. \n\nPain relievers: \n- Children younger than 6 months: only give acetaminophen. \n- Children 6 months or older: it is OK to give acetaminophen or ibuprofen. \n- Never give aspirin to children because it can cause Reye’s syndrome, a rare but very serious illness that harms the liver and brain.\n\nBe sure to ask your doctor or pharmacist about the right dosage of over-the-counter medicines for your child’s age and size. Also, tell your child’s doctor and pharmacist about all the prescription and over-the-counter medicines they are taking.\n\nPrevention\nYou can help prevent ear infections by doing your best to stay healthy and keep others healthy.\n- Make sure your child is up to date on vaccinations and gets a flu vaccine every year. The pneumococcal vaccine protects against Streptococcus pneumoniae, a common cause of middle ear infections.\n- Clean your hands."
+        ],
+        "link": [
+          "https://www.cdc.gov/antibiotic-use/communication-resources/preventing-treating-ear-infections.html"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "tick_bite_expanding_rash",
+      "purpose": "Tests retrieval for an expanding rash after a tick bite.",
+      "query": "Clinical guidance, and diagnostic criteria for: rash after tick bite, expanding rash, fatigue.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.790485262870789,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
+          },
+          {
+            "score": 0.716552257537842,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "HOW IT SPREADS\n- Lyme disease bacteria causing human infection in the United States are spread to people by blacklegged (Ixodes) ticks.\n\nPREVENTION\n- Prevent tick bites\n- The best defense against Lyme disease is to prevent tick bites. This will reduce your risk of other tickborne diseases as well.\n\n"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.790485262870789,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick b"
+          },
+          {
+            "score": 0.716552257537842,
+            "file_name": "Lyme Disease.txt",
+            "text_preview": "HOW IT SPREADS\n- Lyme disease bacteria causing human infection in the United States are spread to people by blacklegged (Ixodes) ticks.\n\nPREVENTION\n- Prevent tick bites\n- The best defense against Lyme disease is to prevent tick bites. This will reduce your risk of other tickborne diseases as well.\n\n"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Lyme Disease.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "The context information indicates that an expanding rash, such as erythema migrans (EM), may occur in approximately 70 to 80 percent of infected people after a tick bite, typically within 3 to 30 days. The rash begins at the site of the tick bite and expands gradually over several days, potentially reaching up to 12 inches (30 cm) or more across. It may feel warm to the touch but is rarely itchy or painful. Fatigue is also mentioned as a possible symptom that may occur in the absence of a rash. For diagnostic criteria, the healthcare provider will consider the signs and symptoms of Lyme disease, the likelihood of exposure to infected blacklegged ticks, the possibility of other illnesses causing similar symptoms, and results of laboratory tests when indicated.",
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "EARLY SIGNS AND SYMPTOMS (3 to 30 days after tick bite)\n- Fever, chills, headache, fatigue, muscle and joint aches, and swollen lymph nodes may occur in the absence of rash\n- Erythema migrans (EM) rash \n \t* Occurs in approximately 70 to 80 percent of infected people\n\t* Begins at the site of a tick bite after a delay of 3 to 30 days (average is about 7 days)\n\t* Expands gradually over several days reaching up to 12 inches (30 cm) or more across\n\t* May feel warm to the touch but is rarely itchy or painful\n\t* Sometimes clears as it enlarges, resulting in a target or \"bull's-eye\" appearance\n\t* May appear on any area of the body\n\t* Does not always appear as a \"classic bull's-eye\" rash\n\n\nLATER SIGNS AND SYMPTOMS (days to months after tick bite)\n- Severe headaches and neck stiffness\n- Additional EM rashes on other areas of the body\n- Facial palsy (loss of muscle tone or droop on one or both sides of the face)\n- Arthritis with severe joint pain and swelling, particularly the knees and other large joints.\n- Intermittent pain in tendons, muscles, joints, and bones\n- Heart palpitations or an irregular heartbeat (Lyme carditis)\n- Episodes of dizziness or shortness of breath\n- Inflammation of the brain and spinal cord\n- Nerve pain\n- Shooting pains, numbness, or tingling in the hands or feet",
+          "HOW IT SPREADS\n- Lyme disease bacteria causing human infection in the United States are spread to people by blacklegged (Ixodes) ticks.\n\nPREVENTION\n- Prevent tick bites\n- The best defense against Lyme disease is to prevent tick bites. This will reduce your risk of other tickborne diseases as well.\n\nWHAT TO DO AFTER A TICK BITE\n- Remove attached ticks as soon as possible. \n- Depending on the type of tick and how long it was attached, antibiotic prophylaxis might help to prevent Lyme disease. \n- Call your doctor if you develop fever, rash, or other symptoms.\n\nTESTING AND DIAGNOSING\n- CDC recommends the use of FDA-cleared antibody tests for laboratory diagnosis of Lyme disease.\n- When assessing a patient for Lyme disease, your healthcare provider will consider:\n- The signs and symptoms of Lyme disease\n- The likelihood that you have been exposed to infected blacklegged ticks\n- The possibility that other illnesses may cause similar symptoms\n- Results of laboratory tests, when indicated\n\n\nSOURCES\nhttps://www.cdc.gov/lyme/about/index.html\nhttps://www.cdc.gov/lyme/signs-symptoms/index.html\nhttps://www.cdc.gov/lyme/diagnosis-testing/index.html"
+        ],
+        "link": [
+          "https://www.cdc.gov/lyme/about/index.html",
+          "https://www.cdc.gov/lyme/signs-symptoms/index.html",
+          "https://www.cdc.gov/lyme/diagnosis-testing/index.html"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "pregnancy_chickenpox_exposure",
+      "purpose": "Tests retrieval for chickenpox exposure in a person at higher risk of severe illness.",
+      "query": "Clinical guidance, and diagnostic criteria for: chickenpox exposure, no symptoms, pregnant, no evidence of immunity to chickenpox.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.761233650482704,
+            "file_name": "Chickenpox (Varicella).txt",
+            "text_preview": "Clinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.\n- In unvaccinated people, varicella progresses rapidly from macular to papular to vesicular lesions before crusting.\n- "
+          },
+          {
+            "score": 0.714728312806589,
+            "file_name": "Chickenpox (Varicella).txt",
+            "text_preview": "Clinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.\n\n\nSymptoms in unvaccinated patients:\n- The rash is generalized and pruritic. It progresses rapidly from macular to papu"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.761233650482704,
+            "file_name": "Chickenpox (Varicella).txt",
+            "text_preview": "Clinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.\n- In unvaccinated people, varicella progresses rapidly from macular to papular to vesicular lesions before crusting.\n- "
+          },
+          {
+            "score": 0.714728312806589,
+            "file_name": "Chickenpox (Varicella).txt",
+            "text_preview": "Clinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.\n\n\nSymptoms in unvaccinated patients:\n- The rash is generalized and pruritic. It progresses rapidly from macular to papu"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Chickenpox (Varicella).txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "For a pregnant patient with no evidence of immunity to chickenpox and exposure to chickenpox but no symptoms, it is important to monitor for any signs of infection. Since the patient is pregnant and has no immunity, she is at higher risk for complications. If symptoms develop, PCR testing can be used to confirm the diagnosis. The patient should be advised to avoid contact with individuals who have active chickenpox and to seek medical attention if symptoms appear. Documentation of varicella vaccination does not replace the need for clinical assessment and monitoring in this scenario.",
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "Clinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.\n- In unvaccinated people, varicella progresses rapidly from macular to papular to vesicular lesions before crusting.\n- The most common chickenpox complications are bacterial infections of the skin and soft tissues in children and pneumonia in adults.\n- Breakthrough varicella occurs less frequently among those who have received 2 doses of vaccine; compared with those who have received only 1 dose.\n\n\nTesting and diagnosis:\n- Varicella-zoster virus (VZV) laboratory testing information applies to testing and diagnosis of primary VZV infection (varicella) and reactivation (herpes zoster). Polymerase chain reaction (PCR) is the most helpful laboratory test for confirming cases of varicella. PCR can detect VZV DNA rapidly.\n\n\nPatient management:\n- Routine testing after 2 doses is not recommended\n- Routine testing for varicella immunity after 2 doses of vaccine is not recommended. Available commercial assays are not sensitive enough to detect antibodies after vaccination in all instances. Documented receipt of 2 doses of varicella vaccine supersedes results of subsequent serologic testing.\n\n\nIsolation:\n- Healthcare providers should follow standard precautions, airborne precautions (negative air-flow rooms), and contact precautions until lesions are dry and crusted. If negative air-flow rooms are not available, patients with varicella should be isolated in closed rooms. They should have no contact with people without evidence of immunity. Patients with varicella should be cared for by staff with evidence of immunity.\n\n\nClinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.",
+          "Clinical features:\n- A mild prodrome of fever and malaise may occur 1 to 2 days before rash onset, particularly in adults. In children, the rash is often the first sign of disease.\n\n\nSymptoms in unvaccinated patients:\n- The rash is generalized and pruritic. It progresses rapidly from macular to papular to vesicular lesions before crusting. Lesions are typically present in all stages of development at the same time.\n- The rash usually appears on the chest, back, and face first, then spreads over the entire body. The lesions are usually most concentrated on the chest and back. Symptoms typically last 4 to 7 days.\n- In healthy children, varicella is generally mild, with an itchy rash, malaise, and temperature up to 102°F for 2 to 3 days. Infants, adolescents, adults, pregnant women, and immunocompromised people are at risk for more severe disease and have a higher incidence of complications.\n- Recovery from primary varicella infection usually provides immunity for life. In otherwise healthy people, a second occurrence of varicella is uncommon. The second occurrence of varicella may be more likely to occur in people with weakened immune systems.\n- As with other viral infections, re-exposure to natural (wild-type) varicella may lead to re-infection that boosts antibody titers without causing illness or detectable viremia.\n\n\nSymptoms in vaccinated patients (breakthrough varicella):\n- Breakthrough varicella is infection with wild-type varicella-zoster virus (VZV) occurring in a vaccinated person more than 42 days after varicella vaccination.\n- Breakthrough varicella is usually mild. Patients typically are afebrile or have low fever and develop fewer than 50 skin lesions. They usually have a shorter illness compared to unvaccinated people who get varicella. The rash is more likely to be predominantly maculopapular rather than vesicular. However, 25% to 30% of people vaccinated with one dose who get breakthrough varicella will have clinical features similar to unvaccinated people with varicella."
+        ],
+        "link": [
+          "https://www.cdc.gov/chickenpox/hcp/clinical-overview/index.html",
+          "https://www.cdc.gov/chickenpox/hcp/clinical-signs/index.html"
+        ],
+        "parse_error": false
+      },
+      "pass": true
+    },
+    {
+      "name": "heartburn_after_meals",
+      "purpose": "Tests retrieval for heartburn and reflux symptoms associated with meals and lying down.",
+      "query": "Clinical guidance, and diagnostic criteria for: burning feeling in chest, heartburn, sour taste in mouth.",
+      "retrieval": {
+        "raw_candidates": [
+          {
+            "score": 0.782351804831518,
+            "file_name": "Heartburn and acid reflux.txt",
+            "text_preview": "HEARTBURN AND ACID REFLUX:\n\nOVERVIEW:\nHeartburn is a burning feeling in the chest caused by stomach acid travelling up towards the throat (acid reflux). If it keeps happening, it may be called gastro-oesophageal reflux disease (GORD).\n\n\nSYMPTOMS OF ACID REFLUX:\n- heartburn, a burning sensation in th"
+          },
+          {
+            "score": 0.7126266785041511,
+            "file_name": "Heartburn and acid reflux.txt",
+            "text_preview": "IMPORTANT:\n- If a PPI does not help, your doctor may suggest trying a different type of medicine called an H2 receptor antagonist, such as famotidine.\n\n\nTESTS AND TREATMENTS FOR SEVERE HEARTBURN AND ACID REFLUX:\nIf medicines do not help or your symptoms are severe, a GP may refer you to a specialist"
+          }
+        ],
+        "filtered_candidates": [
+          {
+            "score": 0.782351804831518,
+            "file_name": "Heartburn and acid reflux.txt",
+            "text_preview": "HEARTBURN AND ACID REFLUX:\n\nOVERVIEW:\nHeartburn is a burning feeling in the chest caused by stomach acid travelling up towards the throat (acid reflux). If it keeps happening, it may be called gastro-oesophageal reflux disease (GORD).\n\n\nSYMPTOMS OF ACID REFLUX:\n- heartburn, a burning sensation in th"
+          },
+          {
+            "score": 0.7126266785041511,
+            "file_name": "Heartburn and acid reflux.txt",
+            "text_preview": "IMPORTANT:\n- If a PPI does not help, your doctor may suggest trying a different type of medicine called an H2 receptor antagonist, such as famotidine.\n\n\nTESTS AND TREATMENTS FOR SEVERE HEARTBURN AND ACID REFLUX:\nIf medicines do not help or your symptoms are severe, a GP may refer you to a specialist"
+          }
+        ]
+      },
+      "checks": {
+        "source": {
+          "pass": true,
+          "detail": "expected source retrieved: Heartburn and acid reflux.txt"
+        },
+        "parse": {
+          "pass": true,
+          "detail": "valid structured result"
+        },
+        "answer_content": {
+          "pass": true,
+          "detail": "no forbidden answer wording detected"
+        },
+        "negative_control": {
+          "pass": true,
+          "detail": "not a negative-control case"
+        }
+      },
+      "rag_result": {
+        "answer": "The burning feeling in the chest, heartburn, and sour taste in the mouth are symptoms of acid reflux. These symptoms are often worse after eating, when lying down, and when bending over. Simple lifestyle changes such as eating smaller, more frequent meals, losing weight if overweight, and avoiding trigger foods and drinks can help ease these symptoms. If a proton pump inhibitor (PPI) does not help, a doctor may suggest trying a different type of medicine called an H2 receptor antagonist, such as famotidine. If symptoms are severe or medicines do not help, a GP may refer you to a specialist for further tests and treatments.",
+        "confidence": "strong match",
+        "confidence_message": "This answer is strongly grounded in the knowledge base for this case.",
+        "sources": [
+          "HEARTBURN AND ACID REFLUX:\n\nOVERVIEW:\nHeartburn is a burning feeling in the chest caused by stomach acid travelling up towards the throat (acid reflux). If it keeps happening, it may be called gastro-oesophageal reflux disease (GORD).\n\n\nSYMPTOMS OF ACID REFLUX:\n- heartburn, a burning sensation in the middle of your chest\nan unpleasant sour taste in your mouth, caused by stomach acid\n- a cough or hiccups that keep coming back\n- a hoarse voice\n- bad breath\n- bloating and feeling sick\nSymptoms are often worse after eating, when lying down and when bending over.\n\n\nCAUSES OF HEARTBURN AND ACID REFLUX\n- Lots of people get heartburn from time to time. There's often no obvious reason why.\n- Sometimes it's caused or made worse by:\n  * certain food and drink – such as coffee, tomatoes, alcohol, chocolate and fatty or spicy foods\n  * being overweight\n  * smoking\n  * pregnancy - find out more about indigestion and heartburn in pregnancy\nstress and anxiety\n  * an increase in some types of hormones, such as progesterone and oestrogen\nsome medicines, such as anti-inflammatory painkillers (like ibuprofen)\n  * a hiatus hernia – when part of your stomach moves up into your chest\n  * a stomach ulcer\n  * a bacterial infection in your stomach\n\n\nHOW YOU CAN EASE HEARTBURN AND ACID REFLUX YOURSELF:\nSimple lifestyle changes can help stop or reduce heartburn.\n\nDo:\n- eat smaller, more frequent meals\n- try to lose weight if you're overweight\n- try to find ways to relax\n\nDon’t:\n- do not have food or drink that triggers your symptoms\n- do not eat within 3 or 4 hours before bed\n- do not wear clothes that are tight around your waist\n- do not smoke\n- do not drink too much alcohol\n- do not stop taking any prescribed medicine without speaking to a doctor first",
+          "IMPORTANT:\n- If a PPI does not help, your doctor may suggest trying a different type of medicine called an H2 receptor antagonist, such as famotidine.\n\n\nTESTS AND TREATMENTS FOR SEVERE HEARTBURN AND ACID REFLUX:\nIf medicines do not help or your symptoms are severe, a GP may refer you to a specialist for:\n- tests to find out what's causing your symptoms, such as a gastroscopy (where a thin tube with a camera inside it is passed down your throat and into your stomach)\n- tests to check for bacteria that can cause heartburn – this can be treated with a combination of - antibiotics and PPIs\n- surgery on your stomach or food pipe (oesophagus) to stop acid reflux\n\n\n\n\n\nSOURCES:\nhttps://www.nhs.uk/conditions/heartburn-and-acid-reflux/"
+        ],
+        "link": [
+          "https://www.nhs.uk/conditions/heartburn-and-acid-reflux/"
+        ],
         "parse_error": false
       },
       "pass": true
