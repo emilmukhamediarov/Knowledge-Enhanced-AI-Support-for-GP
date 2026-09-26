@@ -32,9 +32,37 @@ class Token(BaseModel):
     role: str
     name: str
 
-class PatientSettingsUpdate(BaseModel):
-    preferred_language: LanguagePreference | None = None
+class UserDetailsResponse(BaseModel):
+    id: int
+    username: str
+    name: str
+    email: EmailStr | None
+    date_of_birth: date | None
+    age: int | None
+    preferred_language: LanguagePreference
+    ethnicity: str | None
+    medical_history: str | None
+    allergies: list[str] | None
+    medications: list[str] | None
+
+    class Config:
+        from_attributes = True
+
+
+class PatientDetailsUpdate(BaseModel):
+    name: str | None = None
     date_of_birth: date | None = None
+    preferred_language: LanguagePreference | None = None
+    ethnicity: str | None = None
+    medical_history: str | None = None
+    allergies: list[str] | None = None
+    medications: list[str] | None = None
+
+
+class DoctorPatientDetailsUpdate(BaseModel):
+    medical_history: str | None = None
+    allergies: list[str] | None = None
+    medications: list[str] | None = None
 
 
 class SendEmailCodeRequest(BaseModel):
