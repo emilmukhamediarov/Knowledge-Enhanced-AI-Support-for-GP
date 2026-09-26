@@ -31,8 +31,6 @@ interface PatientSummary {
 
 interface RagResponse {
     answer: string;
-    red_flags_identified: string[];
-    requires_urgent_attention: boolean;
     confidence: string;
     confidence_message: string;
     sources: string[];
@@ -446,9 +444,7 @@ function DoctorConsultation() {
                                             "None provided"}
                                     </p>
                                 </div>
-                            </div>
-
-                            <div className="summary-grid">
+                                
                                 <div className="summary-item">
                                     <span className="field-label">
                                         Medical history
@@ -524,24 +520,6 @@ function DoctorConsultation() {
                                     )}
                                 </div>
                             </div>
-
-                            {rag.red_flags_identified.length > 0 && (
-                                <div className="rag-answer">
-                                    <span className="field-label">
-                                        Red flags
-                                    </span>
-
-                                    <ul className="red-flags">
-                                        {rag.red_flags_identified.map(
-                                            (flag, index) => (
-                                                <li key={index}>
-                                                    {flag}
-                                                </li>
-                                            )
-                                        )}
-                                    </ul>
-                                </div>
-                            )}
                         </div>
                     )}
                 </section>

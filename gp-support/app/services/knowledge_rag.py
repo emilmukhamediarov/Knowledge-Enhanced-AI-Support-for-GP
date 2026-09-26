@@ -239,7 +239,7 @@ def build_query_from_consultation_summary(summary: dict) -> str:
         return "Clinical guidance and management for patient presentation."
 
     clinical_presentation = ", ".join(terms)
-    return f"Clinical guidance, red flags, and diagnostic criteria for: {clinical_presentation}."
+    return f"Clinical guidance, and diagnostic criteria for: {clinical_presentation}."
 
 
 
@@ -291,17 +291,16 @@ def ask(index, question: str, return_sources: bool = False):
 # Structured version of the prompt — used when the caller needs a
 # machine-readable result (e.g. for main.py / a frontend), not just prose.
 # Same "only use retrieved context" rule as STRICT_QA_PROMPT, but also
-# asks the model to explicitly flag whether any red flags from the
-# knowledge base apply, and to name them — since chatbot.py no longer
-# does this itself (that responsibility moved here, to the grounded side).
 STRUCTURED_QA_PROMPT = PromptTemplate(
     "You are a clinical documentation assistant helping a GP. "
 
     "All output must be written in English. "
-    "Write the answer and every item in red_flags_identified in English, "
-    "regardless of the language originally used by the patient. "
+    "Write the answer in English, regardless of the language "
+    "originally used by the patient. "
 
     "You must answer using ONLY the context information below, "
+    "Do not identify or list red flags, assess urgency, or label the case as urgent. "
+    "Do not include urgent-care or emergency instructions in the answer. "
     "which comes from verified clinical sources. "
     "Do not add any medical facts, tests, or recommendations that are "
     "not explicitly stated in the context, even if you know them to be "
@@ -309,11 +308,6 @@ STRUCTURED_QA_PROMPT = PromptTemplate(
     "If the context does not contain enough information to fully answer "
     "the question, say so explicitly rather than filling the gap with "
     "outside knowledge.\n"
-    "Pay close attention to any numeric thresholds in red flags (e.g. 'more "
-    "than 3 weeks', 'more than 3 days'). Before setting "
-    "requires_urgent_attention, explicitly compare the patient's actual "
-    "value from the question against each threshold in the context — do "
-    "not rely on approximate impression. "
     "---------------------\n"
     "{context_str}\n"
     "---------------------\n"
@@ -322,16 +316,11 @@ STRUCTURED_QA_PROMPT = PromptTemplate(
     "Question: {query_str}\n\n"
     "Respond with ONLY a single JSON object (no markdown fences, no "
     "extra text before or after), in exactly this shape:\n"
-    "Respond with a valid JSON object containing exactly three keys: "
+    "Respond with a valid JSON object containing exactly one key: "
     '"answer" (a string with your written answer, grounded only in the '
-    'context), "red_flags_identified" (an array of strings, each one a '
-    "red flag from the context that applies to this case), and "
-    '"requires_urgent_attention" (true or false: true if any identified '
-    "red flag indicates urgency per the context, otherwise false). "
+    'context)."'
     "Use single curly braces, standard JSON syntax, no markdown fences, "
     "no text before or after the JSON object.\n"
-    "If no red flags from the context apply, return an empty list and "
-    "false. Do not invent red flags that are not present in the context."
 )
 
 def _confidence_info(min_score: float | None) -> dict:
@@ -436,8 +425,6 @@ def ask_structured(index, question: str) -> dict:
     Returns a dict shaped like:
     {
         "answer": str,
-        "red_flags_identified": list[str],
-        "requires_urgent_attention": bool,
         "sources": list[str],
         "link": list[str],  # unique source URLs from the retrieved documents
         "parse_error": bool  # True if the model's output couldn't be
@@ -469,8 +456,6 @@ def ask_structured(index, question: str) -> dict:
     if not processed_nodes:
         return {
             "answer": "The knowledge base does not contain verified clinical guidance for this presentation.",
-            "red_flags_identified": [],
-            "requires_urgent_attention": False,
             "confidence": "weak match",
             "confidence_message": "No relevant clinical guidelines matched the search criteria.",
             "sources": [],
@@ -507,10 +492,6 @@ def ask_structured(index, question: str) -> dict:
         parsed = json.loads(raw)
         return {
             "answer": parsed.get("answer", ""),
-            "red_flags_identified": parsed.get("red_flags_identified", []),
-            "requires_urgent_attention": bool(
-                parsed.get("red_flags_identified", [])
-            ),
             "confidence": confidence_info["label"],
             "confidence_message": confidence_info["message"],
             "sources": sources,
@@ -520,8 +501,6 @@ def ask_structured(index, question: str) -> dict:
     except json.JSONDecodeError:
         return {
             "answer": raw,
-            "red_flags_identified": [],
-            "requires_urgent_attention": False,
             "confidence": confidence_info["label"],
             "confidence_message": confidence_info["message"],
             "sources": sources,
@@ -570,8 +549,6 @@ if __name__ == "__main__":
     res_1 = ask_structured(idx, query_1)
     print("\n--- OUTPUT ---")
     print("Answer:", res_1["answer"])
-    print("Red Flags:", res_1["red_flags_identified"])
-    print("Requires Urgent Attention:", res_1["requires_urgent_attention"])
     print("Confidence Rating:", res_1["confidence"])
     print("Confidence Message:", res_1["confidence_message"])
     print("Sources Used:", res_1["sources"])
@@ -601,8 +578,6 @@ if __name__ == "__main__":
     res_2 = ask_structured(idx, query_2)
     print("\n--- OUTPUT ---")
     print("Answer:", res_2["answer"])
-    print("Red Flags:", res_2["red_flags_identified"])
-    print("Requires Urgent Attention:", res_2["requires_urgent_attention"])
     print("Confidence Rating:", res_2["confidence"])
     print("Confidence Message:", res_2["confidence_message"])
     print("Sources Used:", res_2["sources"])
@@ -632,8 +607,6 @@ if __name__ == "__main__":
     res_3 = ask_structured(idx, query_3)
     print("\n--- OUTPUT ---")
     print("Answer:", res_3["answer"])
-    print("Red Flags:", res_3["red_flags_identified"])
-    print("Requires Urgent Attention:", res_3["requires_urgent_attention"])
     print("Confidence Rating:", res_3["confidence"])
     print("Confidence Message:", res_3["confidence_message"])
     print("Sources Used:", res_3["sources"])
@@ -663,8 +636,6 @@ if __name__ == "__main__":
     res_4 = ask_structured(idx, query_4)
     print("\n--- OUTPUT ---")
     print("Answer:", res_4["answer"])
-    print("Red Flags:", res_4["red_flags_identified"])
-    print("Requires Urgent Attention:", res_4["requires_urgent_attention"])
     print("Confidence Rating:", res_4["confidence"])
     print("Confidence Message:", res_4["confidence_message"])
     print("Sources Used:", res_4["sources"])
@@ -694,8 +665,6 @@ if __name__ == "__main__":
     res_5 = ask_structured(idx, query_5)
     print("\n--- OUTPUT ---")
     print("Answer:", res_5["answer"])
-    print("Red Flags:", res_5["red_flags_identified"])
-    print("Requires Urgent Attention:", res_5["requires_urgent_attention"])
     print("Confidence Rating:", res_5["confidence"])
     print("Confidence Message:", res_5["confidence_message"])
     print("Sources Used:", res_5["sources"])
@@ -722,8 +691,6 @@ if __name__ == "__main__":
     res_6 = ask_structured(idx, query_6)
     print("\n--- OUTPUT ---")
     print("Answer:", res_6["answer"])
-    print("Red Flags:", res_6["red_flags_identified"])
-    print("Requires Urgent Attention:", res_6["requires_urgent_attention"])
     print("Confidence Rating:", res_6["confidence"])
     print("Confidence Message:", res_6["confidence_message"])
     print("Sources Used:", res_6["sources"])
@@ -752,8 +719,6 @@ if __name__ == "__main__":
     res_7 = ask_structured(idx, query_7)
     print("\n--- OUTPUT ---")
     print("Answer:", res_7["answer"])
-    print("Red Flags:", res_7["red_flags_identified"])
-    print("Requires Urgent Attention:", res_7["requires_urgent_attention"])
     print("Confidence Rating:", res_7["confidence"])
     print("Confidence Message:", res_7["confidence_message"])
     print("Sources Used:", res_7["sources"])
@@ -783,8 +748,6 @@ if __name__ == "__main__":
     res_8 = ask_structured(idx, query_8)
     print("\n--- OUTPUT ---")
     print("Answer:", res_8["answer"])
-    print("Red Flags:", res_8["red_flags_identified"])
-    print("Requires Urgent Attention:", res_8["requires_urgent_attention"])
     print("Confidence Rating:", res_8["confidence"])
     print("Confidence Message:", res_8["confidence_message"])
     print("Sources Used:", res_8["sources"])
@@ -814,8 +777,6 @@ if __name__ == "__main__":
     res_9 = ask_structured(idx, query_9)
     print("\n--- OUTPUT ---")
     print("Answer:", res_9["answer"])
-    print("Red Flags:", res_9["red_flags_identified"])
-    print("Requires Urgent Attention:", res_9["requires_urgent_attention"])
     print("Confidence Rating:", res_9["confidence"])
     print("Confidence Message:", res_9["confidence_message"])
     print("Sources Used:", res_9["sources"])
@@ -845,8 +806,6 @@ if __name__ == "__main__":
     res_10 = ask_structured(idx, query_10)
     print("\n--- OUTPUT ---")
     print("Answer:", res_10["answer"])
-    print("Red Flags:", res_10["red_flags_identified"])
-    print("Requires Urgent Attention:", res_10["requires_urgent_attention"])
     print("Confidence Rating:", res_10["confidence"])
     print("Confidence Message:", res_10["confidence_message"])
     print("Sources Used:", res_10["sources"])
@@ -876,8 +835,6 @@ if __name__ == "__main__":
     res_11 = ask_structured(idx, query_11)
     print("\n--- OUTPUT ---")
     print("Answer:", res_11["answer"])
-    print("Red Flags:", res_11["red_flags_identified"])
-    print("Requires Urgent Attention:", res_11["requires_urgent_attention"])
     print("Confidence Rating:", res_11["confidence"])
     print("Confidence Message:", res_11["confidence_message"])
     print("Sources Used:", res_11["sources"])
@@ -907,8 +864,6 @@ if __name__ == "__main__":
     res_12 = ask_structured(idx, query_12)
     print("\n--- OUTPUT ---")
     print("Answer:", res_12["answer"])
-    print("Red Flags:", res_12["red_flags_identified"])
-    print("Requires Urgent Attention:", res_12["requires_urgent_attention"])
     print("Confidence Rating:", res_12["confidence"])
     print("Confidence Message:", res_12["confidence_message"])
     print("Sources Used:", res_12["sources"])
@@ -938,8 +893,6 @@ if __name__ == "__main__":
     res_13 = ask_structured(idx, query_13)
     print("\n--- OUTPUT ---")
     print("Answer:", res_13["answer"])
-    print("Red Flags:", res_13["red_flags_identified"])
-    print("Requires Urgent Attention:", res_13["requires_urgent_attention"])
     print("Confidence Rating:", res_13["confidence"])
     print("Confidence Message:", res_13["confidence_message"])
     print("Sources Used:", res_13["sources"])
@@ -969,8 +922,6 @@ if __name__ == "__main__":
     res_14 = ask_structured(idx, query_14)
     print("\n--- OUTPUT ---")
     print("Answer:", res_14["answer"])
-    print("Red Flags:", res_14["red_flags_identified"])
-    print("Requires Urgent Attention:", res_14["requires_urgent_attention"])
     print("Confidence Rating:", res_14["confidence"])
     print("Confidence Message:", res_14["confidence_message"])
     print("Sources Used:", res_14["sources"])
@@ -999,8 +950,6 @@ if __name__ == "__main__":
     res_15 = ask_structured(idx, query_15)
     print("\n--- OUTPUT ---")
     print("Answer:", res_15["answer"])
-    print("Red Flags:", res_15["red_flags_identified"])
-    print("Requires Urgent Attention:", res_15["requires_urgent_attention"])
     print("Confidence Rating:", res_15["confidence"])
     print("Confidence Message:", res_15["confidence_message"])
     print("Sources Used:", res_15["sources"])
@@ -1030,8 +979,6 @@ if __name__ == "__main__":
     res_16 = ask_structured(idx, query_16)
     print("\n--- OUTPUT ---")
     print("Answer:", res_16["answer"])
-    print("Red Flags:", res_16["red_flags_identified"])
-    print("Requires Urgent Attention:", res_16["requires_urgent_attention"])
     print("Confidence Rating:", res_16["confidence"])
     print("Confidence Message:", res_16["confidence_message"])
     print("Sources Used:", res_16["sources"])
@@ -1061,8 +1008,6 @@ if __name__ == "__main__":
     res_17 = ask_structured(idx, query_17)
     print("\n--- OUTPUT ---")
     print("Answer:", res_17["answer"])
-    print("Red Flags:", res_17["red_flags_identified"])
-    print("Requires Urgent Attention:", res_17["requires_urgent_attention"])
     print("Confidence Rating:", res_17["confidence"])
     print("Confidence Message:", res_17["confidence_message"])
     print("Sources Used:", res_17["sources"])
@@ -1092,8 +1037,6 @@ if __name__ == "__main__":
     res_18 = ask_structured(idx, query_18)
     print("\n--- OUTPUT ---")
     print("Answer:", res_18["answer"])
-    print("Red Flags:", res_18["red_flags_identified"])
-    print("Requires Urgent Attention:", res_18["requires_urgent_attention"])
     print("Confidence Rating:", res_18["confidence"])
     print("Confidence Message:", res_18["confidence_message"])
     print("Sources Used:", res_18["sources"])
@@ -1123,8 +1066,6 @@ if __name__ == "__main__":
     res_19 = ask_structured(idx, query_19)
     print("\n--- OUTPUT ---")
     print("Answer:", res_19["answer"])
-    print("Red Flags:", res_19["red_flags_identified"])
-    print("Requires Urgent Attention:", res_19["requires_urgent_attention"])
     print("Confidence Rating:", res_19["confidence"])
     print("Confidence Message:", res_19["confidence_message"])
     print("Sources Used:", res_19["sources"])
@@ -1154,8 +1095,6 @@ if __name__ == "__main__":
     res_20 = ask_structured(idx, query_20)
     print("\n--- OUTPUT ---")
     print("Answer:", res_20["answer"])
-    print("Red Flags:", res_20["red_flags_identified"])
-    print("Requires Urgent Attention:", res_20["requires_urgent_attention"])
     print("Confidence Rating:", res_20["confidence"])
     print("Confidence Message:", res_20["confidence_message"])
     print("Sources Used:", res_20["sources"])
@@ -1187,8 +1126,6 @@ if __name__ == "__main__":
         structured = ask_structured(idx, test_query)
 
         print("Answer:", structured["answer"])
-        print("Red flags identified:", structured["red_flags_identified"])
-        print("Requires urgent attention:", structured["requires_urgent_attention"])
         print("Confidence:", structured["confidence"])
 
     finally:

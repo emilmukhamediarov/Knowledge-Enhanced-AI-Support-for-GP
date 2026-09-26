@@ -65,7 +65,7 @@ class SourceLinkTests(unittest.TestCase):
         index = MagicMock()
         index.as_retriever.return_value.retrieve.return_value = nodes
         self.processor.postprocess_nodes.return_value = nodes
-        for raw, error in [(json.dumps({'answer': 'Answer', 'red_flags_identified': []}), False), ('Invalid JSON', True)]:
+        for raw, error in [(json.dumps({'answer': 'Answer'}), False), ('Invalid JSON', True)]:
             with self.subTest(error=error):
                 self.synth.synthesize.return_value = self.response(raw, nodes)
                 result = self.ns['ask_structured'](index, 'Question')

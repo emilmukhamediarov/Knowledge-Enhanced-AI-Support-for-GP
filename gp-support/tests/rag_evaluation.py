@@ -128,39 +128,6 @@ def _source_check(case: dict, retrieval: dict) -> tuple[bool, str]:
     )
 
 
-def _red_flag_check(case: dict, rag_result: dict) -> tuple[bool, str]:
-    red_flags = rag_result.get("red_flags_identified") or []
-    combined = _normalise(" ".join(str(item) for item in red_flags))
-
-    if case.get("expect_red_flags_empty"):
-        if red_flags:
-            return False, f"expected no red flags; returned: {red_flags}"
-
-    forbidden_terms = case.get("forbidden_red_flag_terms_any", [])
-    for term in forbidden_terms:
-        if _normalise(term) in combined:
-            return False, (
-                f"forbidden red-flag term '{term}' was returned: {red_flags}"
-            )
-
-    expected_terms = case.get("expected_red_flag_terms_any", [])
-    if expected_terms:
-        for term in expected_terms:
-            if _normalise(term) in combined:
-                return True, f"matched expected red-flag term: {term}"
-
-        return False, (
-            f"expected one of {expected_terms}; "
-            f"returned red flags: {red_flags}"
-        )
-
-    return True, (
-        "red-flag behaviour matched expectations"
-        if not red_flags
-        else "no positive red-flag assertion required"
-    )
-
-
 def _answer_content_check(case: dict, rag_result: dict) -> tuple[bool, str]:
     answer = _normalise(str(rag_result.get("answer") or ""))
 
@@ -169,17 +136,6 @@ def _answer_content_check(case: dict, rag_result: dict) -> tuple[bool, str]:
             return False, f"forbidden answer wording detected: '{term}'"
 
     return True, "no forbidden answer wording detected"
-
-
-def _urgent_check(case: dict, rag_result: dict) -> tuple[bool, str]:
-    expected = case["expected_urgent"]
-
-    if expected is None:
-        return True, "urgency deliberately not asserted"
-
-    actual = rag_result.get("requires_urgent_attention")
-    passed = actual is expected
-    return passed, f"expected urgency={expected}, actual={actual}"
 
 
 def evaluate_case(index, case: dict, retrieval_only: bool) -> dict[str, Any]:
@@ -214,21 +170,16 @@ def evaluate_case(index, case: dict, retrieval_only: bool) -> dict[str, Any]:
 
     rag_result = ask_structured(index, query)
 
-    parse_pass = not rag_result.get("parse_error", False)
-    red_flag_pass, red_flag_detail = _red_flag_check(case, rag_result)
-    urgent_pass, urgent_detail = _urgent_check(case, rag_result)
     answer_pass, answer_detail = _answer_content_check(case, rag_result)
 
     no_match_e2e_pass = True
     no_match_detail = "not a negative-control case"
 
     if case["expect_no_match"]:
-        no_match_e2e_pass = (
-            not rag_result.get("sources")
-            and not rag_result.get("red_flags_identified")
-        )
+        no_match_e2e_pass = not rag_result.get("sources")
+
         no_match_detail = (
-            "RAG correctly returned no grounded source/red flag"
+            "RAG correctly returned no grounded source"
             if no_match_e2e_pass
             else "RAG returned grounded content for an unsupported case"
         )
@@ -243,14 +194,6 @@ def evaluate_case(index, case: dict, retrieval_only: bool) -> dict[str, Any]:
                     if parse_pass
                     else "RAG response could not be parsed"
                 ),
-            },
-            "red_flags": {
-                "pass": red_flag_pass,
-                "detail": red_flag_detail,
-            },
-            "urgency": {
-                "pass": urgent_pass,
-                "detail": urgent_detail,
             },
             "answer_content": {
                 "pass": answer_pass,
@@ -297,14 +240,6 @@ def _print_case(result: dict, retrieval_only: bool) -> None:
         rag = result["rag_result"]
         print("\nRAG output:")
         print(f"  confidence: {rag.get('confidence')}")
-        print(
-            "  red_flags_identified:",
-            rag.get("red_flags_identified"),
-        )
-        print(
-            "  requires_urgent_attention:",
-            rag.get("requires_urgent_attention"),
-        )
         print(f"  answer: {rag.get('answer')}")
 
 
