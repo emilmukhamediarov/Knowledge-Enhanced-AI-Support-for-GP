@@ -209,8 +209,8 @@ def update_index(db):
 
 def build_query_from_consultation_summary(summary: dict) -> str:
     """
-    Builds a focused, clinical-term-dense query to maximize vector match quality
-    and eliminate noise from conversational or generic boilerplate text.
+    Build a query preserving the patient context needed for retrieval and synthesis.
+    Missing details are omitted; unknown allergies are not treated as absent.
     """
     terms = []
 
@@ -233,6 +233,23 @@ def build_query_from_consultation_summary(summary: dict) -> str:
         field = summary.get(field_name) or {}
         if field.get("status") == "confirmed" and field.get("items"):
             terms.extend(field['items'])
+
+    # Preserve context that may exist only in dedicated summary fields.
+    for field_name, label in (
+        ("onset", "Onset"),
+        ("duration", "Duration"),
+        ("severity", "Severity"),
+        ("additional_concerns", "Additional concerns"),
+    ):
+        value = summary.get(field_name)
+        if value and value.strip():
+            terms.append(f"{label}: {value.strip()}")
+
+    allergies = summary.get("allergies") or {}
+    if allergies.get("status") == "confirmed" and allergies.get("items"):
+        terms.append(f"Reported allergies: {', '.join(allergies['items'])}")
+    elif allergies.get("status") == "confirmed_none":
+        terms.append("Allergies: patient reports none")
 
     # Fallback if summary dictionary fields are empty
     if not terms:
