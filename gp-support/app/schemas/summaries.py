@@ -13,6 +13,7 @@ class ConsultationSummary(BaseModel):
     onset: str | None = None
     duration: str | None = None
     severity: str | None = None
+    relevant_history: list[str] = Field(default_factory=list)
     medical_history: AnswerList = Field(default_factory=AnswerList)
     current_medications: AnswerList = Field(default_factory=AnswerList)
     allergies: AnswerList = Field(default_factory=AnswerList)
@@ -21,7 +22,12 @@ class ConsultationSummary(BaseModel):
     conversation_complete: bool = False
     summary: str = ""
 
-    @field_validator("symptoms", "missing_information", mode="before")
+    @field_validator(
+        "symptoms",
+        "relevant_history",
+        "missing_information",
+        mode="before"
+    )
     @classmethod
     def normalise_lists(cls, value):
         if value is None:

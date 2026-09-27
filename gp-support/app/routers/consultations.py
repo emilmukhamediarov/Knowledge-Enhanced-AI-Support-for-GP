@@ -1,6 +1,6 @@
 import asyncio
 import json
-from datetime import datetime, UTC
+from datetime import date, datetime, UTC
 
 from fastapi import APIRouter, Depends, HTTPException, Request, WebSocket, WebSocketDisconnect, Body
 
@@ -25,11 +25,15 @@ from app.schemas.messages import MessageCreate, ChatMessage
 from app.repositories import repository
 from app.services import chat_service
 from app.services.prompts import build_system_prompt
-from app.services.state_service import get_empty_state
+from app.services.state_service import (
+    get_next_phase,
+    get_phase_instruction,
+)
 from app.services.knowledge_rag import (
     build_query_from_consultation_summary,
     ask_structured,
-
+    build_follow_up_query,
+    suggest_follow_up_topics,
 )
 
 from app.dependencies.auth import get_current_user, require_role
@@ -432,6 +436,7 @@ def get_messages(
 def chat(
     consultation_id: int,
     data: ChatMessage,
+    request: Request,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(
         require_role([models.UserRole.PATIENT])
@@ -450,6 +455,29 @@ def chat(
 
     # Fetch the user to get their language preference
     user = repository.get_user_by_id(db, consultation.user_id)
+
+    age = None
+
+    if user and user.date_of_birth:
+        today = date.today()
+
+        age = (
+                today.year
+                - user.date_of_birth.year
+                - (
+                        (today.month, today.day)
+                        < (user.date_of_birth.month, user.date_of_birth.day)
+                )
+        )
+
+    patient_profile = {
+        "age": age,
+        "medical_history": user.medical_history if user else None,
+        "medications": user.medications if user else None,
+        "allergies": user.allergies if user else None,
+    }
+
+
     user_lang = user.preferred_language if user else "en-US"
 
     # Determine the language code to use for the LLM
@@ -486,18 +514,67 @@ def chat(
             detail="Consultation is no longer editable"
         )
 
-    # 1. Fetch history BEFORE the new message to calculate current state
-    existing_messages = repository.get_messages(db, consultation_id)
+    # 1. Save the latest patient message first
+    repository.save_user_message(
+        db,
+        consultation,
+        data.message
+    )
 
-    if not existing_messages:
-        current_state = get_empty_state()
-    else:
-        prepared_history = [
-            {"role": m.role, "content": m.content}
-            for m in existing_messages
-        ]
-        current_state = chat_service.summary_aws(prepared_history, consultation_id)
+    # 2. Fetch the complete conversation including the latest message
+    all_messages = repository.get_messages(
+        db,
+        consultation_id
+    )
 
+    # 3. Build the current consultation state
+    prepared_history = [
+        {
+            "role": message.role,
+            "content": message.content
+        }
+        for message in all_messages
+    ]
+
+    current_state = chat_service.summary_aws(
+        prepared_history,
+        consultation_id
+    )
+
+    # 4. Determine the broad consultation phase
+    current_phase = get_next_phase(current_state)
+
+    rag_follow_up_topics = []
+
+    if current_phase == "explore_problem":
+        follow_up_query = build_follow_up_query(
+            current_state,
+            patient_profile
+        )
+
+        if follow_up_query:
+            rag_follow_up = suggest_follow_up_topics(
+                request.app.state.rag_index,
+                follow_up_query
+            )
+
+            if not rag_follow_up.get("parse_error"):
+                rag_follow_up_topics = rag_follow_up.get(
+                    "follow_up_topics",
+                    []
+                )
+
+    print("CURRENT PHASE:", current_phase)
+    print("RAG FOLLOW-UP TOPICS:", rag_follow_up_topics)
+
+    phase_instruction = get_phase_instruction(
+        current_phase,
+        patient_profile
+    )
+
+    print("CURRENT PHASE:", current_phase)
+
+    # Update consultation title when reason for visit becomes known
     reason_for_visit = current_state.get("reason_for_visit")
 
     if consultation.title is None and reason_for_visit:
@@ -532,11 +609,6 @@ def chat(
                 if user_snippets:
                     previous_summary_text = "Previous consultation notes: " + " | ".join(user_snippets[:3])
 
-    # 2. Save the new user message
-    repository.save_user_message(db, consultation, data.message)
-
-    # 3. Fetch the updated history
-    all_messages = repository.get_messages(db, consultation_id)
 
     # 4. Inject state and previous summary into system prompt
     prepared_messages = [
@@ -545,10 +617,39 @@ def chat(
             "content": build_system_prompt(
                 target_language,
                 current_state,
-                previous_summary=previous_summary_text
+                previous_summary=previous_summary_text,
+                patient_profile=patient_profile
             )
-        }
+        },
+        {
+            "role": "system",
+            "content": phase_instruction
+        },
     ]
+
+    # Add RAG-grounded follow-up topics only during explore_problem
+    if rag_follow_up_topics:
+        prepared_messages.append(
+            {
+                "role": "system",
+                "content": (
+                        "RAG-GROUNDED FOLLOW-UP TOPICS:\n"
+                        + "\n".join(
+                    f"- {topic}"
+                    for topic in rag_follow_up_topics
+                )
+                        + "\n\n"
+                          "These topics come from retrieved verified clinical knowledge. "
+                          "Use them only to help choose the next useful question about "
+                          "the patient's CURRENT problem. "
+                          "Ask exactly ONE question. "
+                          "Prefer a topic that has not already been answered. "
+                          "Do not assume the patient has any of these characteristics; "
+                          "ask about them. "
+                          "Do not diagnose, interpret, or provide treatment advice."
+                )
+            }
+        )
 
     # Apply safety rule prompts
     if is_advice_request(data.message):

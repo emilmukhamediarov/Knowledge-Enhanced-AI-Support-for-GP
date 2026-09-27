@@ -228,6 +228,13 @@ def build_query_from_consultation_summary(summary: dict) -> str:
         if location.lower() not in [t.lower() for t in terms]:
             terms.append(location)
 
+    relevant_history = summary.get("relevant_history") or []
+
+    if relevant_history:
+        terms.append(
+            f"Relevant history: {', '.join(relevant_history)}"
+        )
+
     # Include confirmed medical history and current medications
     for field_name in ["medical_history", "current_medications"]:
         field = summary.get(field_name) or {}
@@ -339,6 +346,261 @@ STRUCTURED_QA_PROMPT = PromptTemplate(
     "Use single curly braces, standard JSON syntax, no markdown fences, "
     "no text before or after the JSON object.\n"
 )
+
+FOLLOW_UP_TOPICS_PROMPT = PromptTemplate(
+    "You are supporting a GP pre-consultation assistant. "
+
+    "Use ONLY the clinical context retrieved from the verified knowledge base. "
+    "Do not use outside medical knowledge. "
+
+    "The patient's currently known presentation is provided in the question. "
+
+    "Your task is to identify clinically relevant HISTORY DETAILS that would "
+    "be useful to clarify by asking the patient another question. "
+
+    "Do NOT diagnose the patient. "
+    "Do NOT recommend treatment, medication, tests, or management. "
+    "Do NOT assess urgency. "
+    "Do NOT provide medical advice. "
+
+    "Do NOT suggest asking for information that is already clearly stated "
+    "in the patient's known presentation. "
+
+    "Focus on specific missing details that could help the GP understand "
+    "the current presentation better. "
+
+    "Return at most 4 short follow-up TOPICS. "
+    "Return topics, NOT fully written patient questions. "
+
+    "Examples of good topics: "
+    "\"contact lens use\", "
+    "\"recent eye trauma\", "
+    "\"light sensitivity\", "
+    "\"change in vision\". "
+
+    "If the retrieved clinical context does not support any useful "
+    "follow-up topics, return an empty list. "
+
+    "Respond with ONLY valid JSON in exactly this shape:\n"
+    '{"follow_up_topics": ["topic 1", "topic 2"]}\n'
+
+    "No markdown fences. No explanation. No additional keys.\n\n"
+
+    "---------------------\n"
+    "{context_str}\n"
+    "---------------------\n"
+
+    "Known patient presentation:\n"
+    "{query_str}\n"
+)
+
+
+def suggest_follow_up_topics(
+    index,
+    question: str
+) -> dict:
+    """
+    Retrieve clinically relevant knowledge and identify useful
+    unanswered history topics for the live chatbot.
+
+    This does NOT generate the patient-facing question.
+    The chat LLM will later turn one topic into a natural question
+    in the patient's preferred language.
+    """
+
+    similarity_processor = SimilarityPostprocessor(
+        similarity_cutoff=0.67
+    )
+
+    retriever = index.as_retriever(
+        similarity_top_k=3
+    )
+
+    # 1. Retrieve relevant clinical chunks
+    retrieved_nodes = retriever.retrieve(question)
+
+    # 2. Remove weak matches
+    processed_nodes = similarity_processor.postprocess_nodes(
+        retrieved_nodes,
+        query_str=question
+    )
+
+    # 3. No relevant clinical knowledge found
+    if not processed_nodes:
+        return {
+            "follow_up_topics": [],
+            "sources": [],
+            "parse_error": False,
+        }
+
+    # 4. Ask the RAG model for useful follow-up topics
+    synth = get_response_synthesizer(
+        text_qa_template=FOLLOW_UP_TOPICS_PROMPT
+    )
+
+    response = synth.synthesize(
+        query=question,
+        nodes=processed_nodes
+    )
+
+    raw = str(response).strip()
+
+    # Defensive cleanup if the model still returns markdown
+    if raw.startswith("```"):
+        raw = raw.strip("`")
+
+        if raw.startswith("json"):
+            raw = raw[4:]
+
+        raw = raw.strip()
+
+    sources = [
+        node.node.get_text()
+        for node in response.source_nodes
+    ]
+
+    try:
+        parsed = json.loads(raw)
+
+        topics = parsed.get(
+            "follow_up_topics",
+            []
+        )
+
+        if not isinstance(topics, list):
+            topics = []
+
+        # Keep only clean strings and limit the number returned
+        topics = [
+            topic.strip()
+            for topic in topics
+            if isinstance(topic, str) and topic.strip()
+        ][:4]
+
+        return {
+            "follow_up_topics": topics,
+            "sources": sources,
+            "parse_error": False,
+        }
+
+    except json.JSONDecodeError:
+        return {
+            "follow_up_topics": [],
+            "sources": sources,
+            "parse_error": True,
+        }
+
+
+def build_follow_up_query(
+    current_state: dict,
+    patient_profile: dict | None = None
+) -> str:
+    """
+    Build a concise clinical presentation for live RAG follow-up retrieval.
+
+    The query describes what is already known so RAG can identify
+    useful missing history topics without repeating answered questions.
+    """
+
+    patient_profile = patient_profile or {}
+
+    parts = []
+
+    age = patient_profile.get("age")
+    if age is not None:
+        parts.append(f"Age: {age}")
+
+    reason = current_state.get("reason_for_visit")
+    if reason:
+        parts.append(f"Reason for visit: {reason}")
+
+    symptoms = current_state.get("symptoms") or []
+    if symptoms:
+        parts.append(
+            f"Known symptoms: {', '.join(symptoms)}"
+        )
+
+    location = current_state.get("symptom_location")
+    if location:
+        parts.append(
+            f"Symptom location: {location}"
+        )
+
+    onset = current_state.get("onset")
+    if onset:
+        parts.append(
+            f"Onset: {onset}"
+        )
+
+    duration = current_state.get("duration")
+    if duration:
+        parts.append(
+            f"Duration: {duration}"
+        )
+
+    severity = current_state.get("severity")
+    if severity:
+        parts.append(
+            f"Severity: {severity}"
+        )
+
+    # Prefer information explicitly established during this consultation.
+    medical_history = current_state.get("medical_history") or {}
+
+    if medical_history.get("status") == "confirmed":
+        items = medical_history.get("items") or []
+
+        if items:
+            parts.append(
+                f"Confirmed medical history: {', '.join(items)}"
+            )
+
+    elif patient_profile.get("medical_history"):
+        parts.append(
+            f"Previously recorded medical history: "
+            f"{patient_profile['medical_history']}"
+        )
+
+    medications = current_state.get("current_medications") or {}
+
+    if medications.get("status") == "confirmed":
+        items = medications.get("items") or []
+
+        if items:
+            parts.append(
+                f"Confirmed current medications: {', '.join(items)}"
+            )
+
+    elif patient_profile.get("medications"):
+        parts.append(
+            "Previously recorded medications: "
+            + ", ".join(patient_profile["medications"])
+        )
+
+    allergies = current_state.get("allergies") or {}
+
+    if allergies.get("status") == "confirmed":
+        items = allergies.get("items") or []
+
+        if items:
+            parts.append(
+                f"Confirmed allergies: {', '.join(items)}"
+            )
+
+    elif allergies.get("status") == "confirmed_none":
+        parts.append(
+            "Confirmed allergies: none"
+        )
+
+    elif patient_profile.get("allergies"):
+        parts.append(
+            "Previously recorded allergies: "
+            + ", ".join(patient_profile["allergies"])
+        )
+
+    return "\n".join(parts)
+
+
 
 def _confidence_info(min_score: float | None) -> dict:
     """
