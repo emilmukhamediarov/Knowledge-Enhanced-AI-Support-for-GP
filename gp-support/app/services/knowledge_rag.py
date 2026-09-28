@@ -6,14 +6,13 @@ Exposes:
 - build_index(db): sets up the knowledge base index and persists chunks to Supabase pgvector
 - update_index(db): appends new knowledge base files without rebuilding existing chunks
 - load_index(): loads existing vector store from Supabase without rebuilding
-- ask(index, question): queries the index and returns prose
 - ask_structured(index, question): queries index and returns grounded JSON dict
 
 
-Other modules (e.g. chatbot.py, main.py) should import and use this like:
-    from rag import build_index, ask
-    index = build_index()
-    answer = ask(index, "What are red flags for a persistent cough?")
+To query an existing index:
+    from app.services.knowledge_rag import load_index, ask_structured
+    index = load_index()
+    result = ask_structured(index, "Clinical guidance for a persistent cough")
 """
 
 import json
@@ -67,35 +66,6 @@ def load_index():
         vector_store
     )
 
-# Custom prompt template — this replaces llama-index's default prompt,
-# which does NOT forbid the model from adding its own outside knowledge.
-# This version explicitly restricts answers to only the retrieved context,
-# and requires the model to say when the context is insufficient rather
-# than filling gaps from its own training data. This is the core
-# hallucination-reduction mechanism for this MVP.
-STRICT_QA_PROMPT = PromptTemplate(
-    "You are a clinical documentation assistant helping a GP. "
-    
-    "Always write the final answer in English. "
-
-    "You must answer using ONLY the context information below, "
-    "which comes from verified clinical sources. "
-    "Do not add any medical facts, tests, or recommendations that are "
-    "not explicitly stated in the context, even if you know them to be "
-    "generally true or standard practice. "
-    "If the context does not contain enough information to fully answer "
-    "the question, say so explicitly (e.g. 'The knowledge base does not "
-    "cover X') rather than filling the gap with outside knowledge.\n"
-    "---------------------\n"
-    "{context_str}\n"
-    "---------------------\n"
-    "Given the context information above and not prior knowledge, "
-    "answer the question.\n"
-    "Question: {query_str}\n"
-    "Answer: "
-)
-
-
 def _configure_models():
     """Set the LLM, embedding model, and node splitter used by llama-index globally."""
     Settings.llm = BedrockConverse(
@@ -115,7 +85,7 @@ def build_index(db):
     """
     Load documents from the knowledge base and build a searchable index.
     Call this once (e.g. at app startup) — it's the slow/expensive step.
-    Returns the index object, which you pass into ask().
+    Returns the index object, which you pass into ask_structured().
     """
     print("Configuring models (this downloads the embedding model on first run)...", flush=True)
     _configure_models()
@@ -228,6 +198,13 @@ def build_query_from_consultation_summary(summary: dict) -> str:
         if location.lower() not in [t.lower() for t in terms]:
             terms.append(location)
 
+    relevant_history = summary.get("relevant_history") or []
+
+    if relevant_history:
+        terms.append(
+            f"Relevant history: {', '.join(relevant_history)}"
+        )
+
     # Include confirmed medical history and current medications
     for field_name in ["medical_history", "current_medications"]:
         field = summary.get(field_name) or {}
@@ -260,54 +237,7 @@ def build_query_from_consultation_summary(summary: dict) -> str:
 
 
 
-def ask(index, question: str, return_sources: bool = False):
-    """
-    Query the index with a question.
-
-    Args:
-        index: the object returned by build_index()
-        question: the user's question or patient-note-derived query
-        return_sources: if True, also return the retrieved source chunks
-                         (useful for debugging / checking for hallucination)
-
-    Returns:
-        A string answer, or (answer, source_chunks) if return_sources=True.
-    """
-    print("Sending query to AWS...", flush=True)
-
-    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.67)
-    retriever = index.as_retriever(similarity_top_k=2)
-
-    # 1. Retrieve candidates
-    retrieved_nodes = retriever.retrieve(question)
-
-    # 2. Filter using cutoff
-    processed_nodes = similarity_processor.postprocess_nodes(
-        retrieved_nodes, query_str=question
-    )
-
-    # 3. Short-circuit if nothing passes 0.72
-    if not processed_nodes:
-        no_info_msg = (
-            "The knowledge base does not contain verified clinical "
-            "guidance for this presentation."
-        )
-        return (no_info_msg, []) if return_sources else no_info_msg
-
-    # 4. Synthesize answer using strictly filtered nodes
-    synth = get_response_synthesizer(text_qa_template=STRICT_QA_PROMPT)
-    response = synth.synthesize(query=question, nodes=processed_nodes)
-
-    if return_sources:
-        sources = [node.node.get_text() for node in response.source_nodes]
-        return str(response), sources
-
-    return str(response)
-
-
-# Structured version of the prompt — used when the caller needs a
-# machine-readable result (e.g. for main.py / a frontend), not just prose.
-# Same "only use retrieved context" rule as STRICT_QA_PROMPT, but also
+# Return a structured answer grounded only in the retrieved context.
 STRUCTURED_QA_PROMPT = PromptTemplate(
     "You are a clinical documentation assistant helping a GP. "
 
@@ -339,6 +269,261 @@ STRUCTURED_QA_PROMPT = PromptTemplate(
     "Use single curly braces, standard JSON syntax, no markdown fences, "
     "no text before or after the JSON object.\n"
 )
+
+FOLLOW_UP_TOPICS_PROMPT = PromptTemplate(
+    "You are supporting a GP pre-consultation assistant. "
+
+    "Use ONLY the clinical context retrieved from the verified knowledge base. "
+    "Do not use outside medical knowledge. "
+
+    "The patient's currently known presentation is provided in the question. "
+
+    "Your task is to identify clinically relevant HISTORY DETAILS that would "
+    "be useful to clarify by asking the patient another question. "
+
+    "Do NOT diagnose the patient. "
+    "Do NOT recommend treatment, medication, tests, or management. "
+    "Do NOT assess urgency. "
+    "Do NOT provide medical advice. "
+
+    "Do NOT suggest asking for information that is already clearly stated "
+    "in the patient's known presentation. "
+
+    "Focus on specific missing details that could help the GP understand "
+    "the current presentation better. "
+
+    "Return at most 4 short follow-up TOPICS. "
+    "Return topics, NOT fully written patient questions. "
+
+    "Examples of good topics: "
+    "\"contact lens use\", "
+    "\"recent eye trauma\", "
+    "\"light sensitivity\", "
+    "\"change in vision\". "
+
+    "If the retrieved clinical context does not support any useful "
+    "follow-up topics, return an empty list. "
+
+    "Respond with ONLY valid JSON in exactly this shape:\n"
+    '{"follow_up_topics": ["topic 1", "topic 2"]}\n'
+
+    "No markdown fences. No explanation. No additional keys.\n\n"
+
+    "---------------------\n"
+    "{context_str}\n"
+    "---------------------\n"
+
+    "Known patient presentation:\n"
+    "{query_str}\n"
+)
+
+
+def suggest_follow_up_topics(
+    index,
+    question: str
+) -> dict:
+    """
+    Retrieve clinically relevant knowledge and identify useful
+    unanswered history topics for the live chatbot.
+
+    This does NOT generate the patient-facing question.
+    The chat LLM will later turn one topic into a natural question
+    in the patient's preferred language.
+    """
+
+    similarity_processor = SimilarityPostprocessor(
+        similarity_cutoff=0.67
+    )
+
+    retriever = index.as_retriever(
+        similarity_top_k=3
+    )
+
+    # 1. Retrieve relevant clinical chunks
+    retrieved_nodes = retriever.retrieve(question)
+
+    # 2. Remove weak matches
+    processed_nodes = similarity_processor.postprocess_nodes(
+        retrieved_nodes,
+        query_str=question
+    )
+
+    # 3. No relevant clinical knowledge found
+    if not processed_nodes:
+        return {
+            "follow_up_topics": [],
+            "sources": [],
+            "parse_error": False,
+        }
+
+    # 4. Ask the RAG model for useful follow-up topics
+    synth = get_response_synthesizer(
+        text_qa_template=FOLLOW_UP_TOPICS_PROMPT
+    )
+
+    response = synth.synthesize(
+        query=question,
+        nodes=processed_nodes
+    )
+
+    raw = str(response).strip()
+
+    # Defensive cleanup if the model still returns markdown
+    if raw.startswith("```"):
+        raw = raw.strip("`")
+
+        if raw.startswith("json"):
+            raw = raw[4:]
+
+        raw = raw.strip()
+
+    sources = [
+        node.node.get_text()
+        for node in response.source_nodes
+    ]
+
+    try:
+        parsed = json.loads(raw)
+
+        topics = parsed.get(
+            "follow_up_topics",
+            []
+        )
+
+        if not isinstance(topics, list):
+            topics = []
+
+        # Keep only clean strings and limit the number returned
+        topics = [
+            topic.strip()
+            for topic in topics
+            if isinstance(topic, str) and topic.strip()
+        ][:4]
+
+        return {
+            "follow_up_topics": topics,
+            "sources": sources,
+            "parse_error": False,
+        }
+
+    except json.JSONDecodeError:
+        return {
+            "follow_up_topics": [],
+            "sources": sources,
+            "parse_error": True,
+        }
+
+
+def build_follow_up_query(
+    current_state: dict,
+    patient_profile: dict | None = None
+) -> str:
+    """
+    Build a concise clinical presentation for live RAG follow-up retrieval.
+
+    The query describes what is already known so RAG can identify
+    useful missing history topics without repeating answered questions.
+    """
+
+    patient_profile = patient_profile or {}
+
+    parts = []
+
+    age = patient_profile.get("age")
+    if age is not None:
+        parts.append(f"Age: {age}")
+
+    reason = current_state.get("reason_for_visit")
+    if reason:
+        parts.append(f"Reason for visit: {reason}")
+
+    symptoms = current_state.get("symptoms") or []
+    if symptoms:
+        parts.append(
+            f"Known symptoms: {', '.join(symptoms)}"
+        )
+
+    location = current_state.get("symptom_location")
+    if location:
+        parts.append(
+            f"Symptom location: {location}"
+        )
+
+    onset = current_state.get("onset")
+    if onset:
+        parts.append(
+            f"Onset: {onset}"
+        )
+
+    duration = current_state.get("duration")
+    if duration:
+        parts.append(
+            f"Duration: {duration}"
+        )
+
+    severity = current_state.get("severity")
+    if severity:
+        parts.append(
+            f"Severity: {severity}"
+        )
+
+    # Prefer information explicitly established during this consultation.
+    medical_history = current_state.get("medical_history") or {}
+
+    if medical_history.get("status") == "confirmed":
+        items = medical_history.get("items") or []
+
+        if items:
+            parts.append(
+                f"Confirmed medical history: {', '.join(items)}"
+            )
+
+    elif patient_profile.get("medical_history"):
+        parts.append(
+            f"Previously recorded medical history: "
+            f"{patient_profile['medical_history']}"
+        )
+
+    medications = current_state.get("current_medications") or {}
+
+    if medications.get("status") == "confirmed":
+        items = medications.get("items") or []
+
+        if items:
+            parts.append(
+                f"Confirmed current medications: {', '.join(items)}"
+            )
+
+    elif patient_profile.get("medications"):
+        parts.append(
+            "Previously recorded medications: "
+            + ", ".join(patient_profile["medications"])
+        )
+
+    allergies = current_state.get("allergies") or {}
+
+    if allergies.get("status") == "confirmed":
+        items = allergies.get("items") or []
+
+        if items:
+            parts.append(
+                f"Confirmed allergies: {', '.join(items)}"
+            )
+
+    elif allergies.get("status") == "confirmed_none":
+        parts.append(
+            "Confirmed allergies: none"
+        )
+
+    elif patient_profile.get("allergies"):
+        parts.append(
+            "Previously recorded allergies: "
+            + ", ".join(patient_profile["allergies"])
+        )
+
+    return "\n".join(parts)
+
+
 
 def _confidence_info(min_score: float | None) -> dict:
     """
@@ -432,12 +617,9 @@ def _source_links(source_nodes) -> list[str]:
 
 def ask_structured(index, question: str) -> dict:
     """
-    Like ask(), but returns a structured dict instead of prose, including
-    red-flag detection grounded in the knowledge base. This is the
-    intended entry point for main.py / the frontend, since chatbot.py's
-    red_flags / requires_urgent_attention fields were removed (that
-    responsibility now lives here, where answers are grounded in
-    verified sources rather than the chat LLM's own judgement).
+    Query the index and return a grounded answer with source passages,
+    source links, retrieval confidence, and JSON parsing status.
+    This is the entry point used by the consultation workflow.
 
     Returns a dict shaped like:
     {

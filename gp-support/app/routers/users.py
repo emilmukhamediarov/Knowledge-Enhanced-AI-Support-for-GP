@@ -81,7 +81,7 @@ def get_patient_details(
 @router.get("/me", response_model=UserDetailsResponse)
 def get_my_details(
     current_user: User = Depends(
-        require_role([UserRole.PATIENT])
+        require_role([UserRole.PATIENT, UserRole.DOCTOR])
     )
 ):
     return {
@@ -104,7 +104,7 @@ def update_my_settings(
     data: PatientDetailsUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(
-        require_role([UserRole.PATIENT])
+        require_role([UserRole.PATIENT, UserRole.DOCTOR])
     )
 ):
     update_data = data.model_dump(exclude_unset=True)
@@ -241,4 +241,31 @@ def update_patient_details(
         "medical_history": patient.medical_history,
         "allergies": patient.allergies,
         "medications": patient.medications,
+    }
+
+@router.get("/me/doctor")
+def get_my_doctor(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_role([UserRole.PATIENT])
+    ),
+):
+    if current_user.doctor_id is None:
+        return {"doctor": None}
+
+    doctor = db.get(User, current_user.doctor_id)
+
+    if doctor is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Doctor not found"
+        )
+
+    return {
+        "doctor": {
+            "id": doctor.id,
+            "name": doctor.name,
+            "username": doctor.username,
+            "email": doctor.email,
+        }
     }
