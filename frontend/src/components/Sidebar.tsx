@@ -192,6 +192,15 @@ function Sidebar() {
                 </div>
 
                 <div className="sidebar-bottom">
+                    <NavLink
+                        to="/edit-profile"
+                        className={({ isActive }) =>
+                            `sidebar-link ${isActive ? "active" : ""}`
+                        }
+                    >
+                        <span>Profile</span>
+                    </NavLink>
+
                     <div className="settings-container">
                         <NavLink
                             to="/settings"

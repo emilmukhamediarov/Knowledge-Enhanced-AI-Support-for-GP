@@ -33,7 +33,7 @@ interface RagResponse {
     answer: string;
     confidence: string;
     confidence_message: string;
-    sources: string[];
+    link: string[];
     parse_error: boolean;
 }
 
@@ -519,6 +519,28 @@ function DoctorConsultation() {
                                         </p>
                                     )}
                                 </div>
+
+
+                                    {rag.link.length > 0 && (
+                                        <details className="rag-sources">
+                                            <summary>
+                                                Sources
+                                            </summary>
+
+                                            {rag.link.map((source, index) => (
+                                                <pre key={index}>
+                                                    <a
+                                                        href={source}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                    >
+                                                        {source}
+                                                    </a>
+                                                </pre>
+                                            ))}
+                                        </details>
+                                    )}
+
                             </div>
                         </div>
                     )}

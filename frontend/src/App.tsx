@@ -19,6 +19,7 @@ import DoctorConsultation from "./pages/doctor/DoctorConsultation";
 import SessionExpiredModal from "./components/SessionExpiredModal";
 import PatientDetails from "./pages/doctor/PatientDetails";
 import Settings from "./pages/Settings";
+import EditProfile from "./pages/patient/EditProfile";
 
 function ProtectedLayout() {
     return (
@@ -45,6 +46,7 @@ function App() {
                 {/* Protected routes */}
                 <Route element={<ProtectedRoute><ProtectedLayout /></ProtectedRoute>}>
                     <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>}/>
+                    <Route path="/edit-profile" element={<ProtectedRoute><EditProfile /></ProtectedRoute>}/>
 
                     {/* Admin */}
                     <Route path="/home" element={<RoleRoute roles={["admin"]}><Home /></RoleRoute>}/>

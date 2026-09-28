@@ -1,0 +1,261 @@
+.edit-profile {
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 60px 50px;
+    box-sizing: border-box;
+}
+
+.profile-header {
+    margin-bottom: 40px;
+}
+
+.profile-header h1 {
+    margin: 0 0 10px;
+    font-size: 2.4rem;
+    font-weight: 600;
+}
+
+.profile-header p {
+    margin: 0;
+    font-size: 1.05rem;
+    opacity: 0.65;
+}
+
+.profile-section {
+    width: 100%;
+    margin-bottom: 25px;
+    padding: 30px;
+    box-sizing: border-box;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--social-bg);
+}
+
+.section-heading {
+    margin-bottom: 25px;
+}
+
+.section-heading h2 {
+    margin: 0 0 7px;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.section-heading p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.6;
+}
+
+.medical-heading {
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid var(--border);
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.profile-field {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.profile-field-full {
+    grid-column: 1 / -1;
+}
+
+.profile-field label {
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-h);
+}
+
+.profile-field input,
+.profile-field select,
+.profile-field textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 11px 13px;
+    border: 1px solid var(--input-border);
+    border-radius: 9px;
+    background: var(--input-bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.profile-field input::placeholder,
+.profile-field textarea::placeholder {
+    color: var(--input-placeholder);
+    opacity: 0.7;
+}
+
+.profile-field input:focus,
+.profile-field select:focus,
+.profile-field textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+.profile-field input:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.profile-field textarea {
+    min-height: 80px;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.profile-field .field-note {
+    color: var(--text);
+    opacity: 0.8;
+    margin-left: 0.8rem;
+}
+
+.field-note {
+    margin-top: 6px;
+    font-size: 0.75rem;
+    line-height: 1.4;
+    opacity: 0.5;
+}
+
+.medical-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.profile-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 25px;
+    border-top: 1px solid var(--border);
+}
+
+.save-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75em 1.5em;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent);
+    color: white;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+            background 0.2s ease,
+            transform 0.2s ease;
+}
+
+.save-button:hover:not(:disabled) {
+    background: var(--accent-hover);
+    color: #ccc;
+    transform: translateY(-2px);
+}
+
+html.theme-dark .save-button:hover:not(:disabled) {
+    color: var(--border);
+}
+
+.save-button,
+.save-button:hover,
+.save-button:focus,
+.save-button:active {
+    color: white;
+}
+
+.save-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.save-message {
+    font-size: 0.85rem;
+    opacity: 0.65;
+}
+
+.doctor-selection {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+}
+
+.doctor-selection .profile-field {
+    flex: 1;
+}
+
+.doctor-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding-bottom: 1px;
+}
+
+.profile-loading {
+    margin: 0;
+    font-size: 0.95rem;
+    opacity: 0.6;
+}
+
+/*Mobile temp - Can fix if not working */
+
+@media (max-width: 768px) {
+    .edit-profile {
+        padding: 30px 16px;
+    }
+
+    .profile-header h1 {
+        font-size: 1.8rem;
+    }
+
+    .profile-section {
+        padding: 22px;
+    }
+
+    .profile-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .profile-field-full {
+        grid-column: auto;
+    }
+
+    .doctor-selection {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .doctor-actions {
+        padding: 0;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .save-button {
+        width: 100%;
+    }
+}
