@@ -1128,14 +1128,23 @@ def get_consultation_status(
     consultation_id: int,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(
-        require_role([models.UserRole.DOCTOR])
+        require_role([
+            models.UserRole.DOCTOR,
+            models.UserRole.PATIENT
+        ])
     )
 ):
-    consultation = _get_doctor_consultation(
-        db,
-        consultation_id,
-        current_user
+    consultation = (
+        db.query(models.Consultation)
+        .filter(models.Consultation.id == consultation_id)
+        .first()
     )
+
+    if not consultation:
+        raise HTTPException(
+            status_code=404,
+            detail="Consultation not found"
+        )
 
     return {
         "consultation_id": consultation.id,

@@ -23,6 +23,8 @@ function Chat() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const sendingRef = useRef(false);
+    const [status, setStatus] = useState("");
+    const [showClosedPopup, setShowClosedPopup] = useState(false);
 
     // Confirmation dialogs
     const [showResetConfirmation, setShowResetConfirmation] =
@@ -90,17 +92,18 @@ function Chat() {
         };
     }, []);
 
-    // Load messages for this consultation
+    // Load messages for this consultation and the status
     useEffect(() => {
         if (!consultationId) {
             setError("Unable to identify the consultation.");
             return;
         }
 
-        const loadMessages = async () => {
+        const loadConsultation = async () => {
             try {
                 setError("");
 
+                // Load messages
                 const data = await apiFetch(
                     `/consultations/${consultationId}/messages`
                 );
@@ -116,9 +119,20 @@ function Chat() {
                         })
                     )
                 );
+
+                // Load consultation status
+                const statusData = await apiFetch(
+                    `/consultations/${consultationId}/status`
+                );
+
+                setStatus(statusData.status);
+
+                if (statusData.status === "closed") {
+                    setShowClosedPopup(true);
+                }
             } catch (error) {
                 console.error(
-                    "Failed to load messages:",
+                    "Failed to load consultation:",
                     error
                 );
 
@@ -126,7 +140,7 @@ function Chat() {
             }
         };
 
-        void loadMessages();
+        void loadConsultation();
     }, [consultationId]);
 
     // Automatically scroll to newest message
@@ -794,38 +808,74 @@ function Chat() {
             )}
 
             {/* Chat actions */}
-            <div className="chat-actions">
-                <button
-                    type="button"
-                    onClick={() =>
-                        setShowResetConfirmation(true)
-                    }
-                    className="reset-button"
-                >
-                    Reset Chat
-                </button>
+            {status !== "closed" && (
+                <div className="chat-actions">
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowResetConfirmation(true)
+                        }
+                        className="reset-button"
+                    >
+                        Reset Chat
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={() =>
-                        setShowDeleteConfirmation(true)
-                    }
-                    className="delete-button"
-                >
-                    Delete Chat
-                </button>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowDeleteConfirmation(true)
+                        }
+                        className="delete-button"
+                    >
+                        Delete Chat
+                    </button>
 
-                <button
-                    type="button"
-                    onClick={() =>
-                        setShowReadyConfirmation(true)
-                    }
-                    className="ready-button"
-                    disabled={readying}
-                >
-                    Submit
-                </button>
-            </div>
+                    <button
+                        type="button"
+                        onClick={() =>
+                            setShowReadyConfirmation(true)
+                        }
+                        className="ready-button"
+                        disabled={readying}
+                    >
+                        Submit
+                    </button>
+                </div>
+            )}
+
+            {showClosedPopup && status === "closed" && (
+                <div className="closed-chat-popup">
+                    <div className="closed-chat-popup-content">
+                        <button
+                            type="button"
+                            className="closed-chat-popup-close"
+                            onClick={() =>
+                                setShowClosedPopup(false)
+                            }
+                            aria-label="Close popup"
+                        >
+                            ×
+                        </button>
+
+                        <div className="closed-chat-icon">✓</div>
+
+                        <h2>Chat Closed</h2>
+
+
+                        <span className="closed-chat-popup-hint">
+                        Return to the home page or dismiss this message to read your previous conversation.
+                        </span>
+
+                        <button
+                            type="button"
+                            className="closed-chat-home-button"
+                            onClick={() => navigate("/patienthome")}
+                        >
+                            Return to Home
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* Scrollable messages */}
             <div className="messages">
@@ -920,7 +970,7 @@ function Chat() {
                     }
                     onKeyDown={handleKeyDown}
                     placeholder="Type your message..."
-                    disabled={loading}
+                    disabled={loading || status === "closed"}
                     rows={1}
                 />
 
@@ -937,7 +987,7 @@ function Chat() {
                                 ? stopRecording
                                 : startRecording
                         }
-                        disabled={loading}
+                        disabled={loading || status === "closed"}
                         aria-pressed={isRecording}
                         style={{
                             transform:
@@ -977,6 +1027,7 @@ function Chat() {
                         }
                         disabled={
                             loading ||
+                            status === "closed" ||
                             message.trim() === ""
                         }
                         aria-label="Send message"

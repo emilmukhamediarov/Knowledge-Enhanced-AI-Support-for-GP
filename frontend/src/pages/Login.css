@@ -48,6 +48,35 @@
     transition: opacity 0.2s ease;
 }
 
+.forgot-password-link {
+    padding: 0 !important;
+    margin: -0.5rem 0 0 0 !important;
+
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+
+    color: var(--accent) !important;
+    font-family: var(--sans) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+
+    cursor: pointer !important;
+    box-shadow: none !important;
+    align-self: center;
+}
+
+.forgot-password-link:hover {
+    background: transparent !important;
+    color: var(--accent) !important;
+    text-decoration: underline;
+}
+
+.forgot-password-link:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
 .login-form button:hover {
     opacity: 0.9;
 }
