@@ -205,11 +205,16 @@ def build_query_from_consultation_summary(summary: dict) -> str:
             f"Relevant history: {', '.join(relevant_history)}"
         )
 
-    # Include confirmed medical history and current medications
-    for field_name in ["medical_history", "current_medications"]:
+    # Preserve explicitly reported absence as well as confirmed items.
+    for field_name, label in (
+        ("medical_history", "Medical history"),
+        ("current_medications", "Current medications"),
+    ):
         field = summary.get(field_name) or {}
         if field.get("status") == "confirmed" and field.get("items"):
             terms.extend(field['items'])
+        elif field.get("status") == "confirmed_none":
+            terms.append(f"{label}: patient reports none")
 
     # Preserve context that may exist only in dedicated summary fields.
     for field_name, label in (
@@ -467,6 +472,14 @@ def build_follow_up_query(
             f"Severity: {severity}"
         )
 
+    relevant_history = current_state.get("relevant_history") or []
+    if relevant_history:
+        parts.append(f"Relevant history: {', '.join(relevant_history)}")
+
+    additional_concerns = current_state.get("additional_concerns")
+    if additional_concerns and additional_concerns.strip():
+        parts.append(f"Additional concerns: {additional_concerns.strip()}")
+
     # Prefer information explicitly established during this consultation.
     medical_history = current_state.get("medical_history") or {}
 
@@ -478,7 +491,13 @@ def build_follow_up_query(
                 f"Confirmed medical history: {', '.join(items)}"
             )
 
-    elif patient_profile.get("medical_history"):
+    elif medical_history.get("status") == "confirmed_none":
+        parts.append("Confirmed medical history: none")
+
+    elif (
+        medical_history.get("status", "unknown") == "unknown"
+        and patient_profile.get("medical_history")
+    ):
         parts.append(
             f"Previously recorded medical history: "
             f"{patient_profile['medical_history']}"
@@ -494,7 +513,13 @@ def build_follow_up_query(
                 f"Confirmed current medications: {', '.join(items)}"
             )
 
-    elif patient_profile.get("medications"):
+    elif medications.get("status") == "confirmed_none":
+        parts.append("Confirmed current medications: none")
+
+    elif (
+        medications.get("status", "unknown") == "unknown"
+        and patient_profile.get("medications")
+    ):
         parts.append(
             "Previously recorded medications: "
             + ", ".join(patient_profile["medications"])
@@ -515,7 +540,10 @@ def build_follow_up_query(
             "Confirmed allergies: none"
         )
 
-    elif patient_profile.get("allergies"):
+    elif (
+        allergies.get("status", "unknown") == "unknown"
+        and patient_profile.get("allergies")
+    ):
         parts.append(
             "Previously recorded allergies: "
             + ", ".join(patient_profile["allergies"])
