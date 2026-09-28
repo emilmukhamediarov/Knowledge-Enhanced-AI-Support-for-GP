@@ -6,14 +6,13 @@ Exposes:
 - build_index(db): sets up the knowledge base index and persists chunks to Supabase pgvector
 - update_index(db): appends new knowledge base files without rebuilding existing chunks
 - load_index(): loads existing vector store from Supabase without rebuilding
-- ask(index, question): queries the index and returns prose
 - ask_structured(index, question): queries index and returns grounded JSON dict
 
 
-Other modules (e.g. chatbot.py, main.py) should import and use this like:
-    from rag import build_index, ask
-    index = build_index()
-    answer = ask(index, "What are red flags for a persistent cough?")
+To query an existing index:
+    from app.services.knowledge_rag import load_index, ask_structured
+    index = load_index()
+    result = ask_structured(index, "Clinical guidance for a persistent cough")
 """
 
 import json
@@ -67,35 +66,6 @@ def load_index():
         vector_store
     )
 
-# Custom prompt template — this replaces llama-index's default prompt,
-# which does NOT forbid the model from adding its own outside knowledge.
-# This version explicitly restricts answers to only the retrieved context,
-# and requires the model to say when the context is insufficient rather
-# than filling gaps from its own training data. This is the core
-# hallucination-reduction mechanism for this MVP.
-STRICT_QA_PROMPT = PromptTemplate(
-    "You are a clinical documentation assistant helping a GP. "
-    
-    "Always write the final answer in English. "
-
-    "You must answer using ONLY the context information below, "
-    "which comes from verified clinical sources. "
-    "Do not add any medical facts, tests, or recommendations that are "
-    "not explicitly stated in the context, even if you know them to be "
-    "generally true or standard practice. "
-    "If the context does not contain enough information to fully answer "
-    "the question, say so explicitly (e.g. 'The knowledge base does not "
-    "cover X') rather than filling the gap with outside knowledge.\n"
-    "---------------------\n"
-    "{context_str}\n"
-    "---------------------\n"
-    "Given the context information above and not prior knowledge, "
-    "answer the question.\n"
-    "Question: {query_str}\n"
-    "Answer: "
-)
-
-
 def _configure_models():
     """Set the LLM, embedding model, and node splitter used by llama-index globally."""
     Settings.llm = BedrockConverse(
@@ -115,7 +85,7 @@ def build_index(db):
     """
     Load documents from the knowledge base and build a searchable index.
     Call this once (e.g. at app startup) — it's the slow/expensive step.
-    Returns the index object, which you pass into ask().
+    Returns the index object, which you pass into ask_structured().
     """
     print("Configuring models (this downloads the embedding model on first run)...", flush=True)
     _configure_models()
@@ -260,54 +230,7 @@ def build_query_from_consultation_summary(summary: dict) -> str:
 
 
 
-def ask(index, question: str, return_sources: bool = False):
-    """
-    Query the index with a question.
-
-    Args:
-        index: the object returned by build_index()
-        question: the user's question or patient-note-derived query
-        return_sources: if True, also return the retrieved source chunks
-                         (useful for debugging / checking for hallucination)
-
-    Returns:
-        A string answer, or (answer, source_chunks) if return_sources=True.
-    """
-    print("Sending query to AWS...", flush=True)
-
-    similarity_processor = SimilarityPostprocessor(similarity_cutoff=0.67)
-    retriever = index.as_retriever(similarity_top_k=2)
-
-    # 1. Retrieve candidates
-    retrieved_nodes = retriever.retrieve(question)
-
-    # 2. Filter using cutoff
-    processed_nodes = similarity_processor.postprocess_nodes(
-        retrieved_nodes, query_str=question
-    )
-
-    # 3. Short-circuit if nothing passes 0.72
-    if not processed_nodes:
-        no_info_msg = (
-            "The knowledge base does not contain verified clinical "
-            "guidance for this presentation."
-        )
-        return (no_info_msg, []) if return_sources else no_info_msg
-
-    # 4. Synthesize answer using strictly filtered nodes
-    synth = get_response_synthesizer(text_qa_template=STRICT_QA_PROMPT)
-    response = synth.synthesize(query=question, nodes=processed_nodes)
-
-    if return_sources:
-        sources = [node.node.get_text() for node in response.source_nodes]
-        return str(response), sources
-
-    return str(response)
-
-
-# Structured version of the prompt — used when the caller needs a
-# machine-readable result (e.g. for main.py / a frontend), not just prose.
-# Same "only use retrieved context" rule as STRICT_QA_PROMPT, but also
+# Return a structured answer grounded only in the retrieved context.
 STRUCTURED_QA_PROMPT = PromptTemplate(
     "You are a clinical documentation assistant helping a GP. "
 
@@ -432,12 +355,9 @@ def _source_links(source_nodes) -> list[str]:
 
 def ask_structured(index, question: str) -> dict:
     """
-    Like ask(), but returns a structured dict instead of prose, including
-    red-flag detection grounded in the knowledge base. This is the
-    intended entry point for main.py / the frontend, since chatbot.py's
-    red_flags / requires_urgent_attention fields were removed (that
-    responsibility now lives here, where answers are grounded in
-    verified sources rather than the chat LLM's own judgement).
+    Query the index and return a grounded answer with source passages,
+    source links, retrieval confidence, and JSON parsing status.
+    This is the entry point used by the consultation workflow.
 
     Returns a dict shaped like:
     {
