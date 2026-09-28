@@ -31,6 +31,29 @@ interface MyDoctorResponse {
     doctor: Doctor | null;
 }
 
+const languages = [
+    {
+        value: "en-US",
+        label: "English (United States)",
+    },
+    {
+        value: "zh-CN",
+        label: "Chinese (Simplified)",
+    },
+    {
+        value: "th-TH",
+        label: "Thai",
+    },
+    {
+        value: "ru-RU",
+        label: "Russian",
+    },
+    {
+        value: "es-US",
+        label: "Spanish",
+    },
+];
+
 const TOTAL_SETUP_STEPS = 4;
 
 export function FirstTimeSettingsModal({
@@ -541,21 +564,14 @@ export function FirstTimeSettingsModal({
                                     )
                                 }
                             >
-                                <option value="en-US">
-                                    English (US)
-                                </option>
-
-                                <option value="en-NZ">
-                                    English (New Zealand)
-                                </option>
-
-                                <option value="en-GB">
-                                    English (UK)
-                                </option>
-
-                                <option value="mi-NZ">
-                                    Māori
-                                </option>
+                                {languages.map((language) => (
+                                    <option
+                                        key={language.value}
+                                        value={language.value}
+                                    >
+                                        {language.label}
+                                    </option>
+                                ))}
                             </select>
                         </div>
 
