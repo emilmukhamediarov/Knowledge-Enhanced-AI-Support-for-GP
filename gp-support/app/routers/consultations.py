@@ -1122,3 +1122,23 @@ def update_related_consultation(
         "consultation_id": consultation.id,
         "related_consultation_id": consultation.related_consultation_id
     }
+
+@router.get("/{consultation_id}/status")
+def get_consultation_status(
+    consultation_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(
+        require_role([models.UserRole.DOCTOR])
+    )
+):
+    consultation = _get_doctor_consultation(
+        db,
+        consultation_id,
+        current_user
+    )
+
+    return {
+        "consultation_id": consultation.id,
+        "status": consultation.status,
+        "closed_at": consultation.closed_at,
+    }

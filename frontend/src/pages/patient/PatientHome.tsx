@@ -82,7 +82,7 @@ function Home() {
             <div className="patient-home">
                 <section className="patient-welcome">
                     <div className="patient-welcome-title">
-                        <h1>Hello, {userName} </h1>
+                        <h1>Hello, {userName}</h1>
                     </div>
 
                     <p>
@@ -182,30 +182,11 @@ function Home() {
                                     to={`/chat/${consultation.consultation_id}`}
                                     className="consultation-row"
                                 >
-                                    <div>
+                                    <div className="consultation-info">
                                         <h3>
-                                            {consultation.title ? (
-                                                <>
-                                                    <span className="consultation-title">
-                                                        {consultation.title}
-                                                    </span>
-
-                                                    <span className="consultation-number">
-                                                        (#
-                                                        {
-                                                            consultation.consultation_id
-                                                        }
-                                                        )
-                                                    </span>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    Consultation{" "}
-                                                    {
-                                                        consultation.consultation_id
-                                                    }
-                                                </>
-                                            )}
+                                            {consultation.title
+                                                ? `${consultation.title} (#${consultation.consultation_id})`
+                                                : `Consultation ${consultation.consultation_id}`}
                                         </h3>
 
                                         <p>

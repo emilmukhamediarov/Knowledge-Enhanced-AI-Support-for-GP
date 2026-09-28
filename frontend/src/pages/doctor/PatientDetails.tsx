@@ -149,7 +149,6 @@ function PatientDetails() {
                 </div>
             </div>
 
-
             <div className="patient-details-grid">
                 <section className="patient-details-card">
                     <div className="patient-card-header">
@@ -263,7 +262,8 @@ function PatientDetails() {
                                     new Date(a.created_at).getTime()
                             )
                             .map((consultation) => (
-                                <div
+                                <NavLink
+                                    to={`/doctor/consultations/${consultation.consultation_id}`}
                                     className="patient-consultation-row"
                                     key={consultation.consultation_id}
                                 >
@@ -284,7 +284,7 @@ function PatientDetails() {
                                     >
                                         {consultation.status}
                                     </span>
-                                </div>
+                                </NavLink>
                             ))}
                     </div>
                 )}

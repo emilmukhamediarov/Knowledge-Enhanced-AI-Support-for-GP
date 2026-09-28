@@ -284,7 +284,16 @@
     }
 
     .patient-consultation-row {
-        align-items: flex-start;
-        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        box-sizing: border-box;
+        color: inherit;
+        text-decoration: none;
+    }
+
+    .patient-consultation-row:hover {
+        background: var(--hover-bg);
     }
 }

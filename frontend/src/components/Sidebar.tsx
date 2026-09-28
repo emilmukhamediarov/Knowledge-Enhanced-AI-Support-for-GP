@@ -3,7 +3,7 @@ import { useTheme } from "../hooks/useTheme";
 import { NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { apiFetch } from "../api/client";
-import { FirstTimeSettingsModal } from "../pages/Settings";
+import { FirstTimeSettingsModal } from "./FirstTimeSettingsModal";
 
 interface Consultation {
     consultation_id: number;
@@ -192,18 +192,10 @@ function Sidebar() {
                 </div>
 
                 <div className="sidebar-bottom">
-                    <NavLink
-                        to="/edit-profile"
-                        className={({ isActive }) =>
-                            `sidebar-link ${isActive ? "active" : ""}`
-                        }
-                    >
-                        <span>Profile</span>
-                    </NavLink>
 
                     <div className="settings-container">
                         <NavLink
-                            to="/settings"
+                            to="/edit-profile"
                             className={({ isActive }) =>
                                 `sidebar-link sidebar-settings-link ${
                                     isActive ? "active" : ""

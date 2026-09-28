@@ -58,15 +58,22 @@ interface PlanResponse {
     plan: string | null;
 }
 
+interface ConsultationStatusResponse {
+    consultation_id: number;
+    status: string;
+    closed_at: string | null;
+}
+
 function DoctorConsultation() {
     const { consultationId } = useParams();
     const navigate = useNavigate();
 
     const [data, setData] = useState<RagData | null>(null);
+    const [consultationStatus, setConsultationStatus] = useState<string | null>(
+        null
+    );
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-
-    const [detailsOpen, setDetailsOpen] = useState(false);
 
     const [subjective, setSubjective] = useState("");
     const [objective, setObjective] = useState("");
@@ -92,6 +99,24 @@ function DoctorConsultation() {
             try {
                 setLoading(true);
                 setError("");
+
+                const statusResponse = await apiFetch(
+                    `/consultations/${consultationId}/status`
+                ) as ConsultationStatusResponse;
+
+                setConsultationStatus(statusResponse.status);
+
+                if (
+                    statusResponse.status !== "ready" &&
+                    statusResponse.status !== "closed"
+                ) {
+                    setError(
+                        "This consultation is not ready for review yet. " +
+                        "It will be available once the patient submits it."
+                    );
+
+                    return;
+                }
 
                 const ragResponse = await apiFetch(
                     `/consultations/${consultationId}/rag`
@@ -132,7 +157,28 @@ function DoctorConsultation() {
                     err
                 );
 
-                setError("Unable to load consultation.");
+                const errorMessage =
+                    err instanceof Error
+                        ? err.message
+                        : "";
+
+                if (
+                    errorMessage.includes(
+                        "RAG result is not available until the consultation is ready"
+                    )
+                ) {
+                    setError(
+                        "This consultation is not ready for review yet. " +
+                        "It will be available once the patient submits it."
+                    );
+
+                    return;
+                }
+
+                setError(
+                    "Unable to load consultation. " +
+                    "Please return to the consultations list and try again."
+                );
             } finally {
                 setLoading(false);
             }
@@ -142,7 +188,7 @@ function DoctorConsultation() {
     }, [consultationId]);
 
     const saveNotes = async () => {
-        if (!consultationId) {
+        if (!consultationId || isClosed) {
             return;
         }
 
@@ -220,7 +266,7 @@ function DoctorConsultation() {
     };
 
     const closeConsultation = async () => {
-        if (!consultationId) {
+        if (!consultationId || isClosed) {
             return;
         }
 
@@ -268,7 +314,19 @@ function DoctorConsultation() {
         return (
             <main className="doctor-consultation-page">
                 <div className="consultation-message error">
-                    {error || "Consultation not found."}
+                    <strong>
+                        {error || "Consultation not found."}
+                    </strong>
+
+                    <button
+                        type="button"
+                        className="error-back-button"
+                        onClick={() =>
+                            navigate("/doctor/consultations")
+                        }
+                    >
+                        ← Back to consultations
+                    </button>
                 </div>
             </main>
         );
@@ -276,6 +334,7 @@ function DoctorConsultation() {
 
     const summary = data.patient_summary;
     const rag = data.rag_response;
+    const isClosed = consultationStatus === "closed";
 
     return (
         <main className="doctor-consultation-page">
@@ -294,258 +353,229 @@ function DoctorConsultation() {
                         </h1>
                     </div>
 
-                    <div className="consultation-header-actions">
-                        <button
-                            type="button"
-                            className="close-button"
-                            onClick={() => {
-                                setCloseError("");
-                                setShowCloseConfirmation(true);
-                            }}
-                            disabled={closing}
-                        >
-                            Close consultation
-                        </button>
-                    </div>
+                    {!isClosed && (
+                        <div className="consultation-header-actions">
+                            <button
+                                type="button"
+                                className="close-button"
+                                onClick={() => {
+                                    setCloseError("");
+                                    setShowCloseConfirmation(true);
+                                }}
+                                disabled={closing}
+                            >
+                                Close consultation
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="reference-grid">
-                <section className="reference-card">
-                    <button
-                        type="button"
-                        className="reference-button"
-                        onClick={() =>
-                            setDetailsOpen((open) => !open)
-                        }
-                        aria-expanded={detailsOpen}
-                    >
-                        <div>
-                            <span className="reference-label">
-                                CLINICAL INSIGHTS
+            <section className="clinical-insights-section">
+                <div className="section-heading">
+                    <div>
+                        <span className="section-label">
+                            CLINICAL INSIGHTS
+                        </span>
+
+                        <h2>
+                            Clinical Insights / Details
+                        </h2>
+
+                        <p>
+                            Review the patient's information and
+                            AI-generated clinical insights.
+                        </p>
+                    </div>
+                </div>
+
+                <div className="clinical-insights-card">
+                    <div className="summary-main">
+                        <span className="field-label">
+                            Clinical insights
+                        </span>
+
+                        <p>
+                            {rag.answer ||
+                                "No clinical insights available."}
+                        </p>
+                    </div>
+
+                    <div className="summary-grid">
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Reason for visit
                             </span>
 
-                            <h2>
-                                Clinical Insights / Details
-                            </h2>
+                            <p>
+                                {summary.reason_for_visit ||
+                                    "Not provided"}
+                            </p>
+                        </div>
 
-                            {!detailsOpen && (
-                                <p className="reference-preview">
-                                    {rag.answer ||
-                                        summary.summary ||
-                                        "No clinical insights available."}
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Symptoms
+                            </span>
+
+                            {summary.symptoms.length > 0 ? (
+                                <ul>
+                                    {summary.symptoms.map(
+                                        (symptom, index) => (
+                                            <li key={index}>
+                                                {symptom}
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            ) : (
+                                <p>None provided</p>
+                            )}
+                        </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Location
+                            </span>
+
+                            <p>
+                                {summary.symptom_location ||
+                                    "Not provided"}
+                            </p>
+                        </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Onset
+                            </span>
+
+                            <p>
+                                {summary.onset ||
+                                    "Not provided"}
+                            </p>
+                        </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Duration
+                            </span>
+
+                            <p>
+                                {summary.duration ||
+                                    "Not provided"}
+                            </p>
+                        </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Severity
+                            </span>
+
+                            <p>
+                                {summary.severity ||
+                                    "Not provided"}
+                            </p>
+                        </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Additional concerns
+                            </span>
+
+                            <p>
+                                {summary.additional_concerns ||
+                                    "None provided"}
+                            </p>
+                        </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Medical history
+                            </span>
+
+                            {summary.medical_history.items.length > 0 ? (
+                                <ul>
+                                    {summary.medical_history.items.map(
+                                        (item, index) => (
+                                            <li key={index}>
+                                                {item}
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            ) : (
+                                <p>
+                                    {summary.medical_history.status}
                                 </p>
                             )}
                         </div>
 
-                        <div className="reference-right">
-                            <span className="reference-arrow">
-                                {detailsOpen ? "" : ""}
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Medications
                             </span>
-                        </div>
-                    </button>
 
-                    {detailsOpen && (
-                        <div className="reference-content">
-                            <div className="summary-main">
-                                <span className="field-label">
-                                    Clinical insights
-                                </span>
-
+                            {summary.current_medications.items.length > 0 ? (
+                                <ul>
+                                    {summary.current_medications.items.map(
+                                        (item, index) => (
+                                            <li key={index}>
+                                                {item}
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            ) : (
                                 <p>
-                                    {rag.answer ||
-                                        "No clinical insights available."}
+                                    {summary.current_medications.status}
                                 </p>
-                            </div>
-
-                            <div className="summary-grid">
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Reason for visit
-                                    </span>
-
-                                    <p>
-                                        {summary.reason_for_visit ||
-                                            "Not provided"}
-                                    </p>
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Symptoms
-                                    </span>
-
-                                    {summary.symptoms.length > 0 ? (
-                                        <ul>
-                                            {summary.symptoms.map(
-                                                (symptom, index) => (
-                                                    <li key={index}>
-                                                        {symptom}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p>None provided</p>
-                                    )}
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Location
-                                    </span>
-
-                                    <p>
-                                        {summary.symptom_location ||
-                                            "Not provided"}
-                                    </p>
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Onset
-                                    </span>
-
-                                    <p>
-                                        {summary.onset ||
-                                            "Not provided"}
-                                    </p>
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Duration
-                                    </span>
-
-                                    <p>
-                                        {summary.duration ||
-                                            "Not provided"}
-                                    </p>
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Severity
-                                    </span>
-
-                                    <p>
-                                        {summary.severity ||
-                                            "Not provided"}
-                                    </p>
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Additional concerns
-                                    </span>
-
-                                    <p>
-                                        {summary.additional_concerns ||
-                                            "None provided"}
-                                    </p>
-                                </div>
-                                
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Medical history
-                                    </span>
-
-                                    {summary.medical_history.items.length >
-                                    0 ? (
-                                        <ul>
-                                            {summary.medical_history.items.map(
-                                                (item, index) => (
-                                                    <li key={index}>
-                                                        {item}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p>
-                                            {
-                                                summary.medical_history
-                                                    .status
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Medications
-                                    </span>
-
-                                    {summary.current_medications.items.length >
-                                    0 ? (
-                                        <ul>
-                                            {summary.current_medications.items.map(
-                                                (item, index) => (
-                                                    <li key={index}>
-                                                        {item}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p>
-                                            {
-                                                summary.current_medications
-                                                    .status
-                                            }
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="summary-item">
-                                    <span className="field-label">
-                                        Allergies
-                                    </span>
-
-                                    {summary.allergies.items.length >
-                                    0 ? (
-                                        <ul>
-                                            {summary.allergies.items.map(
-                                                (item, index) => (
-                                                    <li key={index}>
-                                                        {item}
-                                                    </li>
-                                                )
-                                            )}
-                                        </ul>
-                                    ) : (
-                                        <p>
-                                            {summary.allergies.status}
-                                        </p>
-                                    )}
-                                </div>
-
-
-                                    {rag.link.length > 0 && (
-                                        <details className="rag-sources">
-                                            <summary>
-                                                Sources
-                                            </summary>
-
-                                            {rag.link.map((source, index) => (
-                                                <pre key={index}>
-                                                    <a
-                                                        href={source}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                    >
-                                                        {source}
-                                                    </a>
-                                                </pre>
-                                            ))}
-                                        </details>
-                                    )}
-
-                            </div>
+                            )}
                         </div>
+
+                        <div className="summary-item">
+                            <span className="field-label">
+                                Allergies
+                            </span>
+
+                            {summary.allergies.items.length > 0 ? (
+                                <ul>
+                                    {summary.allergies.items.map(
+                                        (item, index) => (
+                                            <li key={index}>
+                                                {item}
+                                            </li>
+                                        )
+                                    )}
+                                </ul>
+                            ) : (
+                                <p>
+                                    {summary.allergies.status}
+                                </p>
+                            )}
+                        </div>
+                    </div>
+
+                    {(rag.link ?? []).length > 0 && (
+                        <details className="rag-sources">
+                            <summary>
+                                Sources
+                            </summary>
+
+                            {(rag.link ?? []).map((source, index) => (
+                                <pre key={index}>
+                                    <a
+                                        href={source}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {source}
+                                    </a>
+                                </pre>
+                            ))}
+                        </details>
                     )}
-                </section>
-            </div>
+                </div>
+            </section>
 
             <section className="clinical-notes">
                 <div className="section-heading">
@@ -584,6 +614,7 @@ function DoctorConsultation() {
                                 setSubjective(event.target.value)
                             }
                             placeholder="Document the patient's symptoms, concerns, and relevant history..."
+                            disabled={isClosed}
                         />
                     </div>
 
@@ -605,6 +636,7 @@ function DoctorConsultation() {
                                 setObjective(event.target.value)
                             }
                             placeholder="Document observations, examination findings, and vital signs..."
+                            disabled={isClosed}
                         />
                     </div>
 
@@ -626,6 +658,7 @@ function DoctorConsultation() {
                                 setAssessment(event.target.value)
                             }
                             placeholder="Document your clinical assessment and diagnosis..."
+                            disabled={isClosed}
                         />
                     </div>
 
@@ -647,29 +680,32 @@ function DoctorConsultation() {
                                 setPlan(event.target.value)
                             }
                             placeholder="Document treatment, medications, follow-up, and patient instructions..."
+                            disabled={isClosed}
                         />
                     </div>
                 </div>
             </section>
 
-            <div className="consultation-footer">
-                {saveMessage && (
-                    <span className="save-message">
-                        {saveMessage}
-                    </span>
-                )}
+            {!isClosed && (
+                <div className="consultation-footer">
+                    {saveMessage && (
+                        <span className="save-message">
+                            {saveMessage}
+                        </span>
+                    )}
 
-                <button
-                    type="button"
-                    className="save-button"
-                    onClick={saveNotes}
-                    disabled={saving}
-                >
-                    {saving ? "Saving..." : "Save notes"}
-                </button>
-            </div>
+                    <button
+                        type="button"
+                        className="save-button"
+                        onClick={saveNotes}
+                        disabled={saving}
+                    >
+                        {saving ? "Saving..." : "Save notes"}
+                    </button>
+                </div>
+            )}
 
-            {showCloseConfirmation && (
+            {showCloseConfirmation && !isClosed && (
                 <div className="confirmation-overlay">
                     <div
                         className="confirmation-popup"

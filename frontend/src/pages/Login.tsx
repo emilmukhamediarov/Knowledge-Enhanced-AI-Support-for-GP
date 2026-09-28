@@ -11,11 +11,24 @@ function Login() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
+    // Email verification
     const [showVerification, setShowVerification] = useState(false);
     const [verificationEmail, setVerificationEmail] = useState("");
     const [verificationCode, setVerificationCode] = useState("");
     const [codeSent, setCodeSent] = useState(false);
     const [verificationLoading, setVerificationLoading] = useState(false);
+
+    // Password reset
+    const [showResetPassword, setShowResetPassword] = useState(false);
+    const [resetUsername, setResetUsername] = useState("");
+    const [resetEmail, setResetEmail] = useState("");
+    const [resetCode, setResetCode] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const [resetCodeSent, setResetCodeSent] = useState(false);
+    const [resetLoading, setResetLoading] = useState(false);
+    const [resetError, setResetError] = useState("");
+    const [resetSuccess, setResetSuccess] = useState("");
 
     const navigate = useNavigate();
 
@@ -101,6 +114,10 @@ function Login() {
             setLoading(false);
         }
     };
+
+    // --------------------------------------------------
+    // Email verification
+    // --------------------------------------------------
 
     const handleSendVerificationCode = async () => {
         setError("");
@@ -196,6 +213,162 @@ function Login() {
         setError("");
     };
 
+    // --------------------------------------------------
+    // Password reset
+    // --------------------------------------------------
+
+    const handleOpenResetPassword = () => {
+        setShowResetPassword(true);
+
+        setResetUsername(username);
+        setResetEmail("");
+        setResetCode("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setResetCodeSent(false);
+        setResetError("");
+        setResetSuccess("");
+
+        setError("");
+    };
+
+    const handleSendResetCode = async () => {
+        setResetError("");
+        setResetSuccess("");
+
+        const email = resetEmail.trim();
+        const resetUser = resetUsername.trim();
+
+        if (!resetUser) {
+            setResetError("Please enter your username.");
+            return;
+        }
+
+        if (!email) {
+            setResetError("Please enter your email address.");
+            return;
+        }
+
+        setResetLoading(true);
+
+        try {
+            await apiFetch("/auth/forgot-password", {
+                method: "POST",
+                body: JSON.stringify({
+                    email,
+                    username: resetUser,
+                }),
+            });
+
+            setResetCode("");
+            setResetCodeSent(true);
+
+        } catch (error) {
+            console.error("Forgot password error:", error);
+
+            if (error instanceof Error) {
+                setResetError(error.message);
+            } else {
+                setResetError("Unable to send password reset code.");
+            }
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
+    const handleResetPassword = async () => {
+        setResetError("");
+        setResetSuccess("");
+
+        const email = resetEmail.trim();
+        const code = resetCode.trim();
+
+        if (!email) {
+            setResetError("Please enter your email address.");
+            return;
+        }
+
+        if (code.length !== 6) {
+            setResetError("Please enter the 6-digit reset code.");
+            return;
+        }
+
+        if (!newPassword) {
+            setResetError("Please enter a new password.");
+            return;
+        }
+
+        if (!confirmPassword) {
+            setResetError("Please confirm your new password.");
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setResetError("Passwords do not match.");
+            return;
+        }
+
+        setResetLoading(true);
+
+        try {
+            await apiFetch("/auth/reset-password", {
+                method: "POST",
+                body: JSON.stringify({
+                    email,
+                    code,
+                    new_password: newPassword,
+                    confirm_password: confirmPassword,
+                }),
+            });
+
+            setResetSuccess(
+                "Password reset successfully. You can now log in."
+            );
+
+            setResetCode("");
+            setNewPassword("");
+            setConfirmPassword("");
+
+            /*
+             * Give the user a moment to see the success message,
+             * then close the reset popup.
+             */
+            setTimeout(() => {
+                setShowResetPassword(false);
+                setResetCodeSent(false);
+                setResetSuccess("");
+                setResetError("");
+            }, 1500);
+
+        } catch (error) {
+            console.error("Reset password error:", error);
+
+            if (error instanceof Error) {
+                setResetError(error.message);
+            } else {
+                setResetError("Unable to reset password.");
+            }
+        } finally {
+            setResetLoading(false);
+        }
+    };
+
+    const handleCloseResetPassword = () => {
+        if (resetLoading) {
+            return;
+        }
+
+        setShowResetPassword(false);
+        setResetUsername("");
+        setResetEmail("");
+        setResetCode("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setResetCodeSent(false);
+        setResetError("");
+        setResetSuccess("");
+    };
+
     return (
         <div className="login-page">
 
@@ -240,6 +413,19 @@ function Login() {
                     )}
 
                 </form>
+
+                <button
+                    type="button"
+                    className="forgot-password-link"
+                    onClick={handleOpenResetPassword}
+                    disabled={loading || verificationLoading}
+                >
+                    Forgot password?
+                </button>
+
+                {error && !showVerification && (
+                    <p>{error}</p>
+                )}
 
                 <div className="register-prompt">
                     <span>Don't have an account?</span>
@@ -394,6 +580,200 @@ function Login() {
                                     className="verification-cancel"
                                     onClick={handleCloseVerification}
                                     disabled={verificationLoading}
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        )}
+
+                    </div>
+
+                </div>
+            )}
+
+
+            {/* Password reset popup */}
+
+            {showResetPassword && (
+                <div className="verification-overlay">
+
+                    <div className="verification-modal reset-password-modal">
+
+                        {!resetCodeSent ? (
+                            <>
+                                <h2>Reset your password</h2>
+
+                                <p className="verification-description">
+                                    Enter your username and the email address
+                                    associated with your account to receive a
+                                    password reset code.
+                                </p>
+
+                                <label htmlFor="reset-username">
+                                    Username
+                                </label>
+
+                                <input
+                                    id="reset-username"
+                                    type="text"
+                                    placeholder="Username"
+                                    value={resetUsername}
+                                    onChange={(e) =>
+                                        setResetUsername(e.target.value)
+                                    }
+                                    disabled={resetLoading}
+                                    autoFocus
+                                />
+
+                                <label htmlFor="reset-email">
+                                    Email
+                                </label>
+
+                                <input
+                                    id="reset-email"
+                                    type="email"
+                                    placeholder="Email"
+                                    value={resetEmail}
+                                    onChange={(e) =>
+                                        setResetEmail(e.target.value)
+                                    }
+                                    disabled={resetLoading}
+                                />
+
+                                {resetError && (
+                                    <p className="login-verification-error">
+                                        {resetError}
+                                    </p>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="login-button verification-button"
+                                    onClick={handleSendResetCode}
+                                    disabled={resetLoading}
+                                >
+                                    {resetLoading
+                                        ? "Sending..."
+                                        : "Send Reset Code"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="verification-cancel"
+                                    onClick={handleCloseResetPassword}
+                                    disabled={resetLoading}
+                                >
+                                    Cancel
+                                </button>
+                            </>
+                        ) : (
+                            <>
+                                <h2>Reset your password</h2>
+
+                                <p className="verification-description">
+                                    We've sent a 6-digit reset code to:
+                                </p>
+
+                                <p className="verification-email">
+                                    {resetEmail}
+                                </p>
+
+                                <label htmlFor="reset-code">
+                                    Reset Code
+                                </label>
+
+                                <input
+                                    id="reset-code"
+                                    className="verification-input"
+                                    type="text"
+                                    inputMode="numeric"
+                                    autoComplete="one-time-code"
+                                    maxLength={6}
+                                    placeholder="000000"
+                                    value={resetCode}
+                                    onChange={(e) =>
+                                        setResetCode(
+                                            e.target.value
+                                                .replace(/\D/g, "")
+                                                .slice(0, 6)
+                                        )
+                                    }
+                                    disabled={resetLoading}
+                                    autoFocus
+                                />
+
+                                <label htmlFor="new-password">
+                                    New Password
+                                </label>
+
+                                <input
+                                    id="new-password"
+                                    type="password"
+                                    placeholder="New password"
+                                    value={newPassword}
+                                    onChange={(e) =>
+                                        setNewPassword(e.target.value)
+                                    }
+                                    disabled={resetLoading}
+                                />
+
+                                <label htmlFor="confirm-password">
+                                    Confirm New Password
+                                </label>
+
+                                <input
+                                    id="confirm-password"
+                                    type="password"
+                                    placeholder="Confirm new password"
+                                    value={confirmPassword}
+                                    onChange={(e) =>
+                                        setConfirmPassword(e.target.value)
+                                    }
+                                    disabled={resetLoading}
+                                />
+
+                                {resetError && (
+                                    <p className="login-verification-error">
+                                        {resetError}
+                                    </p>
+                                )}
+
+                                {resetSuccess && (
+                                    <p className="reset-password-success">
+                                        {resetSuccess}
+                                    </p>
+                                )}
+
+                                <button
+                                    type="button"
+                                    className="login-button verification-button"
+                                    onClick={handleResetPassword}
+                                    disabled={
+                                        resetLoading ||
+                                        resetCode.length !== 6 ||
+                                        !newPassword ||
+                                        !confirmPassword
+                                    }
+                                >
+                                    {resetLoading
+                                        ? "Resetting..."
+                                        : "Reset Password"}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="resend-code-button"
+                                    onClick={handleSendResetCode}
+                                    disabled={resetLoading}
+                                >
+                                    Resend Code
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="verification-cancel"
+                                    onClick={handleCloseResetPassword}
+                                    disabled={resetLoading}
                                 >
                                     Cancel
                                 </button>
