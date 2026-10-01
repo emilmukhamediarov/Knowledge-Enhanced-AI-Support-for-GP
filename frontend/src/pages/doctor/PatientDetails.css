@@ -242,6 +242,96 @@
     font-size: 0.9rem;
 }
 
+.medical-card .patient-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.medical-edit-button,
+.medical-save-button,
+.medical-cancel-button {
+    border: 1px solid var(--color-border);
+    border-radius: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.medical-edit-button,
+.medical-save-button {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.medical-edit-button:hover,
+.medical-save-button:hover {
+    opacity: 0.9;
+}
+
+.medical-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.medical-cancel-button {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.medical-cancel-button:hover {
+    background: var(--hover-bg);
+}
+
+.medical-edit-button:disabled,
+.medical-save-button:disabled,
+.medical-cancel-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.medical-info-section textarea {
+    display: block;
+    width: 100%;
+    min-height: 90px;
+    box-sizing: border-box;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.4rem;
+    background: var(--bg);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+.medical-info-section textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.medical-info-section textarea::placeholder {
+    color: var(--text);
+    opacity: 0.6;
+}
+
+.medical-error {
+    margin: 1rem 1.25rem 0;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    border-radius: 0.4rem;
+    background: rgba(220, 38, 38, 0.08);
+    color: #b91c1c;
+    font-size: 0.8rem;
+}
+
 @media (max-width: 900px) {
     .patient-details-grid {
         grid-template-columns: 1fr;

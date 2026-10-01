@@ -499,6 +499,78 @@ html.theme-dark .save-button:hover:not(:disabled) {
     text-decoration: underline;
 }
 
+.unsaved-changes-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1000;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.unsaved-changes-modal {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    box-sizing: border-box;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.18);
+}
+
+.unsaved-changes-modal h2 {
+    margin: 0 0 10px;
+    color: var(--text-h);
+    font-size: 21px;
+    font-weight: 700;
+}
+
+.unsaved-changes-modal p {
+    margin: 0;
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.unsaved-changes-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 24px;
+}
+
+.unsaved-changes-actions button {
+    border: none;
+    border-radius: 7px;
+    padding: 9px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.unsaved-changes-stay {
+    background: var(--hover-bg);
+    color: var(--text-h);
+}
+
+.unsaved-changes-stay:hover {
+    background: var(--border);
+}
+
+.unsaved-changes-discard {
+    background: var(--accent);
+    color: #fff;
+}
+
+.unsaved-changes-discard:hover {
+    opacity: 0.9;
+}
+
 /*Mobile temp - Can fix if not working */
 
 @media (max-width: 768px) {

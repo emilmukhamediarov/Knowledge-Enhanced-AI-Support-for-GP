@@ -165,6 +165,10 @@ function Register() {
                 "Account created successfully! You can now log in."
             );
 
+            setTimeout(() => {
+                navigate("/login");
+            }, 2000);
+
         } catch (error) {
             console.error("Email verification error:", error);
 

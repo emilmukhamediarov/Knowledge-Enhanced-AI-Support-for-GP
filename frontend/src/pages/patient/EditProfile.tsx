@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useBlocker } from "react-router-dom";
 import { apiFetch } from "../../api/client";
 import "./EditProfile.css";
 
@@ -66,6 +67,18 @@ function EditProfile() {
     const [saving, setSaving] = useState(false);
     const [savingDoctor, setSavingDoctor] = useState(false);
 
+    const [savedProfile, setSavedProfile] = useState({
+        name: "",
+        dateOfBirth: "",
+        preferredLanguage: "",
+        ethnicity: "",
+        medicalHistory: "",
+        allergies: "",
+        medications: "",
+        selectedDoctor: "",
+    });
+
+
     const [message, setMessage] = useState("");
     const [doctorMessage, setDoctorMessage] = useState("");
 
@@ -78,6 +91,18 @@ function EditProfile() {
     const [resetLoading, setResetLoading] = useState(false);
     const [resetError, setResetError] = useState("");
     const [resetSuccess, setResetSuccess] = useState("");
+
+    const hasUnsavedChanges =
+        name !== savedProfile.name ||
+        dateOfBirth !== savedProfile.dateOfBirth ||
+        preferredLanguage !== savedProfile.preferredLanguage ||
+        ethnicity !== savedProfile.ethnicity ||
+        medicalHistory !== savedProfile.medicalHistory ||
+        allergies !== savedProfile.allergies ||
+        medications !== savedProfile.medications ||
+        selectedDoctor !== savedProfile.selectedDoctor;
+
+    const blocker = useBlocker(hasUnsavedChanges);
 
     useEffect(() => {
         const loadProfile = async () => {
@@ -106,29 +131,49 @@ function EditProfile() {
                         : ""
                 );
 
-                setName(userData.name || "");
-                setDateOfBirth(
-                    userData.date_of_birth || ""
-                );
-                setPreferredLanguage(
-                    userData.preferred_language || ""
-                );
-                setEthnicity(userData.ethnicity || "");
-                setMedicalHistory(
-                    userData.medical_history || ""
-                );
+                const initialName = userData.name || "";
+                const initialDateOfBirth =
+                    userData.date_of_birth || "";
+                const initialPreferredLanguage =
+                    userData.preferred_language || "";
+                const initialEthnicity =
+                    userData.ethnicity || "";
+                const initialMedicalHistory =
+                    userData.medical_history || "";
 
-                setAllergies(
+                const initialAllergies =
                     Array.isArray(userData.allergies)
                         ? userData.allergies.join(", ")
-                        : ""
-                );
+                        : "";
 
-                setMedications(
+                const initialMedications =
                     Array.isArray(userData.medications)
                         ? userData.medications.join(", ")
-                        : ""
-                );
+                        : "";
+
+                const initialDoctor =
+                    myDoctor?.doctor?.id != null
+                        ? String(myDoctor.doctor.id)
+                        : "";
+
+                setName(initialName);
+                setDateOfBirth(initialDateOfBirth);
+                setPreferredLanguage(initialPreferredLanguage);
+                setEthnicity(initialEthnicity);
+                setMedicalHistory(initialMedicalHistory);
+                setAllergies(initialAllergies);
+                setMedications(initialMedications);
+
+                setSavedProfile({
+                    name: initialName,
+                    dateOfBirth: initialDateOfBirth,
+                    preferredLanguage: initialPreferredLanguage,
+                    ethnicity: initialEthnicity,
+                    medicalHistory: initialMedicalHistory,
+                    allergies: initialAllergies,
+                    medications: initialMedications,
+                    selectedDoctor: initialDoctor,
+                });
             } catch (error) {
                 console.error(
                     "Failed to load profile:",
@@ -144,6 +189,31 @@ function EditProfile() {
 
         void loadProfile();
     }, []);
+
+    useEffect(() => {
+        const handleBeforeUnload = (
+            event: BeforeUnloadEvent
+        ) => {
+            if (!hasUnsavedChanges) {
+                return;
+            }
+
+            event.preventDefault();
+            event.returnValue = "";
+        };
+
+        window.addEventListener(
+            "beforeunload",
+            handleBeforeUnload
+        );
+
+        return () => {
+            window.removeEventListener(
+                "beforeunload",
+                handleBeforeUnload
+            );
+        };
+    }, [hasUnsavedChanges]);
 
     const handleSaveDetails = async (
         event: React.FormEvent<HTMLFormElement>
@@ -182,6 +252,17 @@ function EditProfile() {
                 name
             );
 
+            setSavedProfile((current) => ({
+                ...current,
+                name,
+                dateOfBirth,
+                preferredLanguage,
+                ethnicity,
+                medicalHistory,
+                allergies,
+                medications,
+            }));
+
             setMessage(
                 "Your details have been saved."
             );
@@ -204,6 +285,11 @@ function EditProfile() {
 
     const handleAssignDoctor = async () => {
         if (!selectedDoctor) {
+            setSavedProfile((current) => ({
+                ...current,
+                selectedDoctor,
+            }));
+
             setDoctorMessage(
                 "Please select a doctor."
             );
@@ -962,6 +1048,37 @@ function EditProfile() {
 
                     </div>
 
+                </div>
+            )}
+
+            {blocker.state === "blocked" && (
+                <div className="unsaved-changes-overlay">
+                    <div className="unsaved-changes-modal">
+                        <h2>Unsaved changes</h2>
+
+                        <p>
+                            You have unsaved changes to your settings.
+                            Please save your settings before leaving.
+                        </p>
+
+                        <div className="unsaved-changes-actions">
+                            <button
+                                type="button"
+                                className="unsaved-changes-stay"
+                                onClick={() => blocker.reset()}
+                            >
+                                Stay on page
+                            </button>
+
+                            <button
+                                type="button"
+                                className="unsaved-changes-discard"
+                                onClick={() => blocker.proceed()}
+                            >
+                                Leave without saving
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
 
