@@ -668,12 +668,6 @@ function Chat() {
 
     return (
         <main className="chat-page">
-            {/* Avatar */}
-            <div
-                ref={avatarContainerRef}
-                className="avatar-container"
-            />
-
             {/* Reset confirmation */}
             {showResetConfirmation && (
                 <div className="reset-confirmation">
@@ -807,6 +801,8 @@ function Chat() {
                 </div>
             )}
 
+            <div className="chat-page-heading">
+                <h1>Consultation</h1>
             {/* Chat actions */}
             {status !== "closed" && (
                 <div className="chat-actions">
@@ -817,7 +813,7 @@ function Chat() {
                         }
                         className="reset-button"
                     >
-                        Reset Chat
+                        Reset
                     </button>
 
                     <button
@@ -827,7 +823,7 @@ function Chat() {
                         }
                         className="delete-button"
                     >
-                        Delete Chat
+                        Delete
                     </button>
 
                     <button
@@ -838,10 +834,12 @@ function Chat() {
                         className="ready-button"
                         disabled={readying}
                     >
-                        Submit
+                        Submit to GP
                     </button>
                 </div>
             )}
+
+            </div>
 
             {showClosedPopup && status === "closed" && (
                 <div className="closed-chat-popup">
@@ -877,6 +875,20 @@ function Chat() {
                 </div>
             )}
 
+            <section className="chat-conversation" aria-label="Conversation with AI assistant">
+                <header className="chat-assistant-header">
+                    <div
+                        ref={avatarContainerRef}
+                        className="avatar-container"
+                        role="img"
+                        aria-label="Animated AI assistant"
+                    />
+                    <div className="chat-assistant-details">
+                        <strong>Bitwise assistant</strong>
+                        <p>Here to collect details for your GP review</p>
+                    </div>
+                    <span className="chat-ai-label">AI assistant</span>
+                </header>
             {/* Scrollable messages */}
             <div className="messages">
                 {messages.length === 0 && (
@@ -886,7 +898,7 @@ function Chat() {
                         </h1>
 
                         <p>
-                            Tell me what’s bothering you, and I’ll help you work out what to do next.
+                            Tell me what you’d like to discuss. I’ll help collect the details for your GP to review.
                         </p>
                     </div>
                 )}
@@ -959,6 +971,7 @@ function Chat() {
             )}
 
             {/* Chat input */}
+            <div className="chat-composer">
             <div className="chat-input">
                 <textarea
                     ref={inputRef}
@@ -1036,6 +1049,9 @@ function Chat() {
                     </button>
                 </div>
             </div>
+                <p className="chat-submit-note">Submitting shares this conversation with your GP for review.</p>
+            </div>
+            </section>
         </main>
     );
 }

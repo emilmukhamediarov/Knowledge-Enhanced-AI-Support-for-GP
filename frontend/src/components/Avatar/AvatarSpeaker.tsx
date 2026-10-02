@@ -16,9 +16,10 @@ export class AvatarSpeaker {
   async init() {
     this.head = new TalkingHead(this.container, {
       lipsyncModules: ["en"],
-      cameraView: "upper",
+      cameraView: "head",
+      cameraX: -0.15,
       cameraY: 0.3,
-      cameraDistance: -0.2,
+      cameraDistance: 0.3,
     });
 
     await this.head.showAvatar({
