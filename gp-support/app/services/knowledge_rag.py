@@ -559,11 +559,6 @@ def _confidence_info(min_score: float | None) -> dict:
     actionable message for the GP, so they can judge at a glance how
     much to trust the grounding behind an answer.
 
-    Deliberately conservative: intended for use with the LOWEST score
-    among the chunks that grounded the answer, not the highest or an
-    average — since the answer draws on all retrieved chunks together,
-    the weakest one represents the real risk in the answer's grounding.
-
     Thresholds are approximate starting points based on typical cosine
     similarity ranges for this embedding model; adjust based on
     observed scores once more real queries have been tested.
