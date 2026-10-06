@@ -5,7 +5,7 @@ uvicorn[standard]==0.52.3
 
 groq==1.6.0
 pydantic==2.13.4
-psycopg[binary]
+
 
 # Packages for RAG:
 
@@ -29,3 +29,6 @@ sentence-transformers
 
 # For email verification
 email-validator
+
+# For running test
+pytest
