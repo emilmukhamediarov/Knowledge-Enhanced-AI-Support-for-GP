@@ -408,10 +408,6 @@ function Login() {
                         {loading ? "Logging in..." : "Login"}
                     </button>
 
-                    {error && !showVerification && (
-                        <p>{error}</p>
-                    )}
-
                 </form>
 
                 <button
