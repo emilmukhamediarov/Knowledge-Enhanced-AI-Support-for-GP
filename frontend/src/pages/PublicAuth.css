@@ -1,0 +1,70 @@
+/* Import after Login.css / Register.css. Scoped to the public auth pages. */
+.app-layout:has(.login-page),
+.app-layout:has(.register-page) {
+    overflow-y: auto;
+}
+
+.login-page,
+.register-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    height: auto;
+    max-height: none;
+    /* Match the existing 64px header. Content can grow beyond this minimum. */
+    min-height: calc(100vh - 64px);
+    min-height: calc(100svh - 64px);
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1.5rem 1rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    overflow: visible;
+    flex-shrink: 0;
+}
+
+.login-page > .login-form,
+.register-page > .register-form {
+    flex-shrink: 0;
+    margin: 0;
+}
+
+/* The existing switch follows the form instead of covering page buttons. */
+.login-page > .public-theme-footer,
+.register-page > .public-theme-footer {
+    position: static;
+    inset: auto;
+    transform: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0.5rem 0;
+    z-index: auto;
+}
+
+/* Keep tall verification / password-reset dialogs reachable on small screens. */
+.login-page .verification-overlay,
+.register-page .verification-overlay {
+    overflow-y: auto;
+    align-items: flex-start;
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+.login-page .verification-modal,
+.register-page .verification-modal {
+    flex-shrink: 0;
+    margin-block: auto;
+    max-height: none;
+}
+
+@media (max-width: 600px) {
+    .login-page,
+    .register-page {
+        justify-content: flex-start;
+        padding-top: 1rem;
+    }
+}

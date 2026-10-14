@@ -7,9 +7,9 @@ interface UserDetails {
     id: number;
     username: string;
     name: string;
-    email: string;
-    date_of_birth: string;
-    age: number;
+    email: string | null;
+    date_of_birth: string | null;
+    age: number | null;
     preferred_language: string;
     ethnicity: string | null;
     medical_history: string | null;
@@ -51,6 +51,14 @@ const languages = [
 ];
 
 function EditProfile() {
+    // Login.tsx must save the login response role before navigating here.
+    // This controls the UI only; the backend still enforces permissions.
+    const [role] = useState(() =>
+        (localStorage.getItem("role") || localStorage.getItem("userRole") || "")
+            .trim()
+            .toLowerCase()
+    );
+    const isPatient = role === "patient";
     const [user, setUser] = useState<UserDetails | null>(null);
     const [doctors, setDoctors] = useState<Doctor[]>([]);
 
@@ -100,33 +108,45 @@ function EditProfile() {
         medicalHistory !== savedProfile.medicalHistory ||
         allergies !== savedProfile.allergies ||
         medications !== savedProfile.medications ||
-        selectedDoctor !== savedProfile.selectedDoctor;
+        (isPatient && selectedDoctor !== savedProfile.selectedDoctor);
 
     const blocker = useBlocker(hasUnsavedChanges);
 
     useEffect(() => {
+        let active = true;
         const loadProfile = async () => {
             try {
-                const [userData, doctorData, myDoctorData] =
-                    await Promise.all([
-                        apiFetch("/users/me"),
-                        apiFetch("/users/doctors"),
-                        apiFetch("/users/me/doctor"),
-                    ]);
+                const userData: UserDetails = await apiFetch("/users/me");
+                if (!active) return;
 
+                let myDoctor: MyDoctorResponse = { doctor: null };
+                let availableDoctors: Doctor[] = [];
+
+                // These endpoints are patient-only. GP loading errors should
+                // not prevent either role from loading their own profile.
+                if (isPatient) {
+                    try {
+                        const [doctorData, myDoctorData] = await Promise.all([
+                            apiFetch("/users/doctors"),
+                            apiFetch("/users/me/doctor"),
+                        ]);
+                        if (!active) return;
+                        availableDoctors = Array.isArray(doctorData.doctors)
+                            ? doctorData.doctors
+                            : [];
+                        myDoctor = myDoctorData as MyDoctorResponse;
+                    } catch (error) {
+                        if (!active) return;
+                        console.error("Failed to load GP selection:", error);
+                        setDoctorMessage("Unable to load your doctor selection.");
+                    }
+                }
+
+                if (!active) return;
                 setUser(userData);
-
-                setDoctors(
-                    Array.isArray(doctorData.doctors)
-                        ? doctorData.doctors
-                        : []
-                );
-
-                const myDoctor =
-                    myDoctorData as MyDoctorResponse;
-
+                setDoctors(availableDoctors);
                 setSelectedDoctor(
-                    myDoctor?.doctor?.id != null
+                    myDoctor.doctor?.id != null
                         ? String(myDoctor.doctor.id)
                         : ""
                 );
@@ -175,6 +195,7 @@ function EditProfile() {
                     selectedDoctor: initialDoctor,
                 });
             } catch (error) {
+                if (!active) return;
                 console.error(
                     "Failed to load profile:",
                     error
@@ -183,12 +204,13 @@ function EditProfile() {
                     "Failed to load your profile."
                 );
             } finally {
-                setLoading(false);
+                if (active) setLoading(false);
             }
         };
 
         void loadProfile();
-    }, []);
+        return () => { active = false; };
+    }, [isPatient]);
 
     useEffect(() => {
         const handleBeforeUnload = (
@@ -231,7 +253,7 @@ function EditProfile() {
                 },
                 body: JSON.stringify({
                     name,
-                    date_of_birth: dateOfBirth,
+                    date_of_birth: dateOfBirth || null,
                     preferred_language: preferredLanguage,
                     ethnicity: ethnicity || null,
                     medical_history:
@@ -284,11 +306,9 @@ function EditProfile() {
     };
 
     const handleAssignDoctor = async () => {
+        if (!isPatient) return;
+
         if (!selectedDoctor) {
-            setSavedProfile((current) => ({
-                ...current,
-                selectedDoctor,
-            }));
 
             setDoctorMessage(
                 "Please select a doctor."
@@ -312,6 +332,10 @@ function EditProfile() {
                 }),
             });
 
+            setSavedProfile((current) => ({
+                ...current,
+                selectedDoctor,
+            }));
             setDoctorMessage(
                 "Your doctor has been updated."
             );
@@ -504,6 +528,16 @@ function EditProfile() {
                     <p className="profile-loading">
                         Loading your profile...
                     </p>
+                </div>
+            </main>
+        );
+    }
+
+    if (!user) {
+        return (
+            <main>
+                <div className="edit-profile">
+                    <p role="alert">{message || "Unable to load your profile."}</p>
                 </div>
             </main>
         );
@@ -755,73 +789,76 @@ function EditProfile() {
                     </div>
                 </form>
 
-                <section className="profile-section">
-                    <div className="section-heading">
-                        <h2>Your doctor</h2>
-                        <p>
-                            Choose the doctor assigned to your
-                            consultations.
-                        </p>
-                    </div>
-
-                    <div className="doctor-selection">
-
-                        <div className="profile-field">
-                            <label htmlFor="doctor">
-                                Select doctor
-                            </label>
-
-                            <select
-                                id="doctor"
-                                value={selectedDoctor}
-                                onChange={(event) =>
-                                    setSelectedDoctor(
-                                        event.target.value
-                                    )
-                                }
-                            >
-                                <option value="">
-                                    Select a doctor
-                                </option>
-
-                                {doctors.map((doctor) => (
-                                    <option
-                                        key={doctor.id}
-                                        value={String(
-                                            doctor.id
-                                        )}
-                                    >
-                                        {doctor.name}
-                                    </option>
-                                ))}
-                            </select>
+                {isPatient && (
+                    <section className="profile-section">
+                        <div className="section-heading">
+                            <h2>Your doctor</h2>
+                            <p>
+                                Choose the doctor assigned to your
+                                consultations.
+                            </p>
                         </div>
 
-                        <div className="doctor-actions">
-                            <button
-                                type="button"
-                                className="save-button"
-                                onClick={
-                                    handleAssignDoctor
-                                }
-                                disabled={
-                                    savingDoctor
-                                }
-                            >
-                                {savingDoctor
-                                    ? "Updating..."
-                                    : "Update doctor"}
-                            </button>
+                        <div className="doctor-selection">
 
-                            {doctorMessage && (
-                                <span className="save-message">
+                            <div className="profile-field">
+                                <label htmlFor="doctor">
+                                    Select doctor
+                                </label>
+
+                                <select
+                                    id="doctor"
+                                    value={selectedDoctor}
+                                    onChange={(event) =>
+                                        setSelectedDoctor(
+                                            event.target.value
+                                        )
+                                    }
+                                >
+                                    <option value="">
+                                        Select a doctor
+                                    </option>
+
+                                    {doctors.map((doctor) => (
+                                        <option
+                                            key={doctor.id}
+                                            value={String(
+                                                doctor.id
+                                            )}
+                                        >
+                                            {doctor.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div className="doctor-actions">
+                                <button
+                                    type="button"
+                                    className="save-button"
+                                    onClick={
+                                        handleAssignDoctor
+                                    }
+                                    disabled={
+                                        savingDoctor
+                                    }
+                                >
+                                    {savingDoctor
+                                        ? "Updating..."
+                                        : "Update doctor"}
+                                </button>
+
+                                {doctorMessage && (
+                                    <span className="save-message">
                                     {doctorMessage}
                                 </span>
-                            )}
-                        </div>
+                                )}
+                            </div>
 
-                    </div>
-                </section>
+                        </div>
+                    </section>
+
+                )}
 
                 <section className="profile-section password-section">
                     <div className="section-heading">

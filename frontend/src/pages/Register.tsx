@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Register.css";
+import "./PublicAuth.css";
 import { apiFetch } from "../api/client";
 import ThemeToggle from "../components/ThemeToggle";
 
@@ -293,7 +294,7 @@ function Register() {
 
             </div>
 
-            <div className="login-theme-toggle">
+            <div className="login-theme-toggle public-theme-footer" role="group" aria-label="Appearance">
                 <ThemeToggle />
             </div>
 
