@@ -68,3 +68,28 @@
         padding-top: 1rem;
     }
 }
+
+/* Own the scroll area rather than relying on an ancestor to scroll. */
+.register-page.register-page {
+    height: calc(100vh - 64px);
+    height: calc(100dvh - 64px);
+    min-height: 0;
+    max-height: none;
+    flex-shrink: 1;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* A full-width text button stays centered beneath the login action. */
+.login-form .forgot-password-link {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    align-self: center;
+    min-height: 44px;
+    margin: 0 !important;
+    padding: 0.5rem 0 !important;
+}
